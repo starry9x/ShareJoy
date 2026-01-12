@@ -1,29 +1,89 @@
+.hero {
+  position: relative;
+  width: 100%;
+}
+
 .image-container {
-  position: relative;       /* allows absolute positioning inside */
-  display: inline-block;    /* keeps container tight around image */
+  display: flex;
+  justify-content: center;   /* keep horizontal centering */
+  align-items: center;       /* keep vertical centering */
+  width: 100%;               /* let it span full width */
+  height: auto;              /* remove forced 100vh so it doesn’t shrink other content */
+  margin: 0 auto;            /* center the block itself */
 }
 
 .image-container img {
-  width: 100%;              /* scale image */
+  width: 100%;               /* let the image fill container width */
+  max-width: 1200px;         /* cap size so it doesn’t get too huge */
   height: auto;
+  border-radius: 10px;
 }
 
+
+.text-container {
+  position: absolute;
+  bottom: 48%;
+  left: 4%;
+  transform: none;
+  z-index: 50;
+  text-align: left;
+}
+
+.hero-text {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.6rem, 6vw, 4.5rem);
+  line-height: 1.05;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* keep your button overlay positioned and visible */
 .overlay-btn {
-    white-space: nowrap;
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    position: absolute;       /* position relative to container */
-    top: 70%;                 /* vertical placement */
-    left: 60%;                /* horizontal placement */
-    transform: translate(-50%, -50%); /* center the button */
-    background-color: #FF6200;
-    color: #582D00;
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    padding: 20px 40px; /* bigger inner spacing */ 
-    font-size: 30px; /* larger text */ 
-    width: 300px; /* optional fixed width */ 
-    height: 70px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 70%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  background-color: #FF6200;
+  color: #582D00;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  padding: 20px 40px;
+  font-size: 30px;
+  width: 350px;
+  height: 70px;
+  z-index: 60; /* above text and image */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  background: linear-gradient(135deg, #FF6200, #FF9A00); 
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.overlay-btn:hover {
+  background: linear-gradient(135deg, #FF9A00, #FFD000);
+  animation: slight-bounce 0.8s; /* run the bounce animation once */
+}
+
+@keyframes slight-bounce {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-5px); /* gentle 5px lift */
+  }
+}
+
+
+/* fix icon sizing and spacing */
+button i, .overlay-btn i {
+  font-size: 2.3rem; /* use font-size not size */
+  margin-left: 10px;
+  line-height: 1;
+}
+
+.our-mission {
+  color: #582D00;
 }

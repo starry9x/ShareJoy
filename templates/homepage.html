@@ -5,11 +5,16 @@
 {% endblock %}
 
 {% block content %}
-<h1>Home</h1>
-<p>Welcome.</p>
-<div class="image-container">
-    <img src="{{ url_for('static', filename='images/hero_pexel_img.png') }}" alt="Hero Image" class="img-fluid">
-    <button class="overlay-btn me-3 fw-semibold"> Start exploring now <i class="font-awesome fa-arrow-right"></i></button>
+<div class="hero">
+    <div class="text-container">
+        <h1 class="hero-text fw-bold">Bringing<br>elderly<br>and youth<br>together.</h1>
+    </div>
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='images/hero_pexel_img.png') }}" alt="Hero Image" class="img-fluid">
+        <button class="overlay-btn me-3 mb-3 fw-semibold"> Start exploring now <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <h1 class="mt-3 fw-bold our-mission">Our Mission</h1>
+    <h3 class="fw-semibold our-mission"> Fostering empathy. Reducing loneliness. Celebrating shared stories across generations.</h3>
 </div>
 
 {% endblock %}
