@@ -1,58 +1,35 @@
-<!doctype html>
-<html lang="en">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-md">
+    <div class="container-fluid align-items-center">
+        <a class="navbar-brand ms-3" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/navbar.png') }}" alt="ShareJoy" height="60"></a>
 
-<head>
-    <meta charset="utf-8">
-    <title>{{ title }}</title>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
-</head>
-
-<body>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-md">
-        <div class="container-fluid align-items-center">
-            <a class="navbar-brand ms-3" href="{{ url_for('home') }}"><img src="/static/images/navbar.png" alt="ShareJoy. Connect. Share. Enjoy." height="60"></a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link me-3 fw-bold {% if request.endpoint == 'home' %}active{% endif %}"
-                            href="{{ url_for('home') }}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link me-3 fw-bold {% if request.endpoint == 'groups' %}active{% endif %}"
-                            href="{{ url_for('groups') }}">Groups</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link me-3 fw-bold {% if request.endpoint == 'messages' %}active{% endif %}"
-                            href="{{ url_for('messages') }}">Messages</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link me-3 fw-bold {% if request.endpoint == 'activities' %}active{% endif %}"
-                            href="{{ url_for('activities') }}">Activities</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link me-3 fw-bold {% if request.endpoint == 'profile' %}active{% endif %}"
-                            href="{{ url_for('profile') }}">Profile</a>
-                    </li>
-                </ul>
-            </div>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link me-3 fw-bold {% if request.endpoint == 'home' %}active{% endif %}"
+                        href="{{ url_for('home') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link me-3 fw-bold {% if request.endpoint == 'groups' %}active{% endif %}"
+                        href="{{ url_for('groups') }}">Groups</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link me-3 fw-bold {% if request.endpoint == 'messages' %}active{% endif %}"
+                        href="{{ url_for('messages') }}">Messages</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link me-3 fw-bold {% if request.endpoint == 'activities' %}active{% endif %}"
+                        href="{{ url_for('activities') }}">Activities</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link me-3 fw-bold {% if request.endpoint == 'profile' %}active{% endif %}"
+                        href="{{ url_for('profile') }}">Profile</a>
+                </li>
+            </ul>
         </div>
-    </nav>
-
-    <!-- Page Content -->
-    <div class="container mt-4">
-        {% block content %}{% endblock %}
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+</nav>

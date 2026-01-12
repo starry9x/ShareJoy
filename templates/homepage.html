@@ -1,7 +1,7 @@
-{% extends "navbar.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 <h1>Home</h1>
 <p>Welcome.</p>
+<img src="{{ url_for('static', filename='images/hero_pexel_img.png') }}" alt="Hero Image" class="img-fluid">
 {% endblock %}
-<img src="images/hero_pexel_img.jpg" alt="Hero Image">
