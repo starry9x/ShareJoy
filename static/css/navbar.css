@@ -1,6 +1,25 @@
-.navbar {
+/* .navbar {
     background-color: #FFDCB7;
-}
+} */
 .navbar .nav-link {
     font-size: 1.3rem;
+    color:#ad5b02;
+}
+
+.nav-link.active, .nav-link:hover {
+    color: #582D00 !important;
+}
+
+.navbar-toggler:hover,
+.navbar-toggler.active {
+    transform: translateY(-6px);
+    transition: transform 0.3s ease, border 0.3s ease;
+}
+
+.navbar-toggler {
+    transition: transform 0.3s ease, border 0.3s ease;
+}
+
+.navbar {
+    background-image: linear-gradient(90deg, #FFDCB7, #ffbba5);
 }
