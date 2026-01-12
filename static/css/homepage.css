@@ -1,0 +1,22 @@
+.image-container {
+  position: relative;       /* allows absolute positioning inside */
+  display: inline-block;    /* keeps container tight around image */
+}
+
+.image-container img {
+  width: 100%;              /* scale image */
+  height: auto;
+}
+
+.overlay-btn {
+  position: absolute;       /* position relative to container */
+  top: 50%;                 /* vertical placement */
+  left: 50%;                /* horizontal placement */
+  transform: translate(-50%, -50%); /* center the button */
+  padding: 10px 20px;
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

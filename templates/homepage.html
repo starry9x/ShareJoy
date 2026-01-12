@@ -3,5 +3,9 @@
 {% block content %}
 <h1>Home</h1>
 <p>Welcome.</p>
-<img src="{{ url_for('static', filename='images/hero_pexel_img.png') }}" alt="Hero Image" class="img-fluid">
+<div class="image-container">
+    <img src="{{ url_for('static', filename='images/hero_pexel_img.png') }}" alt="Hero Image" class="img-fluid">
+    <button class="overlay-btn">Start exploring now </button>
+</div>
+
 {% endblock %}
