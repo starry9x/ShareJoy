@@ -1,7 +1,8 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-md">
     <div class="container-fluid align-items-center">
-        <a class="navbar-brand ms-3" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/navbar.png') }}" alt="ShareJoy" height="60"></a>
+        <a class="navbar-brand ms-3" href="{{ url_for('home') }}"><img
+                src="{{ url_for('static', filename='images/navbar.png') }}" alt="ShareJoy" height="60"></a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -24,6 +25,18 @@
                 <li class="nav-item">
                     <a class="nav-link me-3 fw-bold {% if request.endpoint == 'activities' %}active{% endif %}"
                         href="{{ url_for('activities') }}">Activities</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle me-3 fw-bold {% if request.endpoint == 'activities' %}active{% endif %}"
+                        href="#" id="activitiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Activities
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="activitiesDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('activity1') }}">Activity 1</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('activity2') }}">Activity 2</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('activity3') }}">Activity 3</a></li>
+                    </ul>
+                </li>
+
                 </li>
                 <li class="nav-item">
                     <a class="nav-link me-3 fw-bold {% if request.endpoint == 'profile' %}active{% endif %}"

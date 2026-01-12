@@ -12,6 +12,12 @@ def messages():
 @app.route("/activities")
 def activities():
     return render_template("activities.html", title="Activities")
+@app.route("/explore")
+def explore():
+    return render_template("explore.html", title="Explore")
+@app.route("/schedule")
+def schedule():
+    return render_template("schedule.html", title="Schedule")
 @app.route("/profile")
 def profile():
     return render_template("profile.html", title="Profile")
