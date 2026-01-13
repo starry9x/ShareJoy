@@ -11,9 +11,15 @@
     <p>Spark a dialogue and strengthen the bond.</p>
 </div>
 
-<div class="contact-box">
-    <h1>Grandma Michelle</h1>
-    <p>Last chatted with 10mins ago</p>
+<div class="contact-box d-flex align-items-center">
+    <div class="d-flex align-items-center">
+        <img src="{{ url_for('static', filename='images/grandma_michelle_pfp.png') }}"alt="Profile Image" class="circle-image">
+        <div>
+            <h1 class="mb-1 me-5">Grandma Michelle</h1>
+            <p class="mb-0">Last chatted with 10 mins ago</p>
+        </div> 
+    </div>
 </div>
+
 
 {% endblock %}

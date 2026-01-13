@@ -9,15 +9,27 @@
     border-radius: 15px;      
 }
 
-.contact-box{
-    display: flexbox;
+.contact-box {
     width: 100%;
     min-height: 150px;      
-    color: black;        
     background-color: #FFEBD6;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.6);       
+    border-radius: 10px;
+    color: black;        
+    box-shadow: 0 0px 8px rgba(0,0,0,0.6);       
     padding: 20px;                  
     margin: 20px auto;       
+    display: flex;              /* make it a flex container */
+    flex-direction: column;     /* stack text elements */
+    justify-content: center;    /* vertical center */
+    align-items: flex-start;    /* keep text left-aligned */
+}
+
+.circle-image {
+  width: 150px;       /* set width */
+  height: 150px;      /* set height (same as width for perfect circle) */
+  border-radius: 50%; /* makes it circular */
+  object-fit: cover;
+  margin-right: 80px; 
 }
 
 h1{
