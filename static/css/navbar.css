@@ -1,5 +1,8 @@
-.navbar, .dropdown-menu {
+.navbar,
+.dropdown-menu {
     background: linear-gradient(90deg, #FFDCB7, #ffbba5);
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .navbar .nav-link,
@@ -15,15 +18,10 @@
     color: #582D00 !important;
 }
 
-.navbar-toggler{
+.navbar-toggler {
     transition: transform 0.3s ease;
 }
 
 .dropdown-item:hover {
     background-color: transparent !important;
-}
-
-.dropdown-menu, .navbar-toggler {
-    border: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
