@@ -4,7 +4,7 @@
 
 .navbar .nav-link,
 .dropdown-item {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: #ad5b02;
     transition: color 0.3s ease, transform 0.3s ease;
 }
@@ -23,4 +23,7 @@
     background-color: transparent !important;
 }
 
-
+.dropdown-menu, .navbar-toggler {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
