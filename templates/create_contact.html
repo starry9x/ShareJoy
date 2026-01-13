@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="section-box">
+    <h1>My Chats</h1>
+    <p>Spark a dialogue and strengthen the bond.</p>
+</div>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Create Contact</h1>
+  <form method="POST" action="{{ url_for('create_contact') }}">
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    <div class="mb-3">
+      <label for="phone" class="form-label">Phone</label>
+      <input type="text" class="form-control" id="phone" name="phone">
+    </div>
+    <div class="mb-3">
+      <label for="short_desc" class="form-label">Short Description (optional)</label>
+      <input type="text" class="form-control" id="short_desc" name="short_desc">
+    </div>
+    <button type="submit" class="btn btn-primary">Save Contact</button>
+    <a href="{{ url_for('messages') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

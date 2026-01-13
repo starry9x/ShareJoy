@@ -17,7 +17,7 @@
   height: 150px;      /* set height (same as width for perfect circle) */
   border-radius: 50%; /* makes it circular */
   object-fit: cover;
-  margin-right: 80px; 
+  margin-right: 70px; 
 }
 
 h1{
