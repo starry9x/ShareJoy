@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/activities.css') }}">
+{% endblock %}
+
 {% block content %}
-<h1>Activities</h1>
-<p>uwu hi.</p>
+
+<div class="section-box">
+    <h1>My Activities</h1>
+    <p>You are currently managing {{ num_activities }} activities.</p>
+</div>
+
 {% endblock %}

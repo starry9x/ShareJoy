@@ -1,0 +1,17 @@
+.section-box {
+    width: 100%;
+    min-height: 100px;      
+    color: #582D00;        
+    background-color: #FDF6F0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    padding-top: 20px;
+    padding-bottom: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 20px auto;
+    border-radius: 15px;
+}
+
+h1{
+    font-size: 2rem;
+}
