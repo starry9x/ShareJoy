@@ -6,9 +6,54 @@
 
 {% block content %}
 
-<div class="section-box">
-    <h1>My Activities</h1>
-    <p>You are currently managing {{ num_activities }} activities.</p>
+<div class="section-box d-flex justify-content-between align-items-center">
+    <div>
+        <h1>My Activities</h1>
+        <p>You are currently managing {{ num_activities }} activities.</p>
+    </div>
+    <a href="#" class="btn btn-danger activity-btn me-2 fw-semibold"><i class="fa-solid fa-plus" aria-hidden="true"></i> Create Activity</a>
+</div>
+
+
+<div class="row">
+    {% for activity in activities %}
+    <div class="col-md-6">
+        <div class="activity-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="mb-0">{{ activity.name }}</h5>
+                {% if activity.type == 'Social' %}
+                <span class="badge badge-social">Social</span>
+                {% elif activity.type == 'Nature' %}
+                <span class="badge badge-nature">Nature</span>
+                {% endif %}
+            </div>
+            <p>{{ activity.description }}</p>
+
+            <div class="d-flex flex-wrap gap-2 mb-2">
+                <span>📅 {{ activity.date }}, {{ activity.time }}</span>
+                <span>⏱ {{ activity.duration }}</span>
+                <span>📍 {{ activity.location }}</span>
+                <span class="badge {% if activity.energy == 'Low' %}energy-low{% else %}energy-medium{% endif %}">
+                    {{ activity.energy }} energy
+                </span>
+                <span class="badge participants">{{ activity.participants }}/{{ activity.max_participants }}
+                    participants</span>
+            </div>
+
+            <div class="activity-tags mb-2">
+                {% for tag in activity.tags %}
+                <span>#{{ tag }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary">✏️</button>
+                <button class="btn btn-sm btn-outline-danger">🗑️</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 </div>
 
 {% endblock %}
