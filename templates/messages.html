@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
+{% endblock %}
+
 {% block content %}
-<h1>Home</h1>
-<p>Welcome.</p>
+<div class="my-chats-box">
+    <h1>My Chats</h1>
+    <p>Spark a dialogue and strengthen the bond.</p>
+</div>
+
 {% endblock %}
