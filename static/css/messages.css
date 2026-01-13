@@ -1,22 +1,10 @@
-.my-chats-box {
-    width: 100%;
-    min-height: 100px;      
-    color: #582D00;        
-    background-color: #FDF6F0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.6);       
-    padding: 20px;                  
-    margin: 20px auto;      
-    border-radius: 15px;      
-}
-
 .contact-box {
     width: 100%;
-    min-height: 150px;      
+    min-height: 150px;  
+    color: black;    
     background-color: #FFEBD6;
-    border-radius: 10px;
-    color: black;        
-    box-shadow: 0 0px 8px rgba(0,0,0,0.6);       
-    padding: 20px;                  
+    box-shadow: 0 0px 8px rgba(0,0,0,0.6);  
+    border-radius: 10px;                               
     margin: 20px auto;       
     display: flex;              /* make it a flex container */
     flex-direction: column;     /* stack text elements */
