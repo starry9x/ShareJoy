@@ -1,11 +1,12 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'  # or MySQL/Postgres
+from extensions import db, migrate
+from activities import Activity  # now safe to import
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
+
+db.init_app(app)
+migrate.init_app(app, db)
 
 activities_list = [
     {
