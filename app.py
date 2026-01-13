@@ -1,5 +1,10 @@
 from flask import Flask, render_template
 app = Flask(__name__)
+
+activities_list = [
+    
+]
+
 @app.route("/")
 def home():
     return render_template("homepage.html", title="Home")
@@ -11,7 +16,12 @@ def messages():
     return render_template("messages.html", title="Messages")
 @app.route("/activities")
 def activities():
-    return render_template("activities.html", title="Activities")
+    num_activities = len(activities_list)
+    return render_template(
+        "activities.html",
+        title="Activities",
+        num_activities=num_activities)
+
 @app.route("/explore")
 def explore():
     return render_template("explore.html", title="Explore")
