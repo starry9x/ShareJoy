@@ -6,54 +6,79 @@
 
 {% block content %}
 
-<div class="section-box d-flex justify-content-between align-items-center">
+<div class="section-box d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
     <div>
         <h1>My Activities</h1>
-        <p>You are currently managing {{ num_activities }} activities.</p>
+        <p>
+            You are currently managing {{ num_activities }}
+            {% if num_activities == 1 %}activity{% else %}activities{% endif %}.
+        </p>
     </div>
-    <a href="#" class="btn btn-danger activity-btn me-2 fw-semibold"><i class="fa-solid fa-plus" aria-hidden="true"></i> Create Activity</a>
+    <a href="#" class="btn btn-danger activity-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i> Create Activity
+    </a>
 </div>
+
+
 
 
 <div class="row">
     {% for activity in activities %}
-    <div class="col-md-6">
-        <div class="activity-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <h5 class="mb-0">{{ activity.name }}</h5>
-                {% if activity.type == 'Social' %}
-                <span class="badge badge-social">Social</span>
-                {% elif activity.type == 'Nature' %}
-                <span class="badge badge-nature">Nature</span>
-                {% endif %}
+    <div class="col-12 mb-3">
+        <div class="activity-card position-relative">
+            <div class="card-actions position-absolute top-0 end-0 d-flex gap-0">
+                <button class="btn edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn delete"><i class="fa-solid fa-trash-can"></i></button>
             </div>
-            <p>{{ activity.description }}</p>
+            <div class="text">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h5 class="mb-0">{{ activity.name }}</h5>
+                    {% if activity.type == 'Creative Arts' %}
+                    <span class="badge badge-creativearts">🎨Creative Arts</span>
+                    {% elif activity.type == 'Social' %}
+                    <span class="badge badge-social">🎲Social</span>
+                    {% elif activity.type == 'Learning' %}
+                    <span class="badge badge-learning">📖Learning</span>
+                    {% elif activity.type == 'Physical' %}
+                    <span class="badge badge-physical">🏃Physical</span>
+                    {% elif activity.type == 'Nature' %}
+                    <span class="badge badge-nature">🌲Nature</span>
+                    {% elif activity.type == 'Technology' %}
+                    <span class="badge badge-technology">💻Technology</span>
+                    {% endif %}
+                </div>
 
-            <div class="d-flex flex-wrap gap-2 mb-2">
-                <span>📅 {{ activity.date }}, {{ activity.time }}</span>
-                <span>⏱ {{ activity.duration }}</span>
-                <span>📍 {{ activity.location }}</span>
-                <span class="badge {% if activity.energy == 'Low' %}energy-low{% else %}energy-medium{% endif %}">
-                    {{ activity.energy }} energy
-                </span>
-                <span class="badge participants">{{ activity.participants }}/{{ activity.max_participants }}
-                    participants</span>
-            </div>
+                <p>{{ activity.description }}</p>
 
-            <div class="activity-tags mb-2">
-                {% for tag in activity.tags %}
-                <span>#{{ tag }}</span>
-                {% endfor %}
-            </div>
+                <div class="d-flex flex-wrap gap-2 mb-2 fw-semibold">
+                    <span>📅 {{ activity.date }}, {{ activity.time }}</span>
+                    <span>⏱ {{ activity.duration }}</span>
+                    <span>📍 {{ activity.location }}</span>
+                </div>
 
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary">✏️</button>
-                <button class="btn btn-sm btn-outline-danger">🗑️</button>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="badge 
+                    {% if activity.energy == 'Low' %}energy-low
+                    {% elif activity.energy == 'Medium' %}energy-medium
+                    {% elif activity.energy == 'High' %}energy-high
+                    {% endif %}">
+                        ⚡{{ activity.energy }} energy
+                    </span>
+                    <span class="badge participants">🫂{{ activity.participants }}/{{ activity.max_participants }}
+                        participants</span>
+                </div>
+
+                <div class="activity-tags mb-2">
+                    {% for tag in activity.tags %}
+                    <span>#{{ tag }}</span>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
-</div>
+
+
 
 {% endblock %}

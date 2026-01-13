@@ -1,17 +1,28 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///example.db'  # or MySQL/Postgres
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Import the Activity model
-from activities import Activity
+activities_list = [
+    {
+    "name": "Board Games Afternoon",
+    "description": "Join me for a fun board games session!",
+    "type": "Social",
+    "date": "20 Dec 2025",
+    "time": "2:00 PM",
+    "duration": "2 hours",
+    "location": "Community Center Game Room",
+    "energy": "Low",
+    "participants": 3,
+    "max_participants": 8,
+    "tags": ["boardgames", "cards", "puzzles", "socializing"]
+    }
+]
 
-activities_list = ["Board Games Afternoon"]
 
 @app.route("/")
 def home():
@@ -31,7 +42,8 @@ def activities():
     return render_template(
         "activities.html",
         title="Activities",
-        num_activities=num_activities
+        num_activities=num_activities,
+        activities=activities_list
     )
 
 @app.route("/explore")
