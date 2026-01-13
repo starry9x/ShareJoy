@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from extensions import db, migrate
-from activities import Activity  # now safe to import
+from messages import Message
+from activities import Activity  
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
@@ -33,9 +34,25 @@ def home():
 def groups():
     return render_template("groups.html", title="Groups")
 
+from flask import request, redirect, url_for
+
 @app.route("/messages")
 def messages():
     return render_template("messages.html", title="Messages")
+
+@app.route("/textchat", methods=["GET", "POST"])
+def textchat():
+    if request.method == "POST":
+        username = request.form.get("username")
+        content = request.form.get("content")
+        if username and content:
+            new_msg = Message(username=username, content=content)
+            db.session.add(new_msg)
+            db.session.commit()
+        return redirect(url_for("textchat"))
+
+    all_messages = Message.query.order_by(Message.timestamp.asc()).all()
+    return render_template("textchat.html", messages=all_messages, title="Chat Room")
 
 @app.route("/activities")
 def activities():

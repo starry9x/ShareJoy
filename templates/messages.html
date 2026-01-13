@@ -11,7 +11,7 @@
     <p>Spark a dialogue and strengthen the bond.</p>
 </div>
 
-<div class="contact-box d-flex align-items-center">
+<div class="contact-box d-flex align-items-center" onclick="window.location.href='{{ url_for('textchat') }}'">
     <div class="d-flex align-items-center">
         <img src="{{ url_for('static', filename='images/grandma_michelle_pfp.png') }}"alt="Profile Image" class="circle-image">
         <div>
@@ -20,6 +20,7 @@
         </div> 
     </div>
 </div>
+
 
 
 {% endblock %}
