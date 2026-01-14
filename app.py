@@ -9,23 +9,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
 db.init_app(app)
 migrate.init_app(app, db)
 
-activities_list = [
-    {
-    "name": "Board Games Afternoon",
-    "description": "Join me for a fun board games session!",
-    "type": "Social",
-    "date": "20 Dec 2025",
-    "time": "2:00 PM",
-    "duration": "2 hours",
-    "location": "Community Center Game Room",
-    "energy": "Low",
-    "participants": 3,
-    "max_participants": 8,
-    "tags": ["boardgames", "cards", "puzzles", "socializing"]
-    }
-]
-
-
 @app.route("/")
 def home():
     return render_template("homepage.html", title="Home")
@@ -73,12 +56,21 @@ def create_contact():
 
 @app.route("/activities")
 def activities():
-    num_activities = len(activities_list)
+    activities = Activity.query.all()
+
+    for activity in activities:
+        if activity.tags:
+            activity.tags = activity.tags.split(",")
+        else:
+            activity.tags = []
+
+    num_activities = len(activities)
+
     return render_template(
         "activities.html",
         title="Activities",
         num_activities=num_activities,
-        activities=activities_list
+        activities=activities
     )
 
 @app.route("/explore")

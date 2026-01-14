@@ -24,14 +24,14 @@
 
 <div class="row">
     {% for activity in activities %}
-    <div class="col-12 mb-3">
+    <div class="col-12 card-spacing">
         <div class="activity-card position-relative">
             <div class="card-actions position-absolute top-0 end-0 d-flex gap-0">
                 <button class="btn edit"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button class="btn delete"><i class="fa-solid fa-trash-can"></i></button>
             </div>
             <div class="text">
-                <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="d-flex align-items-center gap-2 spacing">
                     <h5 class="mb-0">{{ activity.name }}</h5>
                     {% if activity.type == 'Creative Arts' %}
                     <span class="badge badge-creativearts">🎨Creative Arts</span>
@@ -50,13 +50,13 @@
 
                 <p>{{ activity.description }}</p>
 
-                <div class="d-flex flex-wrap gap-2 mb-2 fw-semibold">
+                <div class="d-flex flex-wrap gap-2 fw-semibold spacing">
                     <span>📅 {{ activity.date }}, {{ activity.time }}</span>
                     <span>⏱ {{ activity.duration }}</span>
                     <span>📍 {{ activity.location }}</span>
                 </div>
 
-                <div class="d-flex flex-wrap gap-2 mb-2">
+                <div class="d-flex flex-wrap gap-2 spacing">
                     <span class="badge 
                     {% if activity.energy == 'Low' %}energy-low
                     {% elif activity.energy == 'Medium' %}energy-medium
@@ -68,7 +68,7 @@
                         participants</span>
                 </div>
 
-                <div class="activity-tags mb-2">
+                <div class="activity-tags spacing">
                     {% for tag in activity.tags %}
                     <span>#{{ tag }}</span>
                     {% endfor %}
