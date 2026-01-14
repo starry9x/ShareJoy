@@ -12,10 +12,11 @@
     transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.nav-link.active,
+.active,
 .nav-link:hover,
 .dropdown-item:hover {
     color: #582D00 !important;
+    background-color: transparent !important;
 }
 
 .navbar-toggler {

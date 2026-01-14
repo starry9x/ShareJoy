@@ -23,16 +23,32 @@
                         href="{{ url_for('messages') }}">Messages</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link me-3 dropdown-toggle fw-bold {% if request.endpoint in ['activities', 'explore', 'schedule'] %}active{% endif %}" href="#"
-                        id="activitiesDropdown" role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link me-3 dropdown-toggle fw-bold {% if request.endpoint in ['activities', 'explore', 'schedule'] %}active{% endif %}"
+                        href="#" id="activitiesDropdown" role="button" data-bs-toggle="dropdown">
                         Activities
                     </a>
 
                     <ul class="dropdown-menu p-1.5" aria-labelledby="activitiesDropdown">
-                        <li><a class="dropdown-item fw-bold" href="{{ url_for('activities') }}">My Activities</a></li>
-                        <li><a class="dropdown-item fw-bold" href="{{ url_for('explore') }}">Explore</a></li>
-                        <li><a class="dropdown-item fw-bold" href="{{ url_for('schedule') }}">My Schedule</a></li>
+                        <li>
+                            <a class="dropdown-item fw-bold {% if request.endpoint == 'activities' %}active{% endif %}"
+                                href="{{ url_for('activities') }}">
+                                My Activities
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item fw-bold {% if request.endpoint == 'explore' %}active{% endif %}"
+                                href="{{ url_for('explore') }}">
+                                Explore
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item fw-bold {% if request.endpoint == 'schedule' %}active{% endif %}"
+                                href="{{ url_for('schedule') }}">
+                                My Schedule
+                            </a>
+                        </li>
                     </ul>
+
                 </li>
 
                 <li class="nav-item">
