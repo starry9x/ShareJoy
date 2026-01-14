@@ -2,9 +2,159 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/activities.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/explore.css') }}">
 {% endblock %}
 
 {% block content %}
-<h1>explore</h1>
-<p>skibidi.</p>
+<div class="d-flex mb-3 align-items-center gap-2">
+    <form method="get" class="flex-grow-1 d-flex">
+        <input type="text" name="search" class="form-control me-2"
+            placeholder="Search activities by name, category or tag..." value="{{ request.args.get('search', '') }}">
+        <button type="submit" class="btn btn-outline-secondary">🔍</button>
+    </form>
+    <button id="toggle-filters" class="btn btn-outline-primary">Filters</button>
+</div>
+
+<div id="filters-container"
+    class="filters-container {% if request.args.get('category') or request.args.get('energy') or request.args.get('format') %}{% else %}filters-open{% endif %}"
+    data-start-open="true">
+
+    <!-- Categories -->
+    <div class="filters mb-3">
+        <strong>Categories</strong>
+        {% for cat in ['Creative Arts','Social','Learning','Physical','Nature','Technology'] %}
+        {% set args = request.args.to_dict() %}
+        {% if request.args.get('category') == cat %}
+        {% set _ = args.pop('category') %} {# unselect if already selected #}
+        {% else %}
+        {% set _ = args.update({'category': cat}) %}
+        {% endif %}
+        <a href="{{ url_for('explore', **args) }}"
+            class="btn btn-sm {% if request.args.get('category')==cat %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            {{ cat }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Energy -->
+    <div class="filters mb-3">
+        <strong>Energy Level</strong>
+        {% for en in ['Low','Medium','High'] %}
+        {% set args = request.args.to_dict() %}
+        {% if request.args.get('energy') == en %}
+        {% set _ = args.pop('energy') %} {# unselect if already selected #}
+        {% else %}
+        {% set _ = args.update({'energy': en}) %}
+        {% endif %}
+        <a href="{{ url_for('explore', **args) }}"
+            class="btn btn-sm {% if request.args.get('energy')==en %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+            {{ en }} energy
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Format -->
+    <div class="filters mb-3">
+        <strong>Format</strong>
+        {% for fmt in ['Online','In-Person'] %}
+        {% set args = request.args.to_dict() %}
+        {% if request.args.get('format') == fmt %}
+        {% set _ = args.pop('format') %} {# unselect if already selected #}
+        {% else %}
+        {% set _ = args.update({'format': fmt}) %}
+        {% endif %}
+        <a href="{{ url_for('explore', **args) }}"
+            class="btn btn-sm {% if request.args.get('format')==fmt %}btn-success{% else %}btn-outline-secondary{% endif %}">
+            {{ fmt }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row g-4">
+    {% if activities %}
+    {% for activity in activities %}
+    <div class="col-md-6">
+        <div class="activity-card position-relative h-100">
+
+            {% if activity.type == 'Creative Arts' %}
+            <span class="badge badge-creativearts position-absolute top-0 end-0 m-2">🎨Creative Arts</span>
+            {% elif activity.type == 'Social' %}
+            <span class="badge badge-social position-absolute top-0 end-0 m-2">🎲Social</span>
+            {% elif activity.type == 'Learning' %}
+            <span class="badge badge-learning position-absolute top-0 end-0 m-2">📖Learning</span>
+            {% elif activity.type == 'Physical' %}
+            <span class="badge badge-physical position-absolute top-0 end-0 m-2">🏃Physical</span>
+            {% elif activity.type == 'Nature' %}
+            <span class="badge badge-nature position-absolute top-0 end-0 m-2">🌲Nature</span>
+            {% elif activity.type == 'Technology' %}
+            <span class="badge badge-technology position-absolute top-0 end-0 m-2">💻Technology</span>
+            {% endif %}
+
+            <div class="d-flex align-items-center gap-2 spacing">
+                <h5 class="mb-0">{{ activity.name }}</h5>
+            </div>
+
+            <p>{{ activity.description }}</p>
+
+            <div class="row fw-semibold spacing">
+                <div class="col-12">📅 {{ activity.date }}, {{ activity.time }}</div>
+                <div class="col-12">⏱ {{ activity.duration }}</div>
+                <div class="col-12">📍 {{ activity.location }}</div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 spacing">
+                <span class="badge 
+                        {% if activity.energy == 'Low' %}energy-low
+                        {% elif activity.energy == 'Medium' %}energy-medium
+                        {% elif activity.energy == 'High' %}energy-high
+                        {% endif %}">
+                    ⚡{{ activity.energy }} energy
+                </span>
+                <span class="badge participants">🫂{{ activity.participants }}/{{ activity.max_participants }}
+                    participants</span>
+            </div>
+
+            <div class="activity-tags spacing">
+                {% for tag in activity.tags %}
+                <span>#{{ tag }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info text-center fw-semibold">
+            No activities found.
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('toggle-filters');
+        const filters = document.getElementById('filters-container');
+
+        const manuallyOpened = sessionStorage.getItem('filtersOpen');
+
+        if (!manuallyOpened) {
+            filters.classList.add('d-none');
+        }
+
+        toggleBtn.addEventListener('click', function () {
+            filters.classList.toggle('d-none');
+
+            if (!filters.classList.contains('d-none')) {
+                sessionStorage.setItem('filtersOpen', 'true');
+            } else {
+                sessionStorage.removeItem('filtersOpen');
+            }
+        });
+    });
+</script>
+
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from extensions import db, migrate
 from messages import Message, Contact
 from activities import Activity
@@ -75,7 +75,35 @@ def activities():
 
 @app.route("/explore")
 def explore():
-    return render_template("explore.html", title="Explore")
+    query = Activity.query
+
+    search = request.args.get("search")
+    if search:
+        query = query.filter(
+            (Activity.name.ilike(f"%{search}%")) |
+            (Activity.type.ilike(f"%{search}%")) |
+            (Activity.tags.ilike(f"%{search}%"))
+        )
+
+    category = request.args.get("category")
+    if category:
+        query = query.filter_by(type=category)
+
+    energy = request.args.get("energy")
+    if energy:
+        query = query.filter_by(energy=energy)
+
+    format_type = request.args.get("format")
+    if format_type:
+        query = query.filter_by(format_type=format_type)
+
+    activities = query.all()
+
+    for activity in activities:
+        activity.tags = activity.tags.split(",") if activity.tags else []
+
+    return render_template("explore.html", activities=activities)
+
 
 @app.route("/schedule")
 def schedule():

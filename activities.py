@@ -18,3 +18,5 @@ class Activity(db.Model):
     max_participants = db.Column(db.Integer)
 
     tags = db.Column(db.String(200))
+
+    format_type = db.Column(db.String(20))
