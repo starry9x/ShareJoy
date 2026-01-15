@@ -6,68 +6,100 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex mb-3 align-items-center gap-2">
-    <form method="get" class="flex-grow-1 d-flex">
-        <input type="text" name="search" class="form-control me-2"
-            placeholder="Search activities by name, category or tag..." value="{{ request.args.get('search', '') }}">
-        <button type="submit" class="btn btn-outline-secondary"><i class="fa-solid fa-magnifying-glass"></i>
-    </form>
-    <button id="toggle-filters" class="btn btn-outline-primary">Filters</button>
-</div>
+<div class="p-3 mb-3 rounded shadow-sm box1">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
+        <form method="get" class="flex-grow-1 mb-2 mb-md-0 box2 rounded">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control shadow-sm searchbar"
+                    placeholder="Search activities by name, category or tag..."
+                    value="{{ request.args.get('search', '') }}">
+                <button class="btn search-btn" type="submit">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </form>
 
-<div id="filters-container"
-    class="filters-container {% if request.args.get('category') or request.args.get('energy') or request.args.get('format') %}{% else %}filters-open{% endif %}"
-    data-start-open="true">
-
-    <!-- Categories -->
-    <div class="filters mb-3">
-        <strong>Categories</strong>
-        {% for cat in ['Creative Arts','Social','Learning','Physical','Nature','Technology'] %}
-        {% set args = request.args.to_dict() %}
-        {% if request.args.get('category') == cat %}
-        {% set _ = args.pop('category') %} {# unselect if already selected #}
-        {% else %}
-        {% set _ = args.update({'category': cat}) %}
-        {% endif %}
-        <a href="{{ url_for('explore', **args) }}"
-            class="btn btn-sm {% if request.args.get('category')==cat %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-            {{ cat }}
-        </a>
-        {% endfor %}
+        <button id="toggle-filters" class="btn btn-lg fw-semibold">
+            <i class="fa-solid fa-filter"></i> Filters
+        </button>
     </div>
 
-    <!-- Energy -->
-    <div class="filters mb-3">
-        <strong>Energy Level</strong>
-        {% for en in ['Low','Medium','High'] %}
-        {% set args = request.args.to_dict() %}
-        {% if request.args.get('energy') == en %}
-        {% set _ = args.pop('energy') %} {# unselect if already selected #}
-        {% else %}
-        {% set _ = args.update({'energy': en}) %}
-        {% endif %}
-        <a href="{{ url_for('explore', **args) }}"
-            class="btn btn-sm {% if request.args.get('energy')==en %}btn-warning{% else %}btn-outline-secondary{% endif %}">
-            {{ en }} energy
-        </a>
-        {% endfor %}
-    </div>
+    <div id="filters-container" class="mt-3">
 
-    <!-- Format -->
-    <div class="filters mb-3">
-        <strong>Format</strong>
-        {% for fmt in ['Online','In-Person'] %}
-        {% set args = request.args.to_dict() %}
-        {% if request.args.get('format') == fmt %}
-        {% set _ = args.pop('format') %} {# unselect if already selected #}
-        {% else %}
-        {% set _ = args.update({'format': fmt}) %}
-        {% endif %}
-        <a href="{{ url_for('explore', **args) }}"
-            class="btn btn-sm {% if request.args.get('format')==fmt %}btn-success{% else %}btn-outline-secondary{% endif %}">
-            {{ fmt }}
-        </a>
-        {% endfor %}
+        <!-- Categories -->
+        <div class="filters mb-2 d-flex flex-column">
+            <span class="fw-semibold mb-2">Categories</span>
+            <div class="d-flex flex-wrap gap-1">
+                {% for cat in ['Creative Arts','Social','Learning','Physical','Nature','Technology'] %}
+                {% set args = request.args.to_dict() %}
+                {% if request.args.get('category') == cat %}
+                {% set _ = args.pop('category') %}
+                {% else %}
+                {% set _ = args.update({'category': cat}) %}
+                {% endif %}
+                <a href="{{ url_for('explore', **args) }}" class="badge mb-1 filter-badge
+                    {% if request.args.get('category') == cat %}active-badge{% endif %}
+                    {% if cat=='Creative Arts' %} badge-creativearts
+                    {% elif cat=='Social' %} badge-social
+                    {% elif cat=='Learning' %} badge-learning
+                    {% elif cat=='Physical' %} badge-physical
+                    {% elif cat=='Nature' %} badge-nature
+                    {% elif cat=='Technology' %} badge-technology
+                    {% endif %}">
+                    {% if cat=='Creative Arts' %}🎨{% elif cat=='Social' %}🎲
+                    {% elif cat=='Learning' %}📖{% elif cat=='Physical' %}🏃
+                    {% elif cat=='Nature' %}🌲{% elif cat=='Technology' %}💻{% endif %}
+                    {{ cat }}
+                </a>
+
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Energy -->
+        <div class="filters mb-2 d-flex flex-column">
+            <span class="fw-semibold mb-2">Energy Level</span>
+            <div class="d-flex flex-wrap gap-1">
+                {% for en in ['Low','Medium','High'] %}
+                {% set args = request.args.to_dict() %}
+                {% if request.args.get('energy') == en %}
+                {% set _ = args.pop('energy') %}
+                {% else %}
+                {% set _ = args.update({'energy': en}) %}
+                {% endif %}
+                <a href="{{ url_for('explore', **args) }}" class="badge mb-1 filter-badge
+                {% if request.args.get('energy') == en %}active-badge{% endif %}
+                {% if en=='Low' %} energy-low
+                {% elif en=='Medium' %} energy-medium
+                {% elif en=='High' %} energy-high
+                {% endif %}">
+                    ⚡{{ en }} energy
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Format -->
+        <div class="filters mb-0 d-flex flex-column">
+            <span class="fw-semibold mb-2">Format</span>
+            <div class="d-flex flex-wrap gap-1">
+                {% for fmt in ['Online','In-Person'] %}
+                {% set args = request.args.to_dict() %}
+                {% if request.args.get('format') == fmt %}
+                {% set _ = args.pop('format') %}
+                {% else %}
+                {% set _ = args.update({'format': fmt}) %}
+                {% endif %}
+                <a href="{{ url_for('explore', **args) }}" class="badge mb-1 filter-badge
+                {% if request.args.get('format') == fmt %}active-badge{% endif %}
+                {% if fmt=='Online' %} badge-online
+                {% elif fmt=='In-Person' %} badge-inperson
+                {% endif %}">
+                    {{ fmt }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 

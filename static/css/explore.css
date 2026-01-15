@@ -8,3 +8,138 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
     color: #582D00;
 }
+
+#toggle-filters {
+    background-color: #FFDCB7;
+    color: #582D00;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+input::placeholder {
+    font-style: italic;
+    font-weight: 600;
+    color: #582D00;
+}
+
+.search-btn {
+    background-color: #FFDCB7;
+    color: #582D00;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    font-weight: 600;
+}
+
+.search-btn:hover,
+#toggle-filters:hover {
+    background-color: #ba7326;
+    color: #FFFFFF;
+}
+
+.searchbar {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.box2 {
+    background-color: #FFFFFF;
+    color: #582D00;
+}
+
+.box1 {
+    background-color: #FDF6F0;
+    color: #582D00;
+}
+
+.badge-online,
+.badge-inperson {
+    background: #E2DEDA;
+    border: 2px solid #C2C1C1;
+    color: #582d0066;
+}
+
+.filter-badge {
+    background: #FFFFFF;
+    border: 2px solid #582d00ac;
+    color: #582D00;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    transition: all 0.2s;
+}
+
+/* Categories */
+.active-badge.badge-creativearts,
+.badge-creativearts:hover {
+    background: #F3E892;
+    border: 2px solid #E8D72D;
+    color: #956400;
+}
+
+.active-badge.badge-social,
+.badge-social:hover {
+    background: #F8C2D6;
+    border: 2px solid #F284B8;
+    color: #AC2E5F;
+}
+
+.active-badge.badge-learning,
+.badge-learning:hover {
+    background: #EE94E7;
+    border: 2px solid #DC1EDC;
+    color: #BA118D;
+}
+
+.active-badge.badge-physical,
+.badge-physical:hover {
+    background: #A4DDE2;
+    border: 2px solid #38BED1;
+    color: #0D8AC0;
+}
+
+.active-badge.badge-nature,
+.badge-nature:hover {
+    background: #A4E6AA;
+    border: 2px solid #38D255;
+    color: #267D13;
+}
+
+.active-badge.badge-technology,
+.badge-technology:hover {
+    background: #BCB8B4;
+    border: 2px solid #6E6D6C;
+    color: #000;
+}
+
+/* Energy Levels */
+.active-badge.energy-low,
+.energy-low:hover {
+    background: #C9F4BE;
+    border: 2px solid #8AF183;
+    color: #35AC2E;
+}
+
+.active-badge.energy-medium,
+.energy-medium:hover {
+    background: #FDD4B9;
+    border: 2px solid #FDA066;
+    color: #DC5C0D;
+}
+
+.active-badge.energy-high,
+.energy-high:hover {
+    background: #FDBDB9;
+    border: 2px solid #FD6666;
+    color: #D12626;
+}
+
+/* Format */
+.active-badge.badge-online,
+.badge-online:hover,
+.active-badge.badge-inperson,
+.badge-inperson:hover {
+    background: #CCC8C4;
+    border: 2px solid #91908F;
+    color: #582D00;
+}
