@@ -17,22 +17,56 @@
 </div>
 
 {% for contact in contacts %}
-<div class="contact-box p-4 d-flex justify-content-start" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
-  <div class="d-flex align-items-center">
-    <img src="{{ url_for('static', filename='images/grandma_michelle_pfp.png') }}" alt="Profile Image" class="circle-image">
-    <div>
-      <h1 class="mb-1 me-5">{{ contact.name }}</h1>
-      <p class="mb-0">
-        {% if contact.last_chat %}
-          Last chatted on {{ contact.last_chat.strftime("%b %d, %Y %H:%M") }}
-        {% else %}
-          No chats yet
-        {% endif %}
-      </p>
-    </div> 
+<div class="contact-box p-4" 
+     onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
+
+  <div class="d-flex align-items-center justify-content-between w-100">
+    <!-- Left side: profile + name + last chat -->
+    <div class="d-flex align-items-center">
+      <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" 
+           alt="Profile Image" class="circle-image">
+      <div>
+        <h1 class="mb-1 me-5">{{ contact.name }}</h1>
+        <p class="mb-0">
+          {% if contact.last_chat %}
+            Last chatted on {{ contact.last_chat.strftime("%b %d, %Y %H:%M") }}
+          {% else %}
+            No chats yet
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <!-- Right side: more actions dropdown -->
+    <div class="more-actions-wrapper">
+      <button class="more-actions-toggle" 
+              onclick="event.stopPropagation(); toggleDropdown(this)">
+        ⋮
+      </button>
+
+      <div class="more-actions-menu d-none">
+        <div class="arrow-up"></div>
+        <div class="menu-header">More actions</div>
+        <button class="menu-item">Edit contact</button>
+        <button class="menu-item">Delete contact</button>
+        <button class="menu-item">Delete chat history</button>
+      </div>
+    </div>
   </div>
 </div>
+
 {% endfor %}
 
+{% endblock %}
 
+{% block extra_js %}
+<script>
+function toggleDropdown(button) {
+  const menu = button.nextElementSibling;
+  document.querySelectorAll('.more-actions-menu').forEach(m => {
+    if (m !== menu) m.classList.add('d-none');
+  });
+  menu.classList.toggle('d-none');
+}
+</script>
 {% endblock %}

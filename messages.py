@@ -6,6 +6,7 @@ class Contact(db.Model):
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20))
     short_desc = db.Column(db.String(120))
+    image_url = db.Column(db.String(200))
 
     # one-to-many relationship
     messages = db.relationship("Message", backref="contact", lazy=True)
