@@ -22,7 +22,18 @@ from flask import request, redirect, url_for
 @app.route("/messages")
 def messages():
     contacts = Contact.query.all()
-    return render_template("messages.html", title="Messages", contacts=contacts)
+
+    # attach last message timestamp to each contact
+    for c in contacts:
+        last_msg = (
+            Message.query.filter_by(contact_id=c.id)
+            .order_by(Message.timestamp.desc())
+            .first()
+        )
+        c.last_chat = last_msg.timestamp if last_msg else None
+
+    return render_template("messages.html", contacts=contacts, title="Messages")
+
 
 @app.route("/textchat", methods=["GET", "POST"])
 def textchat():
