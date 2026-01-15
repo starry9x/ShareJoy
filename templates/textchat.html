@@ -6,13 +6,13 @@
     <i class="fa-solid fa-arrow-left me-2"></i>
   </a>
   <div class="mb-2">
-    <h1 class="mb-1">Grandma Michelle</h1>
+    <h1 class="mb-1">{{ contact.name }}</h1>
   </div>
 </div>
 
 <h2>Chat Room</h2>
 
-<form action="/messages" method="POST">
+<form action="{{ url_for('textchat', contact_id=contact.id) }}" method="POST">
   <input type="text" name="username" placeholder="Your name" required>
   <input type="text" name="content" placeholder="Type a message..." required>
   <button type="submit">Send</button>

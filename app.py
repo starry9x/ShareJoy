@@ -35,19 +35,22 @@ def messages():
     return render_template("messages.html", contacts=contacts, title="Messages")
 
 
-@app.route("/textchat", methods=["GET", "POST"])
-def textchat():
+@app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
+def textchat(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+
     if request.method == "POST":
         username = request.form.get("username")
         content = request.form.get("content")
         if username and content:
-            new_msg = Message(username=username, content=content)
+            new_msg = Message(username=username, content=content, contact_id=contact.id)
             db.session.add(new_msg)
             db.session.commit()
-        return redirect(url_for("textchat"))
+        return redirect(url_for("textchat", contact_id=contact.id))
 
-    all_messages = Message.query.order_by(Message.timestamp.asc()).all()
-    return render_template("textchat.html", messages=all_messages, title="Chat Room")
+    all_messages = Message.query.filter_by(contact_id=contact.id).order_by(Message.timestamp.asc()).all()
+    return render_template("textchat.html", contact=contact, messages=all_messages, title="Chat Room")
+
 
 @app.route("/create_contact", methods=["GET", "POST"])
 def create_contact():

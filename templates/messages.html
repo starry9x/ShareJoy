@@ -17,7 +17,7 @@
 </div>
 
 {% for contact in contacts %}
-<div class="contact-box p-4 d-flex justify-content-start" onclick="window.location.href='/textchat'">
+<div class="contact-box p-4 d-flex justify-content-start" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
   <div class="d-flex align-items-center">
     <img src="{{ url_for('static', filename='images/grandma_michelle_pfp.png') }}" alt="Profile Image" class="circle-image">
     <div>
