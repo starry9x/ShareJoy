@@ -56,7 +56,7 @@ def create_contact():
 
 @app.route("/activities")
 def activities():
-    activities = Activity.query.all()
+    activities = Activity.query.filter_by(creator="me").order_by(Activity.date.asc()).all()
 
     for activity in activities:
         if activity.tags:
@@ -107,10 +107,12 @@ def explore():
     if format_type:
         query = query.filter_by(format_type=format_type)
 
-    activities = query.all()
+    activities = query.order_by(Activity.date.asc()).all()
 
     for activity in activities:
         activity.tags = activity.tags.split(",") if activity.tags else []
+
+        
 
     return render_template("explore.html", activities=activities)
 

@@ -20,3 +20,5 @@ class Activity(db.Model):
     tags = db.Column(db.String(200))
 
     format_type = db.Column(db.String(20))
+    
+    creator = db.Column(db.String(50), default="me")
