@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_contact.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="section-box d-flex flex-column flex-md-row align-items-center">
   <a href="{{ url_for('messages') }}" class="btn btn-link p-0 me-3">
@@ -12,8 +16,10 @@
 </div>
 
 
-<div class="container mt-5">
-  <h1 class="mb-4">Create Contact</h1>
+<div class="container yellow-box">
+  <h1>Create Contact</h1>
+  <p>Fill in the details below to create a new contact.</p>
+  <div class="white-box mb-3">
   <form method="POST" action="{{ url_for('create_contact') }}">
     <div class="mb-3">
       <label for="name" class="form-label">Name</label>
@@ -27,8 +33,9 @@
       <label for="short_desc" class="form-label">Short Description (optional)</label>
       <input type="text" class="form-control" id="short_desc" name="short_desc">
     </div>
-    <button type="submit" class="btn btn-primary">Save Contact</button>
+    <button type="submit" class="btn btn-primary">Create Contact</button>
     <a href="{{ url_for('messages') }}" class="btn btn-secondary">Cancel</a>
   </form>
+  </div>
 </div>
 {% endblock %}
