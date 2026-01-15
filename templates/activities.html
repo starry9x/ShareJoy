@@ -14,7 +14,8 @@
             {% if num_activities == 1 %}activity{% else %}activities{% endif %}.
         </p>
     </div>
-    <a href="#" class="btn btn-danger activity-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">
+    <a href="{{ url_for('activity_create') }}"
+        class="btn btn-danger activity-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">
         <i class="fa-solid fa-plus" aria-hidden="true"></i> Create Activity
     </a>
 </div>

@@ -73,6 +73,16 @@ def activities():
         activities=activities
     )
 
+@app.route('/activity/create')
+def activity_create():
+    activities = Activity.query.all()
+    num_activities = len(activities)
+    return render_template(
+        'activity_create.html',
+        title="Activities",
+        num_activities=num_activities,
+        activities=activities
+    )
 @app.route("/explore")
 def explore():
     query = Activity.query

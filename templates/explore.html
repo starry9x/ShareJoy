@@ -10,7 +10,7 @@
     <form method="get" class="flex-grow-1 d-flex">
         <input type="text" name="search" class="form-control me-2"
             placeholder="Search activities by name, category or tag..." value="{{ request.args.get('search', '') }}">
-        <button type="submit" class="btn btn-outline-secondary">🔍</button>
+        <button type="submit" class="btn btn-outline-secondary"><i class="fa-solid fa-magnifying-glass"></i>
     </form>
     <button id="toggle-filters" class="btn btn-outline-primary">Filters</button>
 </div>

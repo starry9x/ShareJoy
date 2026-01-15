@@ -19,3 +19,9 @@ h1{
 body {
     color: #582D00;
 }
+
+.fa-arrow-left {
+    color: #582D00;
+    font-weight: semibold;
+    font-size: 1.5rem;
+}
