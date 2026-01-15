@@ -19,10 +19,11 @@
             </div>
         </form>
 
-        <button id="toggle-filters" class="btn btn-lg fw-semibold">
+        <button id="toggle-filters" class="btn btn-lg fw-semibold mt-2 mt-md-0 ms-md-2">
             <i class="fa-solid fa-filter"></i> Filters
         </button>
     </div>
+
 
     <div id="filters-container" class="mt-3">
 
@@ -108,23 +109,22 @@
     {% for activity in activities %}
     <div class="col-md-6">
         <div class="activity-card position-relative h-100">
-
-            {% if activity.type == 'Creative Arts' %}
-            <span class="badge badge-creativearts position-absolute top-0 end-0 m-2">🎨Creative Arts</span>
-            {% elif activity.type == 'Social' %}
-            <span class="badge badge-social position-absolute top-0 end-0 m-2">🎲Social</span>
-            {% elif activity.type == 'Learning' %}
-            <span class="badge badge-learning position-absolute top-0 end-0 m-2">📖Learning</span>
-            {% elif activity.type == 'Physical' %}
-            <span class="badge badge-physical position-absolute top-0 end-0 m-2">🏃Physical</span>
-            {% elif activity.type == 'Nature' %}
-            <span class="badge badge-nature position-absolute top-0 end-0 m-2">🌲Nature</span>
-            {% elif activity.type == 'Technology' %}
-            <span class="badge badge-technology position-absolute top-0 end-0 m-2">💻Technology</span>
-            {% endif %}
-
-            <div class="d-flex align-items-center gap-2 spacing">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start spacing">
                 <h5 class="mb-0">{{ activity.name }}</h5>
+
+                {% if activity.type == 'Creative Arts' %}
+                <span class="badge badge-creativearts category-badge mb-2 mb-sm-0">🎨Creative Arts</span>
+                {% elif activity.type == 'Social' %}
+                <span class="badge badge-social category-badge mb-2 mb-sm-0">🎲Social</span>
+                {% elif activity.type == 'Learning' %}
+                <span class="badge badge-learning category-badge mb-2 mb-sm-0">📖Learning</span>
+                {% elif activity.type == 'Physical' %}
+                <span class="badge badge-physical category-badge mb-2 mb-sm-0">🏃Physical</span>
+                {% elif activity.type == 'Nature' %}
+                <span class="badge badge-nature category-badge mb-2 mb-sm-0">🌲Nature</span>
+                {% elif activity.type == 'Technology' %}
+                <span class="badge badge-technology category-badge mb-2 mb-sm-0">💻Technology</span>
+                {% endif %}
             </div>
 
             <p>{{ activity.description }}</p>
