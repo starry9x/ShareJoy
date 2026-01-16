@@ -4,15 +4,19 @@
     border-radius: 20px;
     padding-top: 0.5rem;
     padding-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .sectionbox2 {
     background-color: #ffffff;
     width: 97%;
     border-radius: 20px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
-.form-control, .form-select {
+.form-control,
+.form-select {
     background-color: #FDFAF7;
     border: none;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
@@ -26,7 +30,8 @@ h2 {
     padding: 0.9rem 20px 0rem 20px;
 }
 
-.form-label, .formL {
+.form-label,
+.formL {
     color: #582D00 !important;
 }
 
@@ -41,7 +46,8 @@ h2 {
     color: #AA937B;
 }
 
-.form-select option:not([value=""]), .form-select:has(option:not([value=""]):checked) {
+.form-select option:not([value=""]),
+.form-select:has(option:not([value=""]):checked) {
     font-style: normal;
     color: #582D00;
 }
@@ -50,4 +56,56 @@ h2 {
 .form-control[type="time"] {
     color: #582D00;
     font-style: normal;
+}
+
+#tags-container .badge {
+    margin-top: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.9rem;
+    background-color: #EBEBEB !important;
+    color: #494949;
+    border: 2px solid #D4D4D4;
+    border-radius: 5px;
+}
+
+#tags-container .tag-delete {
+    border: none;
+    background: none;
+    color: #494949 !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1;
+    padding: 0 0.2rem;
+    font-size: 1.3rem;
+}
+
+.tagslabel1 {
+    margin-bottom: 0.2rem;
+}
+
+.tagslabel2 {
+    margin-top: 0rem;
+    margin-bottom: 0.5rem;
+    color: #826240;
+}
+
+#add-tag-btn {
+    background: #FFE3C5;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    color: #582D00;
+    min-width: 120px;
+}
+
+#add-tag-btn:hover {
+    background-color: #ba7326;
+    color: #FFFFFF;
+}
+
+.fa-tag {
+    margin-right: 0.4rem;
 }

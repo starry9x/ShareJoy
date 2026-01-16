@@ -56,9 +56,11 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Duration <span class="text-danger">*</span></label>
                     <div class="d-flex gap-2 align-items-center">
-                        <input type="number" class="form-control" min="0" max="23" placeholder="Enter hours..." required>
+                        <input type="number" class="form-control" min="0" max="23" placeholder="Enter hours..."
+                            required>
                         <span class="fw-semibold formL">hrs</span>
-                        <input type="number" class="form-control" min="0" max="59" placeholder="Enter minutes..." required>
+                        <input type="number" class="form-control" min="0" max="59" placeholder="Enter minutes..."
+                            required>
                         <span class="fw-semibold formL">mins</span>
                     </div>
                 </div>
@@ -74,10 +76,11 @@
                 </div>
 
                 <!-- Location -->
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Location</label>
+                <div class="mb-3" id="location-field" style="display: none;">
+                    <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" placeholder="Enter activity location (if in-person)">
                 </div>
+
 
                 <!-- Category & Energy Level -->
                 <div class="row mb-3">
@@ -107,21 +110,23 @@
 
                 <!-- Max Participants -->
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Max Participants <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" min="2" max="25" placeholder="Max 25 participants"
+                    <label class="form-label fw-semibold">Max participants <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" min="2" max="25" placeholder="Enter max participants..."
                         required>
                 </div>
 
                 <!-- Activity Tags -->
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Activity Tags <span class="text-danger">*</span></label>
-                    <div class="d-flex gap-2">
-                        <input type="text" class="form-control" placeholder="e.g. dancing, fitness">
-                        <button type="button" class="btn btn-outline-secondary">Add Tag</button>
+                    <label class="form-label fw-semibold tagslabel1">Activity Tags <span
+                            class="text-danger">*</span></label>
+                    <p class="form-text fw-semibold tagslabel2">Add tags to help people discover your activity</p>
+                    <div class="d-flex gap-2 mb-1">
+                        <input type="text" id="tag-input" class="form-control" placeholder="e.g. dancing, fitness">
+                        <button type="button" id="add-tag-btn" class="btn fw-semibold"><i
+                                class="fa-solid fa-tag"></i>Add Tag</button>
                     </div>
-                    <div class="form-text">Add tags to help people discover your activity</div>
+                    <div id="tags-container" class="d-flex flex-wrap gap-2"></div>
                 </div>
-
                 <!-- Buttons -->
                 <div class="d-flex justify-content-end gap-2">
                     <a href="#" class="btn btn-secondary">Cancel</a>
@@ -142,6 +147,49 @@
             input.classList.remove('is-placeholder');
         });
     });
+
+    document.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
+        input.addEventListener('change', () => {
+            input.classList.remove('is-placeholder');
+        });
+    });
+
+    const formatSelect = document.querySelector('select[required]');
+    const locationField = document.getElementById('location-field');
+    const locationInput = locationField.querySelector('input');
+
+    formatSelect.addEventListener('change', () => {
+        if (formatSelect.value === 'in_person') {
+            locationField.style.display = 'block';
+            locationInput.required = true;
+        } else {
+            locationField.style.display = 'none';
+            locationInput.required = false;
+            locationInput.value = '';
+        }
+    });
+
+    const tagInput = document.getElementById('tag-input');
+    const addTagBtn = document.getElementById('add-tag-btn');
+    const tagsContainer = document.getElementById('tags-container');
+
+    addTagBtn.addEventListener('click', () => {
+        const tagText = tagInput.value.trim();
+        if (!tagText) return;
+
+        const tag = document.createElement('span');
+        tag.className = 'badge bg-secondary d-flex align-items-center gap-1';
+        tag.innerHTML = `${tagText} <button type="button" class="tag-delete">×</button>`;
+
+        tag.querySelector('.tag-delete').addEventListener('click', () => {
+            tagsContainer.removeChild(tag);
+        });
+
+        tagsContainer.appendChild(tag);
+        tagInput.value = '';
+    });
+
+
 </script>
 
 {% endblock %}
