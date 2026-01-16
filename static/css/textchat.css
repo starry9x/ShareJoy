@@ -1,0 +1,39 @@
+.section-box {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  background-color: #FFDCB7;
+}
+
+/* Arrow pinned left */
+.back-arrow {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Image + name centered as a unit */
+.text-pfp-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;   /* shrink to content */
+  align-items: center;
+  gap: 1rem;
+}
+
+.pfp {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.contact-name {
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin: 0;              /* no extra spacing */
+  white-space: nowrap;    /* prevents wrapping */
+}
