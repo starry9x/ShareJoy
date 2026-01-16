@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/loginpage.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+  <form id="loginForm" action="{{ url_for('homepage') }}" method="GET" novalidate>
+
+    <h1>Welcome Back!</h1>
+    <p class="subtitle">Sign In to Your Account</p>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label>Email Address</label>
+      <div class="input-wrapper">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="email" placeholder="you@example.com" required>
+      </div>
+      <small class="error" id="emailError"></small>
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrapper">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="password" placeholder="Enter your password" required>
+        <i class="fa-solid fa-eye toggle-eye" id="togglePassword"></i>
+      </div>
+      <small class="error" id="passwordError"></small>
+    </div>
+
+    <!-- Options -->
+    <div class="form-options">
+      <label class="remember-me">
+        <input type="checkbox"> Remember me
+      </label>
+      <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+    </div>
+
+    <button type="submit" id="signInBtn" disabled>
+      <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+    </button>
+
+    <p class="signup">
+      Don’t have an account?
+      <a href="{{ url_for('signup') }}">Sign up now</a>
+    </p>
+
+  </form>
+</div>
+
+
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+  const signInBtn = document.getElementById("signInBtn");
+  const togglePassword = document.getElementById("togglePassword");
+  const emailError = document.getElementById("emailError");
+  const passwordError = document.getElementById("passwordError");
+
+  function validateForm() {
+    let valid = true;
+
+    if (!email.checkValidity()) {
+      emailError.textContent = "Please enter a valid email address.";
+      valid = false;
+    } else {
+      emailError.textContent = "";
+    }
+
+    if (password.value.length < 6) {
+      passwordError.textContent = "Password must be at least 6 characters.";
+      valid = false;
+    } else {
+      passwordError.textContent = "";
+    }
+
+    signInBtn.disabled = !valid;
+  }
+
+  email.addEventListener("input", validateForm);
+  password.addEventListener("input", validateForm);
+
+  togglePassword.addEventListener("click", () => {
+    const hidden = password.type === "password";
+    password.type = hidden ? "text" : "password";
+    togglePassword.classList.toggle("fa-eye");
+    togglePassword.classList.toggle("fa-eye-slash");
+  });
+</script>
+{% endblock %}

@@ -138,5 +138,18 @@ def schedule():
 def profile():
     return render_template("profile.html", title="Profile")
 
+@app.route("/signup")
+def signup():
+    return render_template("signup.html")
+
+@app.route("/forgot-password")
+def forgot_password():
+    return render_template("forgotpassword.html")
+
+@app.route("/loginpage")
+def loginpage():
+    return render_template("loginpage.html")
+
+
 if __name__ == '__main__':
     app.run()
