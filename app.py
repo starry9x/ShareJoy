@@ -89,12 +89,11 @@ def activities():
 
 @app.route('/activity/create')
 def activity_create():
-    activities = Activity.query.all()
-    num_activities = len(activities)
+    my_activities_count = Activity.query.filter_by(creator="me").count()
     return render_template(
         'activity_create.html',
         title="Activities",
-        num_activities=num_activities,
+        num_activities=my_activities_count,
         activities=activities
     )
 @app.route("/explore")

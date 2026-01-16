@@ -1,0 +1,48 @@
+.sectionbox1 {
+    background-color: #FFEBD6;
+    width: 100%;
+    border-radius: 20px;
+    padding-top: 0.5rem;
+    padding-bottom: 2rem;
+}
+
+.sectionbox2 {
+    background-color: #ffffff;
+    width: 97%;
+    border-radius: 20px;
+}
+
+.form-control, .form-select {
+    background-color: #FDFAF7;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+.card-header {
+    padding: 0.9rem 20px 0rem 20px;
+}
+
+.form-label, .formL {
+    color: #582D00 !important;
+}
+
+/* Placeholder styling */
+.form-control::placeholder,
+.form-select::placeholder,
+.form-select option[value=""],
+.form-select:has(option:not([value=""]):checked),
+.form-control.is-placeholder[type="date"],
+.form-control.is-placeholder[type="time"] {
+    font-style: italic;
+    color: #AA937B;
+}
+
+.form-control[type="date"],
+.form-control[type="time"] {
+    color: #582D00;
+    font-style: normal;
+}

@@ -8,7 +8,8 @@
 {% block content %}
 <div class="section-box d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
     <div class="d-flex align-items-center mb-2">
-        <a href="{{ url_for('activities') }}" class="btn btn-link p-0 me-3"><i class="fa-solid fa-arrow-left me-2"></i></a>
+        <a href="{{ url_for('activities') }}" class="btn btn-link p-0 me-3"><i
+                class="fa-solid fa-arrow-left me-2"></i></a>
         <div>
             <h1 class="mb-1">My Activities</h1>
             <p class="mb-0">
@@ -18,5 +19,130 @@
         </div>
     </div>
 </div>
+
+<div class="container sectionbox1 mx-auto">
+    <div class="card-header mx-auto">
+        <h2 class="fw-semibold">Create New Activity</h2>
+        <p>Fill in the details below to create a new activity.</p>
+    </div>
+    <div class="card shadow-sm sectionbox2 mx-auto">
+        <div class="card-body">
+            <form method="post">
+                <!-- Activity Title -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Activity Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" placeholder="Enter activity title..." required>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+                    <textarea class="form-control" rows="3" placeholder="Describe your activity..." required></textarea>
+                </div>
+
+                <!-- Date & Time -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control is-placeholder" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Time <span class="text-danger">*</span></label>
+                        <input type="time" class="form-control is-placeholder" required>
+                    </div>
+                </div>
+
+                <!-- Duration -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Duration <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="number" class="form-control" min="0" max="23" placeholder="HH" required>
+                        <span class="fw-semibold formL">hrs</span>
+                        <input type="number" class="form-control" min="0" max="59" placeholder="MM" required>
+                        <span class="fw-semibold formL">mins</span>
+                    </div>
+                </div>
+
+
+                <!-- Format -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Format <span class="text-danger">*</span></label>
+                    <select class="form-select" required>
+                        <option value="">-- Select format --</option>
+                        <option value="in_person">In-person</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+
+                <!-- Location -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Location</label>
+                    <input type="text" class="form-control" placeholder="Enter activity location (if in-person)">
+                </div>
+
+                <!-- Category & Energy Level -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                        <select class="form-select" required>
+                            <option value="">-- Select category --</option>
+                            <option>Creative Arts</option>
+                            <option>Social</option>
+                            <option>Learning</option>
+                            <option>Physical</option>
+                            <option>Nature</option>
+                            <option>Technology</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Energy Level <span class="text-danger">*</span></label>
+                        <select class="form-select" required>
+                            <option value="">-- Select energy level --</option>
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Max Participants -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Max Participants <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" min="2" max="25" placeholder="Max 25 participants"
+                        required>
+                </div>
+
+                <!-- Activity Tags -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Activity Tags <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control" placeholder="e.g. dancing, fitness">
+                        <button type="button" class="btn btn-outline-secondary">Add Tag</button>
+                    </div>
+                    <div class="form-text">Add tags to help people discover your activity</div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="#" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-warning">Create Activity</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
+        input.addEventListener('change', () => {
+            input.classList.remove('is-placeholder');
+        });
+    });
+</script>
 
 {% endblock %}
