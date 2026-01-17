@@ -101,6 +101,14 @@
                 {% endfor %}
             </div>
         </div>
+        {% if request.args %}
+        <div class="mt-3 text-start">
+            <a href="{{ url_for('explore') }}" class="btn clearbtn fw-semibold">
+                Clear all filters
+            </a>
+        </div>
+        {% endif %}
+
     </div>
 </div>
 

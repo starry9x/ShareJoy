@@ -20,6 +20,18 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
+.clearbtn {
+    background-color: #df1919;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.clearbtn:hover {
+    background-color: #b31d1d;
+    color: #ffffff;
+}
+
 input::placeholder {
     font-style: italic;
     font-weight: 600;
