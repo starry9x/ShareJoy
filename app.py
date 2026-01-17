@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, flash
 from extensions import db, migrate
 from messages import Message, Contact
 from activities import Activity
+from datetime import datetime
 import os
 
 app = Flask(__name__)
@@ -77,10 +78,19 @@ def activities():
     activities = Activity.query.filter_by(creator="me").order_by(Activity.date.asc()).all()
 
     for activity in activities:
-        if activity.tags:
-            activity.tags = activity.tags.split(",")
-        else:
-            activity.tags = []
+        activity.tags = activity.tags.split(",") if activity.tags else []
+
+        try:
+            parsed_date = datetime.strptime(activity.date, "%Y-%m-%d")
+        except ValueError:
+            parsed_date = datetime.strptime(activity.date, "%d %b %Y")
+        activity.display_date = parsed_date.strftime("%d %b %Y")
+
+        try:
+            parsed_time = datetime.strptime(activity.time, "%H:%M")
+        except ValueError:
+            parsed_time = datetime.strptime(activity.time, "%I:%M %p")
+        activity.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
     num_activities = len(activities)
 
@@ -102,24 +112,36 @@ def activity_delete(activity_id):
 @app.route('/activity/create', methods=['GET', 'POST'])
 def activity_create():
     if request.method == 'POST':
-        name = request.form.get('name')
-        description = request.form.get('description')
-        date = request.form.get('date')
-        time = request.form.get('time')
-        duration_hours = int(request.form.get('duration_hours') or 0)
-        duration_minutes = int(request.form.get('duration_minutes') or 0)
-        format_type = request.form.get('format_type')
-        location = request.form.get('location') or ''
-        type_ = request.form.get('type')
-        energy = request.form.get('energy')
-        max_participants = int(request.form.get('max_participants') or 0)
-        tags = request.form.get('tags') or ''
+        name = request.form.get("name")
+        description = request.form.get("description")
+        format_type = request.form.get("format_type")
+        location = request.form.get("location")
+        date_input = request.form.get("date")
+        time_input = request.form.get("time")
+        duration_hours = int(request.form.get("duration_hours", 0))
+        duration_minutes = int(request.form.get("duration_minutes", 0))
+        type_ = request.form.get("type") or "Other"
+        energy = request.form.get("energy") or "Low"
+        max_participants = int(request.form.get("max_participants", 0))
+        tags = request.form.get("tags") or ""
+
+        if format_type:
+            format_type = format_type.title()
+
+        if format_type == "Online":
+            location = "Online"
+
+        dt = datetime.strptime(f"{date_input} {time_input}", "%Y-%m-%d %H:%M")
+
+
+        display_date = dt.strftime("%d %b %Y")
+        display_time = dt.strftime("%I:%M %p").lstrip("0")
 
         new_activity = Activity(
             name=name,
             description=description,
-            date=date,
-            time=time,
+            date=date_input,
+            time=time_input,
             duration_hours=duration_hours,
             duration_minutes=duration_minutes,
             format_type=format_type,
@@ -134,7 +156,7 @@ def activity_create():
 
         db.session.add(new_activity)
         db.session.commit()
-
+        flash(f'Activity "{name}" has been created.', "success")
         return redirect(url_for('activities'))
 
     my_activities_count = Activity.query.filter_by(creator="me").count()
@@ -142,35 +164,48 @@ def activity_create():
                            title="Create Activity",
                            num_activities=my_activities_count)
 
-@app.route("/explore") 
-def explore(): 
+@app.route("/explore")
+def explore():
     query = Activity.query
-    
-    search = request.args.get("search") 
-    if search: 
-        query = query.filter( 
-            (Activity.name.ilike(f"%{search}%")) | 
-            (Activity.type.ilike(f"%{search}%")) | 
-            (Activity.tags.ilike(f"%{search}%")) 
-            ) 
-        
-        category = request.args.get("category") 
-        if category: 
-            query = query.filter_by(type=category) 
-            
-            energy = request.args.get("energy") 
-            if energy: 
-                query = query.filter_by(energy=energy)
-            
-            format_type = request.args.get("format") 
-            if format_type: 
-                query = query.filter_by(format_type=format_type) 
-                
-            activities = query.order_by(Activity.date.asc()).all() 
-            for activity in activities: 
-                activity.tags = activity.tags.split(",") if activity.tags else [] 
-                
-            return render_template("explore.html", activities=activities)
+
+    search = request.args.get("search")
+    if search:
+        query = query.filter(
+            (Activity.name.ilike(f"%{search}%")) |
+            (Activity.type.ilike(f"%{search}%")) |
+            (Activity.tags.ilike(f"%{search}%"))
+        )
+
+    category = request.args.get("category")
+    if category:
+        query = query.filter_by(type=category)
+
+    energy = request.args.get("energy")
+    if energy:
+        query = query.filter_by(energy=energy)
+
+    format_type = request.args.get("format")
+    if format_type:
+        query = query.filter_by(format_type=format_type)
+
+    activities = query.order_by(Activity.date.asc()).all()
+
+    for a in activities:
+        a.tags = a.tags.split(",") if a.tags else []
+
+        try:
+            parsed_date = datetime.strptime(a.date, "%Y-%m-%d")
+        except ValueError:
+            parsed_date = datetime.strptime(a.date, "%d %b %Y")
+        a.display_date = parsed_date.strftime("%d %b %Y")
+
+        try:
+            parsed_time = datetime.strptime(a.time, "%H:%M")
+        except ValueError:
+            parsed_time = datetime.strptime(a.time, "%I:%M %p")
+        a.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
+
+    return render_template("explore.html", activities=activities)
 
 @app.route("/schedule")
 def schedule():

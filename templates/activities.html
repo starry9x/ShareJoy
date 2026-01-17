@@ -70,7 +70,10 @@
                 <p>{{ activity.description }}</p>
 
                 <div class="d-flex flex-wrap gap-2 fw-semibold spacing">
-                    <span>📅 {{ activity.date }}, {{ activity.time }}</span>
+                    <span>
+                        📅 {{ activity.display_date }}, {{ activity.display_time }}
+                    </span>
+
                     <span>⏱
                         {% set h = activity.duration_hours %}
                         {% set m = activity.duration_minutes %}
@@ -86,12 +89,14 @@
                     </span>
 
                     <div class="col-12">
-                        {% if activity.format_type == 'Online' or activity.location.lower() == 'online' %}
+                        {% if activity.format_type|lower == 'online' %}
                         🖥️ Online
                         {% else %}
                         📍 {{ activity.location }}
                         {% endif %}
+
                     </div>
+
 
                 </div>
 
