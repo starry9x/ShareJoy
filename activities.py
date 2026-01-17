@@ -9,7 +9,8 @@ class Activity(db.Model):
 
     date = db.Column(db.String(50))
     time = db.Column(db.String(50))
-    duration = db.Column(db.String(50))
+    duration_hours = db.Column(db.Integer, default=0)
+    duration_minutes = db.Column(db.Integer, default=0)
     location = db.Column(db.String(120))
 
     energy = db.Column(db.String(20))

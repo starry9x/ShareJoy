@@ -139,7 +139,20 @@
 
             <div class="row fw-semibold spacing">
                 <div class="col-12">📅 {{ activity.date }}, {{ activity.time }}</div>
-                <div class="col-12">⏱ {{ activity.duration }}</div>
+                <div class="col-12">⏱
+                    {% set h = activity.duration_hours %}
+                    {% set m = activity.duration_minutes %}
+                    {% if h and m %}
+                    {{ h }} hour{% if h > 1 %}s{% endif %} {{ m }} minute{% if m > 1 %}s{% endif %}
+                    {% elif h %}
+                    {{ h }} hour{% if h > 1 %}s{% endif %}
+                    {% elif m %}
+                    {{ m }} minute{% if m > 1 %}s{% endif %}
+                    {% else %}
+                    0 minutes
+                    {% endif %}
+                </div>
+
                 <div class="col-12">
                     {% if activity.format_type == 'Online' or activity.location.lower() == 'online' %}
                     🖥️ Online

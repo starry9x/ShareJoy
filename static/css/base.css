@@ -32,3 +32,27 @@ select:focus {
     outline: 2px #d8b175 !important;
     box-shadow: 0 0 0 0.2rem rgba(255, 153, 0, 0.25) !important;
 }
+
+.cancelbtn {
+    background-color: #D1D1D1;
+    color: #582D00;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.cancelbtn:hover {
+    background-color: #686868;
+    color: #FFFFFF;
+}
+
+.dobtn {
+    background-color: #FFB587;
+    color: #582D00;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.dobtn:hover {
+    background-color: #965d20;
+    color: #FFFFFF;
+}

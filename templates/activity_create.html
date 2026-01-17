@@ -31,24 +31,25 @@
                 <!-- Activity Title -->
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Activity Title <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" placeholder="Enter activity title..." required>
+                    <input type="text" class="form-control" name="name" placeholder="Enter activity title..." required>
                 </div>
 
                 <!-- Description -->
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
-                    <textarea class="form-control" rows="3" placeholder="Describe your activity..." required></textarea>
+                    <textarea class="form-control" rows="3" name="description" placeholder="Describe your activity..."
+                        required></textarea>
                 </div>
 
                 <!-- Date & Time -->
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Date <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control is-placeholder" required>
+                        <input type="date" name="date" class="form-control is-placeholder" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Time <span class="text-danger">*</span></label>
-                        <input type="time" class="form-control is-placeholder" required>
+                        <input type="time" name="time" class="form-control is-placeholder" required>
                     </div>
                 </div>
 
@@ -56,11 +57,11 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Duration <span class="text-danger">*</span></label>
                     <div class="d-flex gap-2 align-items-center">
-                        <input type="number" class="form-control" min="0" max="23" placeholder="Enter hours..."
-                            required>
+                        <input type="number" name="duration_hours" class="form-control" min="0" max="23"
+                            placeholder="Enter hours..." required>
                         <span class="fw-semibold formL">hrs</span>
-                        <input type="number" class="form-control" min="0" max="59" placeholder="Enter minutes..."
-                            required>
+                        <input type="number" name="duration_minutes" class="form-control" min="0" max="59"
+                            placeholder="Enter minutes..." required>
                         <span class="fw-semibold formL">mins</span>
                     </div>
                 </div>
@@ -68,7 +69,7 @@
                 <!-- Format -->
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Format <span class="text-danger">*</span></label>
-                    <select class="form-select" required>
+                    <select class="form-select" name="format_type" required>
                         <option value="">-- Select format --</option>
                         <option value="in_person">In-person</option>
                         <option value="online">Online</option>
@@ -78,7 +79,8 @@
                 <!-- Location -->
                 <div class="mb-3" id="location-field" style="display: none;">
                     <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" placeholder="Enter activity location (if in-person)">
+                    <input type="text" class="form-control" name="location"
+                        placeholder="Enter activity location (if in-person)">
                 </div>
 
 
@@ -86,7 +88,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
-                        <select class="form-select" required>
+                        <select class="form-select" name="type" required>
                             <option value="">-- Select category --</option>
                             <option>Creative Arts</option>
                             <option>Social</option>
@@ -99,7 +101,7 @@
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Energy Level <span class="text-danger">*</span></label>
-                        <select class="form-select" required>
+                        <select class="form-select" name="energy" required>
                             <option value="">-- Select energy level --</option>
                             <option>Low</option>
                             <option>Medium</option>
@@ -111,8 +113,8 @@
                 <!-- Max Participants -->
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Max participants <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" min="2" max="25" placeholder="Enter max participants..."
-                        required>
+                    <input type="number" name="max_participants" class="form-control" min="2" max="25"
+                        placeholder="Enter max participants..." required>
                 </div>
 
                 <!-- Activity Tags -->
@@ -126,11 +128,12 @@
                                 class="fa-solid fa-tag"></i>Add Tag</button>
                     </div>
                     <div id="tags-container" class="d-flex flex-wrap gap-2"></div>
+                    <input type="hidden" name="tags" id="tags-hidden">
                 </div>
                 <!-- Buttons -->
                 <div class="d-flex justify-content-end gap-2">
-                    <a href="#" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-warning">Create Activity</button>
+                    <a href="{{ url_for('activities') }}" class="btn cancelbtn fw-semibold">Cancel</a>
+                    <button type="submit" class="btn dobtn fw-semibold">Create Activity</button>
                 </div>
 
             </form>
@@ -188,6 +191,15 @@
         tagsContainer.appendChild(tag);
         tagInput.value = '';
     });
+
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', (e) => {
+        const tags = Array.from(tagsContainer.querySelectorAll('span'))
+            .map(span => span.textContent.replace('×', '').trim());
+        document.getElementById('tags-hidden').value = tags.join(',');
+    });
+
 
 
 </script>

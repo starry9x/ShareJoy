@@ -1,13 +1,17 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
 from extensions import db, migrate
 from messages import Message, Contact
 from activities import Activity
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
 
 db.init_app(app)
 migrate.init_app(app, db)
+
+app.secret_key = os.urandom(24)
+
 
 @app.route("/")
 def home():
@@ -87,48 +91,86 @@ def activities():
         activities=activities
     )
 
-@app.route('/activity/create')
-def activity_create():
-    my_activities_count = Activity.query.filter_by(creator="me").count()
-    return render_template(
-        'activity_create.html',
-        title="Activities",
-        num_activities=my_activities_count,
-        activities=activities
-    )
-@app.route("/explore")
-def explore():
-    query = Activity.query
+@app.route("/activity/delete/<int:activity_id>", methods=["POST"])
+def activity_delete(activity_id):
+    activity = Activity.query.get_or_404(activity_id)
+    db.session.delete(activity)
+    db.session.commit()
+    flash(f'Activity "{activity.name}" has been deleted.', "success")
+    return redirect(url_for("activities"))
 
-    search = request.args.get("search")
-    if search:
-        query = query.filter(
-            (Activity.name.ilike(f"%{search}%")) |
-            (Activity.type.ilike(f"%{search}%")) |
-            (Activity.tags.ilike(f"%{search}%"))
+@app.route('/activity/create', methods=['GET', 'POST'])
+def activity_create():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        date = request.form.get('date')
+        time = request.form.get('time')
+        duration_hours = int(request.form.get('duration_hours') or 0)
+        duration_minutes = int(request.form.get('duration_minutes') or 0)
+        format_type = request.form.get('format_type')
+        location = request.form.get('location') or ''
+        type_ = request.form.get('type')
+        energy = request.form.get('energy')
+        max_participants = int(request.form.get('max_participants') or 0)
+        tags = request.form.get('tags') or ''
+
+        new_activity = Activity(
+            name=name,
+            description=description,
+            date=date,
+            time=time,
+            duration_hours=duration_hours,
+            duration_minutes=duration_minutes,
+            format_type=format_type,
+            location=location,
+            type=type_,
+            energy=energy,
+            max_participants=max_participants,
+            participants=0,
+            tags=tags,
+            creator='me'
         )
 
-    category = request.args.get("category")
-    if category:
-        query = query.filter_by(type=category)
+        db.session.add(new_activity)
+        db.session.commit()
 
-    energy = request.args.get("energy")
-    if energy:
-        query = query.filter_by(energy=energy)
+        return redirect(url_for('activities'))
 
-    format_type = request.args.get("format")
-    if format_type:
-        query = query.filter_by(format_type=format_type)
+    my_activities_count = Activity.query.filter_by(creator="me").count()
+    return render_template('activity_create.html',
+                           title="Create Activity",
+                           num_activities=my_activities_count)
 
-    activities = query.order_by(Activity.date.asc()).all()
-
-    for activity in activities:
-        activity.tags = activity.tags.split(",") if activity.tags else []
-
+@app.route("/explore") 
+def explore(): 
+    query = Activity.query
+    
+    search = request.args.get("search") 
+    if search: 
+        query = query.filter( 
+            (Activity.name.ilike(f"%{search}%")) | 
+            (Activity.type.ilike(f"%{search}%")) | 
+            (Activity.tags.ilike(f"%{search}%")) 
+            ) 
         
-
-    return render_template("explore.html", activities=activities)
-
+        category = request.args.get("category") 
+        if category: 
+            query = query.filter_by(type=category) 
+            
+            energy = request.args.get("energy") 
+            if energy: 
+                query = query.filter_by(energy=energy)
+            
+            format_type = request.args.get("format") 
+            if format_type: 
+                query = query.filter_by(format_type=format_type) 
+                
+            activities = query.order_by(Activity.date.asc()).all() 
+            for activity in activities: 
+                activity.tags = activity.tags.split(",") if activity.tags else [] 
+                
+            return render_template("explore.html", activities=activities)
 
 @app.route("/schedule")
 def schedule():
