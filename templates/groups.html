@@ -5,6 +5,203 @@
 {% endblock %}
 
 {% block content %}
-<h1>Groups</h1>
-<p>skibidi.</p>
+
+<div class="tabs-section">
+    <a href="#" class="tab-item active" data-tab="available">Available Groups</a>
+    <a href="#" class="tab-item" data-tab="my">My Groups</a>
+</div>
+
+<div class="groups-top-bar">
+    <div class="search-box-wrapper">
+        <input type="text" class="search-input" placeholder="Search Community Groups..." id="searchInput">
+        <button class="search-icon-btn">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+    </div>
+
+    <a href="{{ url_for('create_group') }}" class="btn-create-group">
+        Create Group
+    </a>
+</div>
+
+<!-- Available Groups Container -->
+<div class="groups-container" id="available-groups-container">
+    {% if available_groups %}
+        {% for group in available_groups %}
+        <div class="group-card">
+
+            <div class="card-left">
+                <div class="avatar-circle">
+                    {% if group.image_url and group.image_url != 'default_group.jpg' %}
+                        <img src="{{ url_for('static', filename='images/' + group.image_url) }}" alt="{{ group.name }}">
+                    {% else %}
+                        {% if 'board' in group.name.lower() %}
+                            <i class="fa-solid fa-chess-board"></i>
+                        {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
+                            <i class="fa-solid fa-person-hiking"></i>
+                        {% else %}
+                            <i class="fa-solid fa-users"></i>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="ratio-box">
+                    <div class="ratio-row">
+                        <div class="ratio-icon-circle">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="ratio-track">
+                            <div class="ratio-dot" style="left: {{ 100 - group.youth_percentage }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="ratio-labels">
+                        <span>senior: {{ 100 - group.youth_percentage }}%</span>
+                        <span>Youth: {{ group.youth_percentage }}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-middle">
+                <h3 class="card-title">{{ group.name }}</h3>
+                <p class="card-description">{{ group.description }}</p>
+
+                <div class="card-tags">
+                    {% for tag in group.get_tags_list() %}
+                    <span class="tag-box">#{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card-right">
+                <div class="badges-stack">
+                    <span class="badge-participants">
+                        <i class="fa-solid fa-user-group"></i> {{ group.current_participants }}/{{ group.max_participants }} participants
+                    </span>
+
+                    {% if loop.index == 1 %}
+                    <span class="badge-recommended">🔥RECOMMENDED!🔥</span>
+                    {% endif %}
+                </div>
+
+                <a href="{{ url_for('group_about', group_id=group.id) }}" class="btn-view-details">
+                    View Details
+                </a>
+            </div>
+
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <h3>No available groups.</h3>
+            <p>All groups have been joined!</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- My Groups Container -->
+<div class="groups-container" id="my-groups-container" style="display: none;">
+    {% if my_groups %}
+        {% for group in my_groups %}
+        <div class="group-card">
+
+            <div class="card-left">
+                <div class="avatar-circle">
+                    {% if group.image_url and group.image_url != 'default_group.jpg' %}
+                        <img src="{{ url_for('static', filename='images/' + group.image_url) }}" alt="{{ group.name }}">
+                    {% else %}
+                        {% if 'board' in group.name.lower() %}
+                            <i class="fa-solid fa-chess-board"></i>
+                        {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
+                            <i class="fa-solid fa-person-hiking"></i>
+                        {% else %}
+                            <i class="fa-solid fa-users"></i>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="ratio-box">
+                    <div class="ratio-row">
+                        <div class="ratio-icon-circle">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="ratio-track">
+                            <div class="ratio-dot" style="left: {{ 100 - group.youth_percentage }}%;"></div>
+                        </div>
+                    </div>
+                    <div class="ratio-labels">
+                        <span>senior: {{ 100 - group.youth_percentage }}%</span>
+                        <span>Youth: {{ group.youth_percentage }}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-middle">
+                <h3 class="card-title">{{ group.name }}</h3>
+                <p class="card-description">{{ group.description }}</p>
+
+                <div class="card-tags">
+                    {% for tag in group.get_tags_list() %}
+                    <span class="tag-box">#{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card-right">
+                <div class="badges-stack">
+                    <span class="badge-participants">
+                        <i class="fa-solid fa-user-group"></i> {{ group.current_participants }}/{{ group.max_participants }} participants
+                    </span>
+
+                    {% if loop.index == 1 %}
+                    <span class="badge-recommended">🔥RECOMMENDED!🔥</span>
+                    {% endif %}
+                </div>
+
+                <a href="{{ url_for('group_chat', group_id=group.id) }}" class="btn-view-details">
+                    Enter Chat
+                </a>
+            </div>
+
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <h3>No groups joined!</h3>
+            <p>Join one today!</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Tab Switching
+    document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Update active tab
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            // Show/hide containers
+            const tabType = this.getAttribute('data-tab');
+            if (tabType === 'available') {
+                document.getElementById('available-groups-container').style.display = 'block';
+                document.getElementById('my-groups-container').style.display = 'none';
+            } else {
+                document.getElementById('available-groups-container').style.display = 'none';
+                document.getElementById('my-groups-container').style.display = 'block';
+            }
+        });
+    });
+
+    // Search Filtering
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('.group-card').forEach(card => {
+            const text = card.innerText.toLowerCase();
+            card.style.display = text.includes(term) ? 'flex' : 'none';
+        });
+    });
+</script>
+
 {% endblock %}

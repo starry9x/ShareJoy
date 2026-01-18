@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #FFF8E1;
+    }
+
+    .about-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 40px;
+        background-color: #FFE0B2;
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .about-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .about-icon {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background-color: white;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: #4E342E;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .about-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #3E2723;
+        margin-bottom: 10px;
+    }
+
+    .about-category {
+        color: #8D6E63;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .about-section {
+        margin: 30px 0;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #3E2723;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .about-description {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #4E342E;
+        background-color: rgba(255,255,255,0.5);
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .about-tags {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .tag-item {
+        background-color: #E0E0E0;
+        border: 1px solid #BDBDBD;
+        color: #616161;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .about-stats {
+        display: flex;
+        justify-content: space-around;
+        background-color: rgba(255,255,255,0.6);
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #D32F2F;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #5D4037;
+        font-weight: 600;
+    }
+
+    .btn-continue {
+        background-color: #FFAB91;
+        border: 2px solid #FF8A65;
+        color: #3E2723;
+        font-weight: 800;
+        font-size: 1.3rem;
+        padding: 15px 0;
+        width: 100%;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #D84315;
+        transition: transform 0.1s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .btn-continue:hover {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #D84315;
+        color: #3E2723;
+    }
+
+    .btn-back {
+        background-color: #E0E0E0;
+        border: 2px solid #BDBDBD;
+        color: #616161;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 12px 30px;
+        border-radius: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+    .btn-back:hover {
+        background-color: #BDBDBD;
+        color: #424242;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-container">
+    <a href="{{ url_for('groups') }}" class="btn-back">
+        <i class="fa-solid fa-arrow-left"></i> Back to Groups
+    </a>
+
+    <div class="about-header">
+        <div class="about-icon">
+            {% if 'board' in group.name.lower() %}
+                <i class="fa-solid fa-chess-board"></i>
+            {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
+                <i class="fa-solid fa-person-hiking"></i>
+            {% else %}
+                <i class="fa-solid fa-users"></i>
+            {% endif %}
+        </div>
+        <h1 class="about-title">{{ group.name }}</h1>
+        <p class="about-category">{{ group.category }}</p>
+    </div>
+
+    <div class="about-stats">
+        <div class="stat-item">
+            <div class="stat-number">{{ group.current_participants }}/{{ group.max_participants }}</div>
+            <div class="stat-label">Participants</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ group.youth_percentage }}%</div>
+            <div class="stat-label">Youth</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ 100 - group.youth_percentage }}%</div>
+            <div class="stat-label">Senior</div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2 class="section-title">
+            <i class="fa-solid fa-info-circle"></i> Who Are We?
+        </h2>
+        <div class="about-description">
+            {{ group.description }}
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2 class="section-title">
+            <i class="fa-solid fa-tags"></i> Tags
+        </h2>
+        <div class="about-tags">
+            {% for tag in group.get_tags_list() %}
+            <span class="tag-item">#{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <a href="{{ url_for('buddy_quiz', group_id=group.id) }}" class="btn-continue">
+        Continue to Find Your Buddy <i class="fa-solid fa-arrow-right"></i>
+    </a>
+</div>
+{% endblock %}

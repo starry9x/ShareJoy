@@ -1,0 +1,303 @@
+/* Page Background */
+body {
+    background-color: #FFF8E1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- 1. Tabs (Now at the top) --- */
+.tabs-section {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-bottom: 40px;
+    padding-top: 40px;
+}
+
+.tab-item {
+    text-decoration: none;
+    color: #000;
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding-bottom: 8px;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.tab-item.active {
+    border-bottom: 3px solid #D32F2F; /* Red line */
+}
+
+/* --- 2. Top Bar (Search and Create) --- */
+.groups-top-bar {
+    max-width: 1100px;
+    margin: 0 auto 30px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.search-box-wrapper {
+    flex-grow: 1;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 50px 14px 25px; /* Comfortable padding */
+    border: 1px solid #8D6E63;
+    border-radius: 50px;
+    font-size: 1rem;
+    background: #FFFFFF;
+    outline: none;
+}
+
+.search-icon-btn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #5D4037;
+    cursor: pointer;
+}
+
+/* Distinct Create Button (Pill Shape) */
+.btn-create-group {
+    background-color: #FFCC80; /* Distinct Orange */
+    color: #3E2723;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 14px 35px;
+    border-radius: 50px; /* Full Pill */
+    text-decoration: none;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-create-group:hover {
+    background-color: #FFA726;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    color: #3E2723;
+}
+
+/* --- 3. Groups Container & Card --- */
+.groups-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+}
+
+.group-card {
+    background-color: #FFE0B2; /* Peach Card */
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: flex-start; /* Align top */
+    gap: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* --- LEFT ZONE: Icon & Ratio --- */
+.card-left {
+    width: 130px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar-circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background-color: white;
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #4E342E;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Ratio Widget (Small & Compact) */
+.ratio-box {
+    width: 100%;
+    background: linear-gradient(to right, #EFEBE9, #C8E6C9);
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.6);
+}
+
+.ratio-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.ratio-icon-circle {
+    width: 20px; height: 20px;
+    background: #E0E0E0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: #5D4037;
+}
+
+.ratio-track {
+    flex-grow: 1;
+    height: 2px;
+    background: #3E2723;
+    position: relative;
+}
+
+.ratio-dot {
+    width: 10px; height: 10px;
+    background: #3E2723;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.ratio-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #5D4037;
+    text-transform: lowercase;
+}
+
+/* --- MIDDLE ZONE: Text & Tags --- */
+.card-middle {
+    flex-grow: 1;
+    padding-top: 5px; /* Slight offset to align with icon top */
+}
+
+.card-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #3E2723;
+    margin: 0 0 10px 0;
+}
+
+.card-description {
+    font-size: 1rem;
+    color: #4E342E;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    max-width: 95%;
+}
+
+/* Grey Box Tags */
+.card-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tag-box {
+    background-color: #E0E0E0; /* Grey Background */
+    border: 1px solid #BDBDBD;
+    color: #616161;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+/* --- RIGHT ZONE: Badges & Button --- */
+.card-right {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end; /* Align elements to right */
+    min-height: 160px; /* Ensures button stays at bottom */
+}
+
+.badges-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.badge-participants {
+    background-color: #9FA8DA; /* Blue */
+    color: #1A237E;
+    border: 1px solid #7986CB;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.badge-recommended {
+    background-color: #FFCDD2; /* Pink */
+    color: #C62828;
+    border: 1px solid #EF9A9A;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Large Orange Button */
+.btn-view-details {
+    background-color: #FFAB91;
+    border: 2px solid #FF8A65;
+    color: #3E2723;
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 10px 0;
+    width: 100%; /* Fill width of right column */
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #D84315;
+    transition: transform 0.1s;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.btn-view-details:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #D84315;
+    color: #3E2723;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 50px;
+    color: #8D6E63;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .group-card { flex-direction: column; align-items: center; text-align: center; }
+    .card-left, .card-right, .card-middle { width: 100%; align-items: center; }
+    .card-right { min-height: auto; gap: 20px; }
+    .badges-stack { align-items: center; flex-direction: row; justify-content: center; }
+    .card-tags { justify-content: center; }
+    .btn-view-details { width: 100%; max-width: 300px; }
+}

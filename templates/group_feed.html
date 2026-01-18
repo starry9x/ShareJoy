@@ -1,0 +1,875 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #FFF8E1;
+    }
+
+    .feed-container {
+        max-width: 1000px;
+        margin: 20px auto;
+        background-color: #FFE0B2;
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    /* Header */
+    .feed-header {
+        background-color: #FFCCBC;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #FFAB91;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .back-btn {
+        background-color: #8D6E63;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .back-btn:hover {
+        background-color: #6D4C41;
+        color: white;
+    }
+
+    .group-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .group-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #4E342E;
+    }
+
+    .group-details h2 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #3E2723;
+    }
+
+    .group-details p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #5D4037;
+    }
+
+    .settings-btn {
+        background-color: white;
+        border: 2px solid #BDBDBD;
+        padding: 8px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #5D4037;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    /* Tabs */
+    .feed-tabs {
+        display: flex;
+        justify-content: center;
+        background-color: #FFCCBC;
+        border-bottom: 2px solid #D32F2F;
+    }
+
+    .tab-link {
+        flex: 1;
+        text-align: center;
+        padding: 15px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #5D4037;
+        text-decoration: none;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .tab-link.active {
+        border-bottom: 3px solid #D32F2F;
+        color: #3E2723;
+    }
+
+    /* Feed Area */
+    .feed-area {
+        padding: 20px;
+        max-height: 600px;
+        overflow-y: auto;
+        background-color: #FFF8E1;
+    }
+
+    /* Post Card */
+    .post-card {
+        background-color: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .post-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #BDBDBD;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .post-author-info h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #3E2723;
+    }
+
+    .post-time {
+        font-size: 0.85rem;
+        color: #757575;
+    }
+
+    .post-content {
+        margin: 15px 0;
+        color: #3E2723;
+        line-height: 1.6;
+    }
+
+    .post-image {
+        width: 100%;
+        border-radius: 10px;
+        margin: 15px 0;
+    }
+
+    .post-actions {
+        display: flex;
+        gap: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #E0E0E0;
+    }
+
+    .action-btn {
+        background: none;
+        border: none;
+        font-size: 1rem;
+        color: #5D4037;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+    }
+
+    .action-btn:hover {
+        color: #D32F2F;
+    }
+
+    .action-btn i {
+        font-size: 1.2rem;
+    }
+
+    .bookmark-btn {
+        margin-left: auto;
+    }
+
+    /* Create Post */
+    .create-post-area {
+        background-color: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .create-post-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .create-post-textarea {
+        width: 100%;
+        border: 1px solid #E0E0E0;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+        outline: none;
+    }
+
+    .create-post-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .attach-icons {
+        display: flex;
+        gap: 15px;
+    }
+
+    .attach-btn {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        color: #5D4037;
+        cursor: pointer;
+    }
+
+    .post-submit-btn {
+        background-color: #FFAB91;
+        border: 2px solid #FF8A65;
+        color: #3E2723;
+        font-weight: 700;
+        padding: 10px 30px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+    .post-submit-btn:hover {
+        background-color: #FF8A65;
+    }
+
+    .empty-feed {
+        text-align: center;
+        padding: 50px;
+        color: #8D6E63;
+        position: relative;
+    }
+
+    /* Decorative Doodles */
+    .doodle {
+        position: absolute;
+        opacity: 0.3;
+        font-size: 3rem;
+        color: #BCAAA4;
+        z-index: 0;
+    }
+
+    .doodle-1 {
+        top: 10%;
+        left: 5%;
+        transform: rotate(-15deg);
+    }
+
+    .doodle-2 {
+        top: 15%;
+        right: 8%;
+        transform: rotate(20deg);
+    }
+
+    .doodle-3 {
+        bottom: 15%;
+        left: 10%;
+        transform: rotate(10deg);
+    }
+
+    .doodle-4 {
+        bottom: 20%;
+        right: 5%;
+        transform: rotate(-20deg);
+    }
+
+    .doodle-5 {
+        top: 50%;
+        left: 2%;
+        transform: rotate(25deg);
+    }
+
+    .doodle-6 {
+        top: 45%;
+        right: 3%;
+        transform: rotate(-10deg);
+    }
+
+    .empty-feed h3, .empty-feed p {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Image Upload Preview */
+    .image-preview-container {
+        margin-top: 10px;
+        position: relative;
+        display: none;
+    }
+
+    .image-preview-container.show {
+        display: block;
+    }
+
+    .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 10px;
+        border: 2px solid #E0E0E0;
+    }
+
+    .remove-image-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: #D32F2F;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .file-input-hidden {
+        display: none;
+    }
+
+    /* Comments Section */
+    .comments-section {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #E0E0E0;
+        display: none;
+    }
+
+    .comments-section.show {
+        display: block;
+    }
+
+    .comment-item {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #F5F5F5;
+        border-radius: 10px;
+    }
+
+    .comment-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background-color: #BDBDBD;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .comment-content {
+        flex: 1;
+    }
+
+    .comment-author {
+        font-weight: 700;
+        color: #3E2723;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .comment-text {
+        color: #5D4037;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .comment-form {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .comment-input {
+        flex: 1;
+        border: 1px solid #E0E0E0;
+        border-radius: 20px;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    .comment-submit {
+        background-color: #FFAB91;
+        border: none;
+        color: #3E2723;
+        font-weight: 700;
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+    .comment-submit:hover {
+        background-color: #FF8A65;
+    }
+
+    /* Like button active state */
+    .action-btn.liked i {
+        color: #D32F2F;
+    }
+
+    /* Bookmark active state */
+    .bookmark-btn.saved i {
+        color: #FFD700;
+    }
+
+    /* Delete buttons */
+    .delete-post-btn,
+    .delete-comment-btn {
+        background-color: #FFCDD2;
+        border: 1px solid #EF9A9A;
+        color: #C62828;
+        padding: 5px 12px;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        margin-left: auto;
+    }
+
+    .delete-post-btn:hover,
+    .delete-comment-btn:hover {
+        background-color: #EF5350;
+        color: white;
+    }
+
+    .delete-comment-btn {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+        margin-left: 10px;
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .comment-item {
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="feed-container">
+    <!-- Header -->
+    <div class="feed-header">
+        <div class="header-left">
+            <a href="{{ url_for('groups') }}" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div class="group-info">
+                <div class="group-avatar">
+                    {% if 'board' in group.name.lower() %}
+                        <i class="fa-solid fa-chess-board"></i>
+                    {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
+                        <i class="fa-solid fa-person-hiking"></i>
+                    {% else %}
+                        <i class="fa-solid fa-users"></i>
+                    {% endif %}
+                </div>
+                <div class="group-details">
+                    <h2>{{ group.name }}</h2>
+                    <p>7 Active</p>
+                </div>
+            </div>
+        </div>
+        <a href="{{ url_for('group_settings', group_id=group.id) }}" class="settings-btn">
+            <i class="fa-solid fa-gear"></i>
+        </a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="feed-tabs">
+        <a href="{{ url_for('group_chat', group_id=group.id) }}" class="tab-link">Community Chat</a>
+        <a href="{{ url_for('group_feed', group_id=group.id) }}" class="tab-link active">Community Feed</a>
+    </div>
+
+    <!-- Feed -->
+    <div class="feed-area">
+        <!-- Create Post -->
+        <div class="create-post-area">
+            <form method="POST" enctype="multipart/form-data" id="createPostForm">
+                <input type="hidden" name="author" value="Jane_Tan">
+                <div class="create-post-header">
+                    <div class="post-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <textarea name="content" class="create-post-textarea" placeholder="Share something with the community..." required></textarea>
+                </div>
+                <div class="image-preview-container" id="imagePreviewContainer">
+                    <img src="" alt="Preview" class="image-preview" id="imagePreview">
+                    <button type="button" class="remove-image-btn" id="removeImageBtn">&times;</button>
+                </div>
+                <div class="create-post-actions">
+                    <div class="attach-icons">
+                        <input type="file" name="post_image" id="postImageInput" class="file-input-hidden" accept="image/png,image/jpeg,image/jpg,image/gif">
+                        <button type="button" class="attach-btn" id="imageAttachBtn"><i class="fa-solid fa-image"></i></button>
+                        <button type="button" class="attach-btn"><i class="fa-solid fa-video"></i></button>
+                        <button type="button" class="attach-btn"><i class="fa-solid fa-face-smile"></i></button>
+                    </div>
+                    <button type="submit" class="post-submit-btn">Post</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Posts -->
+        {% if posts %}
+            {% for post in posts %}
+            <div class="post-card" data-post-id="{{ post.id }}">
+                <div class="post-header">
+                    <div class="post-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="post-author-info">
+                        <h3>{{ post.author }}</h3>
+                        <p class="post-time">{{ post.created_at.strftime('%d %b %Y, %I:%M %p') if post.created_at else '2h ago' }}</p>
+                    </div>
+                    {% if post.author == 'Jonathan IV' or post.author == 'Jane_Tan' %}
+                    <button class="delete-post-btn" data-post-id="{{ post.id }}" title="Delete post">
+                        <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                    {% endif %}
+                </div>
+
+                <div class="post-content">
+                    {{ post.content }}
+                </div>
+
+                {% if post.image_url %}
+                <img src="{{ url_for('static', filename='images/' + post.image_url) }}" alt="Post image" class="post-image">
+                {% endif %}
+
+                <div class="post-actions">
+                    <button class="action-btn like-btn" data-post-id="{{ post.id }}">
+                        <i class="fa-solid fa-heart"></i> <span class="like-count">{{ post.likes }}</span>
+                    </button>
+                    <button class="action-btn comment-toggle-btn" data-post-id="{{ post.id }}">
+                        <i class="fa-solid fa-comment"></i> <span>Comment</span>
+                    </button>
+                    <button class="action-btn bookmark-btn" data-post-id="{{ post.id }}">
+                        <i class="fa-solid fa-bookmark"></i>
+                    </button>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="comments-section" id="comments-{{ post.id }}">
+                    {% if post.comments %}
+                        {% for comment in post.comments %}
+                        <div class="comment-item" data-comment-id="{{ comment.id }}">
+                            <div class="comment-avatar">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div class="comment-content">
+                                <div class="comment-author">
+                                    {{ comment.author }}
+                                    {% if comment.author == 'Jonathan IV' %}
+                                    <button class="delete-comment-btn" data-comment-id="{{ comment.id }}" title="Delete comment">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                <div class="comment-text">{{ comment.content }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Comment Form -->
+                    <form class="comment-form" data-post-id="{{ post.id }}">
+                        <input type="text" class="comment-input" placeholder="Write a comment..." required>
+                        <button type="submit" class="comment-submit">Reply</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-feed">
+            <!-- Decorative Doodles -->
+            <div class="doodle doodle-1">🌟</div>
+            <div class="doodle doodle-2">💬</div>
+            <div class="doodle doodle-3">✨</div>
+            <div class="doodle doodle-4">🎨</div>
+            <div class="doodle doodle-5">📸</div>
+            <div class="doodle doodle-6">🎉</div>
+
+            <i class="fa-solid fa-rss" style="font-size: 3rem; margin-bottom: 20px; display: block;"></i>
+            <h3>No posts yet</h3>
+            <p>Be the first to share something with the community!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Image upload preview
+    const imageAttachBtn = document.getElementById('imageAttachBtn');
+    const postImageInput = document.getElementById('postImageInput');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+
+    imageAttachBtn.addEventListener('click', () => {
+        postImageInput.click();
+    });
+
+    postImageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                imagePreview.src = event.target.result;
+                imagePreviewContainer.classList.add('show');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    removeImageBtn.addEventListener('click', () => {
+        postImageInput.value = '';
+        imagePreview.src = '';
+        imagePreviewContainer.classList.remove('show');
+    });
+
+    // Toggle comments section
+    document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            const commentsSection = document.getElementById('comments-' + postId);
+            commentsSection.classList.toggle('show');
+        });
+    });
+
+    // Handle comment submission
+    document.querySelectorAll('.comment-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const postId = this.getAttribute('data-post-id');
+            const commentInput = this.querySelector('.comment-input');
+            const commentText = commentInput.value.trim();
+
+            if (commentText) {
+                // Create new comment element
+                const commentsSection = document.getElementById('comments-' + postId);
+                const newComment = document.createElement('div');
+                newComment.className = 'comment-item';
+                newComment.innerHTML = `
+                    <div class="comment-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="comment-content">
+                        <div class="comment-author">
+                            You
+                            <button class="delete-comment-btn" title="Delete comment">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="comment-text">${commentText}</div>
+                    </div>
+                `;
+
+                // Insert before the form
+                commentsSection.insertBefore(newComment, this);
+                commentInput.value = '';
+
+                // Submit to server
+                fetch(`/group/post/${postId}/comment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: commentText,
+                        author: 'Jonathan IV'
+                    })
+                });
+            }
+        });
+    });
+
+    // Like button toggle (prevents multiple increments)
+    const likedPosts = new Set();
+
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const postId = this.getAttribute('data-post-id');
+            const likeCountSpan = this.querySelector('.like-count');
+            let currentLikes = parseInt(likeCountSpan.textContent);
+
+            if (likedPosts.has(postId)) {
+                // Unlike
+                currentLikes--;
+                likedPosts.delete(postId);
+                this.classList.remove('liked');
+            } else {
+                // Like
+                currentLikes++;
+                likedPosts.add(postId);
+                this.classList.add('liked');
+            }
+
+            likeCountSpan.textContent = currentLikes;
+
+            // Submit to server
+            fetch(`/group/post/${postId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    liked: likedPosts.has(postId)
+                })
+            });
+        });
+    });
+
+    // Bookmark button toggle
+    document.querySelectorAll('.bookmark-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('saved');
+        });
+    });
+
+    // Delete post functionality
+    document.querySelectorAll('.delete-post-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this post? All comments will also be deleted.')) {
+                const postId = this.getAttribute('data-post-id');
+                const postCard = this.closest('.post-card');
+
+                // Send delete request to server
+                fetch(`/group/post/${postId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove post from DOM with animation
+                        postCard.style.opacity = '0';
+                        postCard.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            postCard.remove();
+                        }, 300);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting post:', error);
+                    alert('Failed to delete post. Please try again.');
+                });
+            }
+        });
+    });
+
+    // Delete comment functionality
+    document.querySelectorAll('.delete-comment-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this comment?')) {
+                const commentId = this.getAttribute('data-comment-id');
+                const commentItem = this.closest('.comment-item');
+
+                // Send delete request to server
+                fetch(`/group/comment/${commentId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove comment from DOM with animation
+                        commentItem.style.opacity = '0';
+                        commentItem.style.transform = 'translateX(-10px)';
+                        setTimeout(() => {
+                            commentItem.remove();
+                        }, 300);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting comment:', error);
+                    alert('Failed to delete comment. Please try again.');
+                });
+            }
+        });
+    });
+
+    // Also add delete functionality to dynamically created comments
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-comment-btn')) {
+            const btn = e.target.closest('.delete-comment-btn');
+            if (confirm('Are you sure you want to delete this comment?')) {
+                const commentId = btn.getAttribute('data-comment-id');
+                const commentItem = btn.closest('.comment-item');
+
+                if (commentId) {
+                    // Server-side delete for existing comments
+                    fetch(`/group/comment/${commentId}/delete`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            commentItem.style.opacity = '0';
+                            setTimeout(() => commentItem.remove(), 300);
+                        }
+                    });
+                } else {
+                    // Just remove from DOM for newly added comments
+                    commentItem.style.opacity = '0';
+                    setTimeout(() => commentItem.remove(), 300);
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
