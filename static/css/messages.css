@@ -1,3 +1,43 @@
+/* Search bar input */
+.searchbar {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Search bar placeholder text */
+input::placeholder {
+    font-style: italic;
+    font-weight: 600;
+    color: #582D00;
+}
+
+/* Search button */
+.search-btn {
+    background-color: #FFDCB7;
+    color: #582D00;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    font-weight: 600;
+}
+
+.search-btn:hover {
+    background-color: #ba7326;
+    color: #FFFFFF;
+}
+
+/* Search bar wrapper */
+.box1 {
+    background-color: #FDF6F0;
+    color: #582D00;
+}
+
+
+.box2 {
+    background-color: #FFFFFF;
+    color: #582D00;
+}
+
+
 .btn-danger {
     background: #F60D0D;
     border: none;
