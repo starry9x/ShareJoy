@@ -165,6 +165,45 @@ def activity_create():
                            title="Create Activity",
                            num_activities=my_activities_count)
 
+@app.route('/activities/edit/<int:activity_id>', methods=['GET', 'POST'])
+def edit_activity(activity_id):
+    activity = Activity.query.get_or_404(activity_id)
+
+    if request.method == 'POST':
+        activity.name = request.form['name']
+        activity.description = request.form['description']
+        activity.date = request.form['date']
+        activity.time = request.form['time']
+        activity.duration_hours = request.form['duration_hours']
+        activity.duration_minutes = request.form['duration_minutes']
+        activity.format_type = request.form['format_type']
+        activity.location = request.form['location'] if activity.format_type == 'In-Person' else ''
+        activity.type = request.form['type']
+        activity.energy = request.form['energy']
+        activity.max_participants = request.form['max_participants']
+
+        tags_str = request.form.get('tags', '')
+        activity.tags = tags_str
+
+        try:
+            db.session.commit()
+            flash('Activity updated successfully!', 'success')
+            return redirect(url_for('activities'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating activity: {e}', 'danger')
+
+    tags = activity.tags.split(',') if activity.tags else []
+    
+    my_activities_count = Activity.query.filter_by(creator="me").count()
+    return render_template(
+        'activity_edit.html',
+        title="Edit Activity",
+        num_activities=my_activities_count,
+        activity=activity,
+        tags=tags
+    )
+
 @app.route("/explore")
 def explore():
     query = Activity.query

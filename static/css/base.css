@@ -118,3 +118,8 @@ h2 {
 .formL {
     color: #582D00 !important;
 }
+
+input,
+textarea {
+    color: #582D00 !important;
+}

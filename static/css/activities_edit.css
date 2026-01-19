@@ -1,0 +1,6 @@
+#location-field {
+    display: none;
+}
+#location-field.show {
+    display: block;
+}
