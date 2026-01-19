@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+<!-- Header bar -->
 <div class="section-box d-flex flex-column flex-md-row align-items-center">
   <a href="{{ url_for('messages') }}" class="btn btn-link p-0 me-3">
     <i class="fa-solid fa-arrow-left me-2"></i>
@@ -15,27 +16,42 @@
   </div>
 </div>
 
+<!-- Outer card -->
+<div class="container sectionbox1 mx-auto">
+  <div class="card-header mx-auto">
+    <h2 class="fw-semibold">Create Contact</h2>
+    <p>Fill in the details below to create a new contact.</p>
+  </div>
 
-<div class="container yellow-box">
-  <h1>Create Contact</h1>
-  <p>Fill in the details below to create a new contact.</p>
-  <div class="white-box mb-3">
-  <form method="POST" action="{{ url_for('create_contact') }}">
-    <div class="mb-3">
-      <label for="name" class="form-label">Name</label>
-      <input type="text" class="form-control" id="name" name="name" required>
+  <!-- Inner card -->
+  <div class="card shadow-sm sectionbox2 mx-auto">
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('create_contact') }}">
+        <!-- Name -->
+        <div class="mb-3">
+          <label for="name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="name" name="name" placeholder="Enter contact name..." required>
+        </div>
+
+        <!-- Phone -->
+        <div class="mb-3">
+          <label for="phone" class="form-label fw-semibold">Phone</label>
+          <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter phone number...">
+        </div>
+
+        <!-- Short Description -->
+        <div class="mb-3">
+          <label for="short_desc" class="form-label fw-semibold">Short Description (optional)</label>
+          <input type="text" class="form-control" id="short_desc" name="short_desc" placeholder="e.g. Grandma, neighbor, colleague">
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end gap-2">
+          <a href="{{ url_for('messages') }}" class="btn cancelbtn fw-semibold">Cancel</a>
+          <button type="submit" class="btn dobtn fw-semibold">Create Contact</button>
+        </div>
+      </form>
     </div>
-    <div class="mb-3">
-      <label for="phone" class="form-label">Phone</label>
-      <input type="text" class="form-control" id="phone" name="phone">
-    </div>
-    <div class="mb-3">
-      <label for="short_desc" class="form-label">Short Description (optional)</label>
-      <input type="text" class="form-control" id="short_desc" name="short_desc">
-    </div>
-    <button type="submit" class="btn btn-primary">Create Contact</button>
-    <a href="{{ url_for('messages') }}" class="btn btn-secondary">Cancel</a>
-  </form>
   </div>
 </div>
 {% endblock %}
