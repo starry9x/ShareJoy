@@ -27,7 +27,32 @@ from flask import request, redirect, url_for
 
 @app.route("/messages")
 def messages():
-    contacts = Contact.query.all()
+    # get query params
+    search = request.args.get("search", "")
+    chat_filter = request.args.get("chat")
+    status_filter = request.args.get("status")
+
+    # start with base query
+    query = Contact.query
+
+    # free-text search across name + last message content
+    if search:
+        query = query.filter(
+            (Contact.name.ilike(f"%{search}%")) |
+            (Contact.short_desc.ilike(f"%{search}%")) |
+            (Contact.phone.ilike(f"%{search}%")) |
+            (Contact.messages.any(Message.content.ilike(f"%{search}%")))
+        )
+
+    # filter by chat group (Family, Friends, Work, etc.)
+    if chat_filter:
+        query = query.filter(Contact.chat_group == chat_filter)
+
+    # filter by message status (Unread, Read, Archived)
+    if status_filter:
+        query = query.filter(Contact.message_status == status_filter)
+
+    contacts = query.all()
 
     # attach last message timestamp to each contact
     for c in contacts:
