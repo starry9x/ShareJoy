@@ -11,7 +11,8 @@ class Contact(db.Model):
 
     # one-to-many relationship
     messages = db.relationship("Message", backref="contact", lazy=True)
-    
+
+    chat_group = db.Column(db.String(50))       # e.g. Family, Friends, Work
     message_status = db.Column(db.String(20))   # e.g. Unread, Read, Archived
 
 class Message(db.Model):
