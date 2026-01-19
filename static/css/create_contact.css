@@ -36,3 +36,14 @@
 h2 {
     font-size: 1.5rem;
 }
+
+/* Placeholder styling */
+.form-control::placeholder,
+.form-select::placeholder,
+.form-select option[value=""],
+.form-control.is-placeholder[type="date"],
+.form-control.is-placeholder[type="time"],
+.form-select:has(option[value=""]:checked) {
+    font-style: italic;
+    color: #AA937B;
+}
