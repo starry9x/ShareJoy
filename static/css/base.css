@@ -57,6 +57,32 @@ select:focus {
     color: #FFFFFF;
 }
 
+/* Form */
+.sectionbox1 {
+    background-color: #FFEBD6;
+    width: 100%;
+    border-radius: 20px;
+    padding-top: 0.5rem;
+    padding-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.sectionbox2 {
+    background-color: #ffffff;
+    width: 97%;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+.card-header {
+    padding: 0.9rem 20px 0rem 20px;
+}
+
 .form-control,
 .form-select {
     background-color: #FDFAF7;
