@@ -29,20 +29,29 @@ from flask import request, redirect, url_for
 def messages():
     # get query params
     search = request.args.get("search", "")
+    filter_type = request.args.get("filter_type", "name")  # NEW: default to name
     chat_filter = request.args.get("chat")
     status_filter = request.args.get("status")
 
     # start with base query
     query = Contact.query
 
-    # free-text search across name + last message content
+    # apply search depending on filter_type
     if search:
-        query = query.filter(
-            (Contact.name.ilike(f"%{search}%")) |
-            (Contact.short_desc.ilike(f"%{search}%")) |
-            (Contact.phone.ilike(f"%{search}%")) |
-            (Contact.messages.any(Message.content.ilike(f"%{search}%")))
-        )
+        if filter_type == "name":
+            query = query.filter(Contact.name.ilike(f"%{search}%"))
+        elif filter_type == "phone":
+            query = query.filter(Contact.phone.ilike(f"%{search}%"))
+        elif filter_type == "message":
+            query = query.filter(Contact.messages.any(Message.content.ilike(f"%{search}%")))
+        else:
+            # fallback: search across all fields (your original behavior)
+            query = query.filter(
+                (Contact.name.ilike(f"%{search}%")) |
+                (Contact.short_desc.ilike(f"%{search}%")) |
+                (Contact.phone.ilike(f"%{search}%")) |
+                (Contact.messages.any(Message.content.ilike(f"%{search}%")))
+            )
 
     # filter by chat group (Family, Friends, Work, etc.)
     if chat_filter:
@@ -64,6 +73,7 @@ def messages():
         c.last_chat = last_msg.timestamp if last_msg else None
 
     return render_template("messages.html", contacts=contacts, title="Messages")
+
 
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])

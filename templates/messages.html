@@ -8,6 +8,13 @@
 <div class="p-3 mb-3 rounded shadow-sm box1">
   <form method="get" class="flex-grow-1 mb-2 mb-md-0 box2 rounded">
     <div class="input-group">
+      <!-- NEW: filter type selector -->
+      <select name="filter_type" class="form-select w-auto me-2">
+        <option value="name" {% if request.args.get('filter_type') == 'name' %}selected{% endif %}>Name</option>
+        <option value="phone" {% if request.args.get('filter_type') == 'phone' %}selected{% endif %}>Phone</option>
+        <option value="message" {% if request.args.get('filter_type') == 'message' %}selected{% endif %}>Message</option>
+      </select>
+
       <input type="text" name="search" class="form-control shadow-sm searchbar"
             placeholder="Search by name, phone, description, or message..."
             value="{{ request.args.get('search', '') }}">
@@ -17,47 +24,6 @@
     </div>
   </form>
 
-<div id="filters-container" class="mt-3 d-none">
-
-  <!-- Chat Groups -->
-  <div class="filters mb-2 d-flex flex-column">
-    <span class="fw-semibold mb-2">Chat Group</span>
-    <div class="d-flex flex-wrap gap-1">
-      {% for chat in ['Family','Friends','Work','School'] %}
-      {% set args = request.args.to_dict() %}
-      {% if request.args.get('chat') == chat %}
-        {% set _ = args.pop('chat') %}
-      {% else %}
-        {% set _ = args.update({'chat': chat}) %}
-      {% endif %}
-      <a href="{{ url_for('messages', **args) }}" class="badge mb-1 filter-badge
-          {% if request.args.get('chat') == chat %}active-badge{% endif %}">
-          💬 {{ chat }}
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-
-  <!-- Message Status -->
-  <div class="filters mb-2 d-flex flex-column">
-    <span class="fw-semibold mb-2">Message Status</span>
-    <div class="d-flex flex-wrap gap-1">
-      {% for status in ['Unread','Read','Archived'] %}
-      {% set args = request.args.to_dict() %}
-      {% if request.args.get('status') == status %}
-        {% set _ = args.pop('status') %}
-      {% else %}
-        {% set _ = args.update({'status': status}) %}
-      {% endif %}
-      <a href="{{ url_for('messages', **args) }}" class="badge mb-1 filter-badge
-          {% if request.args.get('status') == status %}active-badge{% endif %}">
-          {% if status=='Unread' %}📩{% elif status=='Read' %}✅{% elif status=='Archived' %}🗄️{% endif %}
-          {{ status }}
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-
   {% if request.args %}
   <div class="mt-3 text-start">
     <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold">
@@ -65,10 +31,7 @@
     </a>
   </div>
   {% endif %}
-
 </div>
-</div>
-
 
 
 <div class="section-box d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
@@ -76,7 +39,7 @@
     <h1>My Chats</h1>
     <p>Spark a dialogue and strengthen the bond.</p>
   </div>
-  <a href="{{ url_for('create_contact') }}"class="btn btn-danger contact-btn mt-2 mt-md-0 me-3 fw-semibold">
+  <a href="{{ url_for('create_contact') }}" class="btn btn-danger contact-btn mt-2 mt-md-0 me-3 fw-semibold">
    <i class="fa-solid fa-plus"></i> Create Contact
   </a>
 </div>
@@ -84,7 +47,7 @@
 {% for contact in contacts %}
 <div class="contact-box p-4">
   <div class="d-flex align-items-center justify-content-between w-100">
-    <!-- Left side: profile + name + last chat -->
+    <!-- Left side -->
     <div class="d-flex align-items-center" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
       <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" 
            alt="Profile Image" class="circle-image">
@@ -100,7 +63,7 @@
       </div>
     </div>
 
-    <!-- Right side: more actions dropdown -->
+    <!-- Right side -->
     <div class="more-actions-wrapper position-relative">
       <button class="more-actions-toggle d-flex align-items-center justify-content-center position-relative"
               onclick="event.stopPropagation(); toggleDropdown(this)">
@@ -118,9 +81,7 @@
   </div>
 </div>
 {% endfor %}
-
-
-{% endblock %}
+{% endblock %}   
 
 {% block extra_js %}
 <script>
@@ -129,8 +90,9 @@ function toggleDropdown(button) {
   const menu = wrapper.querySelector('.more-actions-menu');
   const chevron = wrapper.querySelector('.chevron-icon');
 
-  const isOpen = !menu.classList.contains('d-none');
+  if (!menu || !chevron) return;
 
+  const isOpen = !menu.classList.contains('d-none');
   if (isOpen) {
     menu.classList.add('d-none');
     chevron.classList.remove('rotate-up');
@@ -139,20 +101,5 @@ function toggleDropdown(button) {
     chevron.classList.add('rotate-up');
   }
 }
-
-// NEW: toggle filters visibility
-document.getElementById('toggle-filters').addEventListener('click', function() {
-  const filters = document.getElementById('filters-container');
-  const isHidden = filters.classList.contains('d-none');
-
-  if (isHidden) {
-    filters.classList.remove('d-none');
-    this.classList.add('active'); // optional: highlight button when open
-  } else {
-    filters.classList.add('d-none');
-    this.classList.remove('active');
-  }
-});
 </script>
-
 {% endblock %}
