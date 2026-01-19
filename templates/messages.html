@@ -6,33 +6,78 @@
 
 {% block content %}
 <div class="p-3 mb-3 rounded shadow-sm box1">
-  <form method="get" class="flex-grow-1 mb-2 mb-md-0 box2 rounded">
-    <div class="input-group">
-      <!-- NEW: filter type selector -->
-      <select name="filter_type" class="form-select w-auto me-2">
-        <option value="name" {% if request.args.get('filter_type') == 'name' %}selected{% endif %}>Name</option>
-        <option value="phone" {% if request.args.get('filter_type') == 'phone' %}selected{% endif %}>Phone</option>
-        <option value="message" {% if request.args.get('filter_type') == 'message' %}selected{% endif %}>Message</option>
-      </select>
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
+    <!-- Search form -->
+    <form method="get" class="flex-grow-1 mb-2 mb-md-0 box2 rounded" id="search-form">
+      <!-- hidden inputs to hold filter selections -->
+      <input type="hidden" name="filter_type" id="filter-type" value="{{ request.args.get('filter_type','') }}">
+      <input type="hidden" name="status" id="status-filter" value="{{ request.args.get('status','') }}">
 
-      <input type="text" name="search" class="form-control shadow-sm searchbar"
-            placeholder="Search by name, phone, description, or message..."
-            value="{{ request.args.get('search', '') }}">
-      <button class="btn search-btn" type="submit">
-        <i class="fa-solid fa-magnifying-glass"></i>
-      </button>
-    </div>
-  </form>
+      <div class="input-group">
+        <input type="text" name="search" class="form-control shadow-sm searchbar"
+               placeholder="Search contacts by name, phone or message..."
+               value="{{ request.args.get('search', '') }}">
+        <button class="btn search-btn" type="submit">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+    </form>
 
-  {% if request.args %}
-  <div class="mt-3 text-start">
-    <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold">
-      Clear all filters
-    </a>
+    <!-- Filters toggle button -->
+    <button id="toggle-filters" class="btn btn-lg fw-semibold mt-2 mt-md-0 ms-md-2">
+      <i class="fa-solid fa-filter"></i> Filters
+    </button>
   </div>
-  {% endif %}
+
+  <!-- Filters panel -->
+<div id="filters-container" class="mt-3 d-none">
+  <!-- Filter by field -->
+  <div class="mb-2 d-flex flex-column">
+    <span class="fw-semibold mb-2">Filter by Field</span>
+    <div class="d-flex flex-wrap gap-1">
+      <!-- New default 'No Filter' option -->
+      <button type="button"
+            class="filter-option {% if not request.args.get('filter_type') %}active{% endif %}"
+            data-filter="">🚫 No Filter</button>
+      <button type="button"
+              class="filter-option {% if request.args.get('filter_type') == 'name' %}active{% endif %}"
+              data-filter="name">👤 Name</button>
+      <button type="button"
+              class="filter-option {% if request.args.get('filter_type') == 'phone' %}active{% endif %}"
+              data-filter="phone">📞 Phone</button>
+      <button type="button"
+              class="filter-option {% if request.args.get('filter_type') == 'message' %}active{% endif %}"
+              data-filter="message">💬 Message</button>
+    </div>
+  </div>
+  
+
+  <!-- Status filter -->
+  <div class="mb-2 d-flex flex-column">
+    <span class="fw-semibold mb-2">Message Status</span>
+    <div class="d-flex flex-wrap gap-1">
+      <button type="button"
+              class="filter-option {% if request.args.get('status') == 'Unread' %}active{% endif %}"
+              data-status="Unread">📩 Unread</button>
+      <button type="button"
+              class="filter-option {% if request.args.get('status') == 'Read' %}active{% endif %}"
+              data-status="Read">✅ Read</button>
+      <button type="button"
+              class="filter-option {% if request.args.get('status') == 'Archived' %}active{% endif %}"
+              data-status="Archived">🗄️ Archived</button>
+    </div>
+  </div>
+
+
+  <div id="clear-filters" class="mt-3 text-start d-none">
+  <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold">
+    Clear all filters
+  </a>
 </div>
 
+</div>
+
+</div>
 
 <div class="section-box d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
   <div>
@@ -64,7 +109,7 @@
     </div>
 
     <!-- Right side -->
-    <div class="more-actions-wrapper position-relative">
+    <div>
       <button class="more-actions-toggle d-flex align-items-center justify-content-center position-relative"
               onclick="event.stopPropagation(); toggleDropdown(this)">
         <i class="fa-solid fa-chevron-down chevron-icon position-absolute start-0 ms-4"></i>
@@ -72,7 +117,6 @@
       </button>
 
       <div class="more-actions-menu d-none">
-        <div class="arrow-up"></div>
         <button class="menu-item">Edit contact</button>
         <button class="menu-item">Delete contact</button>
         <button class="menu-item">Delete chat history</button>
@@ -81,12 +125,12 @@
   </div>
 </div>
 {% endfor %}
-{% endblock %}   
+{% endblock %}
 
 {% block extra_js %}
 <script>
 function toggleDropdown(button) {
-  const wrapper = button.closest('.more-actions-wrapper');
+  const wrapper = button.closest('div');
   const menu = wrapper.querySelector('.more-actions-menu');
   const chevron = wrapper.querySelector('.chevron-icon');
 
@@ -101,5 +145,60 @@ function toggleDropdown(button) {
     chevron.classList.add('rotate-up');
   }
 }
+
+// --- Filters toggle with sessionStorage (remembers state) ---
+document.addEventListener('DOMContentLoaded', function () {
+  const toggleBtn = document.getElementById('toggle-filters');
+  const filters = document.getElementById('filters-container');
+
+  if (!toggleBtn || !filters) return;
+
+  // restore state
+  if (sessionStorage.getItem('filtersOpen') === 'true') {
+    filters.classList.remove('d-none');
+  }
+
+  toggleBtn.addEventListener('click', function () {
+    filters.classList.toggle('d-none');
+    sessionStorage.setItem('filtersOpen', !filters.classList.contains('d-none'));
+  });
+});
+
+// --- Helpers to set hidden inputs when filter buttons are clicked ---
+function setFilter(type) {
+  document.getElementById('filter-type').value = type;
+}
+
+function setStatus(status) {
+  document.getElementById('status-filter').value = status;
+}
+
+// --- Make filter buttons show active state (no auto-submit) ---
+document.addEventListener('DOMContentLoaded', function () {
+  const filterButtons = document.querySelectorAll('.filter-option');
+  const clearFiltersDiv = document.getElementById('clear-filters'); // new div in HTML
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      // Remove active from siblings
+      const siblings = button.parentElement.querySelectorAll('.filter-option');
+      siblings.forEach(sib => sib.classList.remove('active'));
+
+      // Add active to clicked button
+      button.classList.add('active');
+
+      // Show or hide the clear filters link
+      if (button.dataset.filter === '' && !button.dataset.status) {
+        // 🚫 No Filter selected → hide the link
+        clearFiltersDiv.classList.add('d-none');
+      } else {
+        // Any real filter selected → show the link
+        clearFiltersDiv.classList.remove('d-none');
+      }
+    });
+  });
+});
 </script>
+
+
 {% endblock %}

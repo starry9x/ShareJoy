@@ -1,14 +1,32 @@
-/* Search bar input */
-.searchbar {
-    background-color: transparent !important;
-    border: none !important;
+#toggle-filters {
+    background-color: #FFDCB7;
+    color: #582D00;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* Search bar placeholder text */
+.clearbtn {
+    background-color: #df1919;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.clearbtn:hover {
+    background-color: #b31d1d;
+    color: #ffffff;
+}
+
 input::placeholder {
     font-style: italic;
     font-weight: 600;
     color: #582D00;
+}
+
+/* Search bar input */
+.searchbar {
+    background-color: transparent !important;
+    border: none !important;
 }
 
 /* Search button */
@@ -31,12 +49,10 @@ input::placeholder {
     color: #582D00;
 }
 
-
 .box2 {
     background-color: #FFFFFF;
     color: #582D00;
 }
-
 
 .btn-danger {
     background: #F60D0D;
@@ -69,10 +85,6 @@ input::placeholder {
   border-radius: 50%; /* makes it circular */
   object-fit: cover;
   margin-right: 70px; 
-}
-
-.more-actions-wrapper {
-  position: relative;
 }
 
 .more-actions-toggle {
@@ -109,11 +121,6 @@ input::placeholder {
   border: 1px solid black
 }
 
-.menu-header {
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
 .menu-item {
   text-align: left;
   border: none;
@@ -127,3 +134,16 @@ input::placeholder {
   background-color: #e0e0e0;
 }
 
+.filter-option {
+  background-color: #ffffff;
+  color: #333;
+  border: 1px solid #333;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#filters-container .filter-option.active {
+  background-color: #c4c4c4 !important;
+  color: #000000 !important;
+}
