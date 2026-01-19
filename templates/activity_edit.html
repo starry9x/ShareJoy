@@ -3,6 +3,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/activities.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/activities_form.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/activities_edit.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -84,8 +85,8 @@
                 <div class="mb-3" id="location-field" {% if activity.format_type=='In-Person' %}class="show" {% endif
                     %}>
                     <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="location"
-                        placeholder="Enter activity location..." value="{{ activity.location }}">
+                    <input type="text" class="form-control" name="location" placeholder="Enter activity location..."
+                        value="{{ activity.location }}">
                 </div>
 
                 <!-- Category & Energy Level -->
@@ -157,19 +158,22 @@
     const locationField = document.getElementById('location-field');
     const locationInput = locationField.querySelector('input');
 
+    let tempInPersonLocation = locationInput.value;
+
     function toggleLocationField() {
         if (formatSelect.value === 'In-Person') {
-            locationField.classList.add('show');
+            locationField.style.display = 'block';
             locationInput.required = true;
+            locationInput.value = tempInPersonLocation;
         } else {
-            locationField.classList.remove('show');
+            tempInPersonLocation = locationInput.value;
+            locationField.style.display = 'none';
             locationInput.required = false;
-            locationInput.value = '';
+            locationInput.value = 'Online';
         }
     }
 
     toggleLocationField();
-
     formatSelect.addEventListener('change', toggleLocationField);
 
     const tagInput = document.getElementById('tag-input');
@@ -177,6 +181,11 @@
     const tagsContainer = document.getElementById('tags-container');
 
     function addTag(tagText) {
+        if (!tagText) return;
+        const existingTags = Array.from(tagsContainer.querySelectorAll('span'))
+            .map(span => span.textContent.replace('×', '').trim().toLowerCase());
+        if (existingTags.includes(tagText.toLowerCase())) return;
+
         const tag = document.createElement('span');
         tag.className = 'badge bg-secondary d-flex align-items-center gap-1';
         tag.innerHTML = `${tagText} <button type="button" class="tag-delete">×</button>`;
@@ -185,10 +194,16 @@
     }
 
     addTagBtn.addEventListener('click', () => {
-        const tagText = tagInput.value.trim();
-        if (!tagText) return;
-        addTag(tagText);
+        addTag(tagInput.value.trim());
         tagInput.value = '';
+    });
+
+    tagInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTag(tagInput.value.trim());
+            tagInput.value = '';
+        }
     });
 
     document.querySelectorAll('.tag-delete').forEach(btn => {
@@ -202,4 +217,5 @@
         document.getElementById('tags-hidden').value = tags.join(',');
     });
 </script>
+
 {% endblock %}
