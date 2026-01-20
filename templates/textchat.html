@@ -19,23 +19,40 @@
   </div>
 </div>
 
-<div class="chat-container">
-
-  <div class="messages-area">
-    {% for message in messages %}
-      <div class="message {{ message.type }}">
-       <div>{{ message.content }}</div>
+<!-- Wrapper for chat + pane -->
+<div class="chat-wrapper">
+  <div class="chat-container" id="chatContainer">
+    <div class="messages-area">
+      {% for message in messages %}
+        <div class="message {% if message.username == 'me' %}sent{% else %}received{% endif %}">
+          <div>{{ message.content }}</div>
           <small>{{ message.timestamp|sgtime }}</small>
-      </div>
-    {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <form method="POST" class="input-area">
+      <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
+      <button type="submit" class="send-button">Send</button>
+    </form>
   </div>
 
-  <form method="POST" class="input-area">
-  <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
-  <button type="submit" class="send-button">Send</button>
-</form>
-
+  <!-- Right pane -->
+  <div class="right-pane" id="rightPane">
+    <h5>Chat Functions</h5>
+    <p>Placeholder content goes here...</p>
+    <button type="button" class="btn btn-sm btn-outline-dark" onclick="togglePane()">Close</button>
+  </div>
 </div>
-
 {% endblock %}
 
+{% block extra_js %}
+<script>
+function togglePane() {
+  const pane = document.getElementById("rightPane");
+  const chat = document.getElementById("chatContainer");
+  pane.classList.toggle("open");
+  chat.classList.toggle("shrunk");
+}
+</script>
+{% endblock %}

@@ -5,6 +5,7 @@ from activities import Activity
 from datetime import datetime
 from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage
 import os
+import pytz
 
 
 app = Flask(__name__)
@@ -20,11 +21,12 @@ app.secret_key = os.urandom(24)
 
 @app.template_filter("sgtime")
 def sgtime(dt):
-    import pytz
-    sg_tz = pytz.timezone("Asia/Singapore")
-    # guard against None or strings
-    if not dt or not hasattr(dt, "astimezone"):
+    if not dt:
         return ""
+    # If naive, assume UTC
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=pytz.utc)
+    sg_tz = pytz.timezone("Asia/Singapore")
     return dt.astimezone(sg_tz).strftime("%d %b %Y %H:%M")
 
 
