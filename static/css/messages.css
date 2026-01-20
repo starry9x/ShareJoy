@@ -46,7 +46,8 @@ input::placeholder {
 /* Search bar wrapper */
 .box1 {
     background-color: #FDF6F0;
-    color: #582D00;
+    color: #000000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.256) !important;; 
 }
 
 .box2 {
@@ -69,14 +70,18 @@ input::placeholder {
     width: 100%;
     min-height: 150px;  
     color: black;    
-    background-color: #FFEBD6;
-    box-shadow: 0 0px 8px rgba(0,0,0,0.6);  
+    background-color: #ffe4c6;
+    box-shadow: 0 0px 8px rgba(122, 122, 122, 0.3);  
     border-radius: 10px;                               
     margin: 20px auto;       
     display: flex;              /* make it a flex container */
     flex-direction: column;     /* stack text elements */
     justify-content: center;    /* vertical center */
     align-items: flex-start;    /* keep text left-aligned */
+}
+
+.contact-box:hover{   
+    background-color: #ffdbb4;
 }
 
 .circle-image {
@@ -99,10 +104,10 @@ input::placeholder {
 
 .chevron-icon {
   position: absolute;
-  right: 12px;           /* place chevron on right */
-  top: 49%;
+  left: 10%;
+  top: 50%;
   transform: translateY(-50%);
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
 }
 
 .chevron-icon.rotate-up {
@@ -111,8 +116,7 @@ input::placeholder {
 
 .more-actions-menu {
   position: absolute;
-  top: 73%;
-  right: 20;              /* align to right edge instead of left */
+  top: 100%;          /* align to right edge instead of left */
   z-index: 1000;
   display: flex;
   flex-direction: column;
