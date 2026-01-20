@@ -90,10 +90,11 @@
 </div>
 
 {% for contact in contacts %}
-<div class="contact-box p-4">
+<div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
   <div class="d-flex align-items-center justify-content-between w-100">
-    <!-- Left side -->
-    <div class="d-flex align-items-center" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
+    
+    <!-- Left side: image + name -->
+    <div class="d-flex align-items-center">
       <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" 
            alt="Profile Image" class="circle-image">
       <div>
@@ -108,12 +109,12 @@
       </div>
     </div>
 
-    <!-- Right side -->
-    <div>
-      <button class="more-actions-toggle d-flex align-items-center justify-content-center position-relative"
-              onclick="event.stopPropagation(); toggleDropdown(this)">
-        <i class="fa-solid fa-chevron-down chevron-icon position-absolute start-0 ms-4"></i>
-        <span class="me-0 fs-6">More actions</span>
+    <!-- Right side: dropdown (stop bubbling here) -->
+    <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
+      <button class="more-actions-toggle d-flex align-items-center justify-content-center"
+              onclick="toggleDropdown(this)">
+        <i class="fa-solid fa-chevron-down chevron-icon"></i>
+        <span class="fs-6">More actions</span>
       </button>
 
       <div class="more-actions-menu d-none">
@@ -124,6 +125,7 @@
     </div>
   </div>
 </div>
+
 {% endfor %}
 {% endblock %}
 
