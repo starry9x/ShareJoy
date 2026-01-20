@@ -13,6 +13,7 @@
   justify-content: center;
   /* vertical center */
   align-items: flex-start;
+  /* keep text left-aligned */
 }
 
 /* keep text left-aligned */
@@ -101,6 +102,20 @@ input::placeholder {
   /* vertical center */
   align-items: flex-start;
   /* keep text left-aligned */
+  width: 100%;
+  min-height: 150px;
+  color: black;
+  background-color: #ffe4c6;
+  box-shadow: 0 0px 8px rgba(122, 122, 122, 0.3);
+  border-radius: 10px;
+  margin: 20px auto;
+  display: flex;
+  /* make it a flex container */
+  flex-direction: column;
+  /* stack text elements */
+  justify-content: center;
+  /* vertical center */
+  align-items: flex-start;
 }
 
 .contact-box:hover {

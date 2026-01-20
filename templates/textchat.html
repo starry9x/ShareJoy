@@ -19,22 +19,24 @@
   </div>
 </div>
 
-<h2>Chat Room</h2>
 
-<form action="{{ url_for('textchat', contact_id=contact.id) }}" method="POST">
-  <input type="text" name="username" placeholder="Your name" required>
-  <input type="text" name="content" placeholder="Type a message..." required>
-  <button type="submit">Send</button>
+<div class="chat-container">
+
+  <div class="messages-area">
+    {% for message in messages %}
+      <div class="message {{ message.type }}">
+       <div>{{ message.content }}</div>
+          <small>{{ message.timestamp.strftime("%I:%M %p") }}</small>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form method="POST" class="input-area">
+  <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
+  <button type="submit" class="send-button">Send</button>
 </form>
 
-<hr>
+</div>
 
-<ul>
-  {% for msg in messages %}
-    <li>
-      <strong>{{ msg.username }}</strong>: {{ msg.content }}
-      <em>({{ msg.timestamp.strftime("%Y-%m-%d %H:%M") }})</em>
-    </li>
-  {% endfor %}
-</ul>
 {% endblock %}
+
