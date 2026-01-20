@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .contact-box {
   width: 100%;
   min-height: 150px;
@@ -14,6 +15,92 @@
   /* vertical center */
   align-items: flex-start;
   /* keep text left-aligned */
+=======
+#toggle-filters {
+    background-color: #FFDCB7;
+    color: #582D00;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.clearbtn {
+    background-color: #df1919;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.clearbtn:hover {
+    background-color: #b31d1d;
+    color: #ffffff;
+}
+
+input::placeholder {
+    font-style: italic;
+    font-weight: 600;
+    color: #582D00;
+}
+
+/* Search bar input */
+.searchbar {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Search button */
+.search-btn {
+    background-color: #FFDCB7;
+    color: #582D00;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    font-weight: 600;
+}
+
+.search-btn:hover {
+    background-color: #ba7326;
+    color: #FFFFFF;
+}
+
+/* Search bar wrapper */
+.box1 {
+    background-color: #FDF6F0;
+    color: #000000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.256) !important;; 
+}
+
+.box2 {
+    background-color: #FFFFFF;
+    color: #582D00;
+}
+
+.btn-danger {
+    background: #F60D0D;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.158);
+}
+
+.contact-btn {
+    font-size: 1.2rem;
+    padding: 0.8rem 1.4rem;
+}
+
+.contact-box {
+    width: 100%;
+    min-height: 150px;  
+    color: black;    
+    background-color: #ffe4c6;
+    box-shadow: 0 0px 8px rgba(122, 122, 122, 0.3);  
+    border-radius: 10px;                               
+    margin: 20px auto;       
+    display: flex;              /* make it a flex container */
+    flex-direction: column;     /* stack text elements */
+    justify-content: center;    /* vertical center */
+    align-items: flex-start;    /* keep text left-aligned */
+>>>>>>> 8c62391b084c683ebf7f8ba7d778878485667153
+}
+
+.contact-box:hover{   
+    background-color: #ffdbb4;
 }
 
 .circle-image {
@@ -38,7 +125,11 @@
 }
 
 .chevron-icon {
-  transition: transform 0.2s ease;
+  position: absolute;
+  left: 10%;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.3s ease;
 }
 
 .chevron-icon.rotate-up {
@@ -47,8 +138,7 @@
 
 .more-actions-menu {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: 100%;          /* align to right edge instead of left */
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -58,7 +148,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 220px;
-  border: 1px solid black
+  border: 1px solid black;
 }
 
 .menu-item {

@@ -84,31 +84,30 @@
 
 
 {% for contact in contacts %}
-<div class="contact-box p-4">
+<div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
   <div class="d-flex align-items-center justify-content-between w-100">
-    <!-- Left side -->
-    <div class="d-flex align-items-center"
-      onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
-      <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" alt="Profile Image"
-        class="circle-image">
+    <!-- Left side (no extra onclick here) -->
+    <div class="d-flex align-items-center">
+      <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" 
+           alt="Profile Image" class="circle-image">
       <div>
         <h1 class="mb-1 me-5">{{ contact.name }}</h1>
         <p class="mb-0">
           {% if contact.last_chat %}
-          Last chatted on {{ contact.last_chat.strftime("%b %d, %Y %H:%M") }}
+            Last chatted on {{ contact.last_chat.strftime("%b %d, %Y %H:%M") }}
           {% else %}
-          No chats yet
+            No chats yet
           {% endif %}
         </p>
       </div>
     </div>
 
-    <!-- Right side -->
-    <div>
-      <button class="more-actions-toggle d-flex align-items-center justify-content-center position-relative"
-        onclick="event.stopPropagation(); toggleDropdown(this)">
-        <i class="fa-solid fa-chevron-down chevron-icon position-absolute start-0 ms-4"></i>
-        <span class="me-0 fs-6">More actions</span>
+    <!-- Right side: dropdown -->
+    <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
+      <button class="more-actions-toggle d-flex align-items-center justify-content-center"
+              onclick="toggleDropdown(this)">
+        <i class="fa-solid fa-chevron-down chevron-icon"></i>
+        <span class="fs-6">More actions</span>
       </button>
 
       <div class="more-actions-menu d-none">
@@ -120,6 +119,7 @@
   </div>
 </div>
 {% endfor %}
+
 {% endblock %}
 
 {% block extra_js %}
