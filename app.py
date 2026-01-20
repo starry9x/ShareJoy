@@ -18,7 +18,7 @@ with app.app_context():
 app.secret_key = os.urandom(24)
 
 
-@app.route("/home")
+@app.route("/")
 def home():
     return render_template("homepage.html", title="Home")
 
