@@ -1,6 +1,6 @@
 from extensions import db
 from datetime import datetime
-
+import pytz
 class Contact(db.Model):
     __tablename__ = 'contact'
     id = db.Column(db.Integer, primary_key=True)
@@ -19,7 +19,7 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime,default=lambda: datetime.now(pytz.utc))
 
     contact_id = db.Column(db.Integer, db.ForeignKey("contact.id"), nullable=True)
 

@@ -94,7 +94,7 @@
         <h1 class="mb-1 me-5">{{ contact.name }}</h1>
         <p class="mb-0">
           {% if contact.last_chat %}
-            Last chatted on {{ contact.last_chat.strftime("%b %d, %Y %H:%M") }}
+            Last chatted on {{ contact.last_chat|sgtime }}
           {% else %}
             No chats yet
           {% endif %}

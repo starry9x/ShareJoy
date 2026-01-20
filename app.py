@@ -6,6 +6,7 @@ from datetime import datetime
 from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage
 import os
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
 
@@ -17,13 +18,20 @@ with app.app_context():
     
 app.secret_key = os.urandom(24)
 
+@app.template_filter("sgtime")
+def sgtime(dt):
+    import pytz
+    sg_tz = pytz.timezone("Asia/Singapore")
+    # guard against None or strings
+    if not dt or not hasattr(dt, "astimezone"):
+        return ""
+    return dt.astimezone(sg_tz).strftime("%d %b %Y %H:%M")
+
 
 @app.route("/")
 def home():
     return render_template("homepage.html", title="Home")
 
-
-from flask import request, redirect, url_for
 
 @app.route("/messages")
 def messages():

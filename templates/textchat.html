@@ -19,14 +19,13 @@
   </div>
 </div>
 
-
 <div class="chat-container">
 
   <div class="messages-area">
     {% for message in messages %}
       <div class="message {{ message.type }}">
        <div>{{ message.content }}</div>
-          <small>{{ message.timestamp.strftime("%I:%M %p") }}</small>
+          <small>{{ message.timestamp|sgtime }}</small>
       </div>
     {% endfor %}
   </div>
