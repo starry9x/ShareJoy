@@ -81,10 +81,10 @@ def textchat(contact_id):
     contact = Contact.query.get_or_404(contact_id)
 
     if request.method == "POST":
-        username = request.form.get("username")
         content = request.form.get("content")
-        if username and content:
-            new_msg = Message(username=username, content=content, contact_id=contact.id)
+        if content:
+            # Always mark sender as "me"
+            new_msg = Message(username="me", content=content, contact_id=contact.id)
             db.session.add(new_msg)
             db.session.commit()
         return redirect(url_for("textchat", contact_id=contact.id))
