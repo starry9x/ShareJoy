@@ -152,9 +152,11 @@
 
 <!-- Confirm Overlay -->
 <div id="confirm-overlay" class="overlay hidden">
-    <div class="bg-white p-3 shadow cardsec w-md-50">
+    <div class="bg-white p-4 shadow cardsec w-md-50">
         <!-- Title -->
-        <div class="fw-bold fs-6 mb-2 ms-1 cardhead">Create Activity</div>
+        <div class="fw-bold mb-2 ms-1 cardhead">
+            <h4>Create Activity</h4>
+        </div>
 
         <!-- Description -->
         <p class="mb-3 ms-1 fw-semibold carddesc">
@@ -178,8 +180,8 @@
 <!-- Loading Overlay -->
 <div id="loading-overlay" class="overlay hidden fs-6">
     <div class="text-center">
-        <div class="spinner-border text-dark" role="status"></div>
-        <p class="fw-semibold mt-3">Loading...</p>
+        <div class="spinner-border" role="status"></div>
+        <p class="fw-semibold mt-2 loading-text">Loading...</p>
     </div>
 </div>
 
@@ -187,8 +189,10 @@
 <div id="success-overlay" class="overlay hidden">
     <div class="text-center">
         <i class="fa-regular fa-circle-check text-success"></i>
-        <h4 class="fw-semibold mt-3">Activity Created!</h4>
-        <p>Your activity is now visible to others.</p>
+        <div class="fw-bold mt-3 cardhead success-text">
+            <h4>Activity Created!</h4>
+            <p class="carddesc success-text fw-semibold">Your activity is now visible to others.</p>
+        </div>
         <button type="button" id="success-ok-btn" class="btn okbtn mt-1 fw-semibold">Okay</button>
     </div>
 </div>
