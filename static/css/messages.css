@@ -13,77 +13,85 @@
   justify-content: center;
   /* vertical center */
   align-items: flex-start;
+<<<<<<< HEAD
   /* keep text left-aligned */
 }
+=======
+}
+
+/* keep text left-aligned */
+>>>>>>> 25d17001820aeda9b367666ccc1ea788f4c05a27
 #toggle-filters {
-    background-color: #FFDCB7;
-    color: #582D00;
-    border: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  background-color: #FFDCB7;
+  color: #582D00;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .clearbtn {
-    background-color: #df1919;
-    color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  background-color: #df1919;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .clearbtn:hover {
-    background-color: #b31d1d;
-    color: #ffffff;
+  background-color: #b31d1d;
+  color: #ffffff;
 }
 
 input::placeholder {
-    font-style: italic;
-    font-weight: 600;
-    color: #582D00;
+  font-style: italic;
+  font-weight: 600;
+  color: #582D00;
 }
 
 /* Search bar input */
 .searchbar {
-    background-color: transparent !important;
-    border: none !important;
+  background-color: transparent !important;
+  border: none !important;
 }
 
 /* Search button */
 .search-btn {
-    background-color: #FFDCB7;
-    color: #582D00;
-    border: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-    font-weight: 600;
+  background-color: #FFDCB7;
+  color: #582D00;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
 }
 
 .search-btn:hover {
-    background-color: #ba7326;
-    color: #FFFFFF;
+  background-color: #ba7326;
+  color: #FFFFFF;
 }
 
 /* Search bar wrapper */
 .box1 {
-    background-color: #FDF6F0;
-    color: #000000;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.256) !important;; 
+  background-color: #FDF6F0;
+  color: #000000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.256) !important;
+  ;
 }
 
 .box2 {
-    background-color: #FFFFFF;
-    color: #582D00;
+  background-color: #FFFFFF;
+  color: #582D00;
 }
 
 .btn-danger {
-    background: #F60D0D;
-    border: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.158);
+  background: #F60D0D;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.158);
 }
 
 .contact-btn {
-    font-size: 1.2rem;
-    padding: 0.8rem 1.4rem;
+  font-size: 1.2rem;
+  padding: 0.8rem 1.4rem;
 }
 
 .contact-box {
+<<<<<<< HEAD
     width: 100%;
     min-height: 150px;  
     color: black;    
@@ -95,10 +103,27 @@ input::placeholder {
     flex-direction: column;     /* stack text elements */
     justify-content: center;    /* vertical center */
     align-items: flex-start;    /* keep text left-aligned */
+=======
+  width: 100%;
+  min-height: 150px;
+  color: black;
+  background-color: #ffe4c6;
+  box-shadow: 0 0px 8px rgba(122, 122, 122, 0.3);
+  border-radius: 10px;
+  margin: 20px auto;
+  display: flex;
+  /* make it a flex container */
+  flex-direction: column;
+  /* stack text elements */
+  justify-content: center;
+  /* vertical center */
+  align-items: flex-start;
+  /* keep text left-aligned */
+>>>>>>> 25d17001820aeda9b367666ccc1ea788f4c05a27
 }
 
-.contact-box:hover{   
-    background-color: #ffdbb4;
+.contact-box:hover {
+  background-color: #ffdbb4;
 }
 
 .circle-image {
@@ -136,7 +161,8 @@ input::placeholder {
 
 .more-actions-menu {
   position: absolute;
-  top: 100%;          /* align to right edge instead of left */
+  top: 100%;
+  /* align to right edge instead of left */
   z-index: 1000;
   display: flex;
   flex-direction: column;
