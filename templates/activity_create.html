@@ -79,8 +79,7 @@
                 <!-- Location -->
                 <div class="mb-3" id="location-field" style="display: none;">
                     <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="location"
-                        placeholder="Enter activity location...">
+                    <input type="text" class="form-control" name="location" placeholder="Enter activity location...">
                 </div>
 
 
@@ -140,7 +139,10 @@
                 <!-- Buttons -->
                 <div class="d-flex justify-content-end gap-2">
                     <a href="{{ url_for('activities') }}" class="btn cancelbtn fw-semibold">Cancel</a>
-                    <button type="submit" class="btn dobtn fw-semibold">Create Activity</button>
+                    <button type="button" id="create-btn" class="btn dobtn fw-semibold">
+                        Create Activity
+                    </button>
+
                 </div>
 
             </form>
@@ -148,67 +150,155 @@
     </div>
 </div>
 
+<!-- Confirm Overlay -->
+<div id="confirm-overlay" class="overlay hidden">
+    <div class="bg-white p-3 shadow cardsec w-md-50">
+        <!-- Title -->
+        <div class="fw-bold fs-6 mb-2 ms-1 cardhead">Create Activity</div>
+
+        <!-- Description -->
+        <p class="mb-3 ms-1 fw-semibold carddesc">
+            Are you sure you want to create this activity? <br>
+            It will be published and visible to others.
+        </p>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" id="confirm-no" class="btn cancel-btn btn-sm fw-semibold">
+                Cancel
+            </button>
+            <button type="button" id="confirm-yes" class="btn successbtn btn-sm fw-semibold">
+                Create Activity
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="overlay hidden fs-6">
+    <div class="text-center">
+        <div class="spinner-border text-dark" role="status"></div>
+        <p class="fw-semibold mt-3">Loading...</p>
+    </div>
+</div>
+
+<!-- Success Overlay -->
+<div id="success-overlay" class="overlay hidden">
+    <div class="text-center">
+        <i class="fa-regular fa-circle-check text-success"></i>
+        <h4 class="fw-semibold mt-3">Activity Created!</h4>
+        <p>Your activity is now visible to others.</p>
+        <button type="button" id="success-ok-btn" class="btn okbtn mt-1 fw-semibold">Okay</button>
+    </div>
+</div>
+
+
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
-        input.addEventListener('change', () => {
-            input.classList.remove('is-placeholder');
+    document.addEventListener('DOMContentLoaded', () => {
+
+        document.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
+            input.addEventListener('change', () => {
+                input.classList.remove('is-placeholder');
+            });
         });
-    });
 
-    document.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
-        input.addEventListener('change', () => {
-            input.classList.remove('is-placeholder');
+        const formatSelect = document.querySelector('select[name="format_type"]');
+        const locationField = document.getElementById('location-field');
+        const locationInput = locationField.querySelector('input');
+
+        formatSelect.addEventListener('change', () => {
+            if (formatSelect.value === 'In-Person') {
+                locationField.style.display = 'block';
+                locationInput.required = true;
+            } else {
+                locationField.style.display = 'none';
+                locationInput.required = false;
+                locationInput.value = '';
+            }
         });
-    });
 
-    const formatSelect = document.querySelector('select[required]');
-    const locationField = document.getElementById('location-field');
-    const locationInput = locationField.querySelector('input');
+        const tagInput = document.getElementById('tag-input');
+        const addTagBtn = document.getElementById('add-tag-btn');
+        const tagsContainer = document.getElementById('tags-container');
+        const hiddenTagsInput = document.getElementById('tags-hidden');
 
-    formatSelect.addEventListener('change', () => {
-        if (formatSelect.value === 'In-Person') {
-            locationField.style.display = 'block';
-            locationInput.required = true;
-        } else {
-            locationField.style.display = 'none';
-            locationInput.required = false;
-            locationInput.value = '';
+        function addTag() {
+            const tagText = tagInput.value.trim();
+            if (!tagText) return;
+
+            const tag = document.createElement('span');
+            tag.className = 'badge bg-secondary d-flex align-items-center gap-1';
+            tag.innerHTML = `
+            ${tagText}
+            <button type="button" class="tag-delete">×</button>
+        `;
+
+            tag.querySelector('.tag-delete').addEventListener('click', () => {
+                tag.remove();
+            });
+
+            tagsContainer.appendChild(tag);
+            tagInput.value = '';
         }
-    });
 
-    const tagInput = document.getElementById('tag-input');
-    const addTagBtn = document.getElementById('add-tag-btn');
-    const tagsContainer = document.getElementById('tags-container');
+        addTagBtn.addEventListener('click', addTag);
 
-    addTagBtn.addEventListener('click', () => {
-        const tagText = tagInput.value.trim();
-        if (!tagText) return;
-
-        const tag = document.createElement('span');
-        tag.className = 'badge bg-secondary d-flex align-items-center gap-1';
-        tag.innerHTML = `${tagText} <button type="button" class="tag-delete">×</button>`;
-
-        tag.querySelector('.tag-delete').addEventListener('click', () => {
-            tagsContainer.removeChild(tag);
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag();
+            }
         });
 
-        tagsContainer.appendChild(tag);
-        tagInput.value = '';
+        const form = document.querySelector('form');
+        const createBtn = document.getElementById('create-btn');
+
+        const confirmOverlay = document.getElementById('confirm-overlay');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const successOverlay = document.getElementById('success-overlay');
+
+        const confirmYes = document.getElementById('confirm-yes');
+        const confirmNo = document.getElementById('confirm-no');
+
+        const successOkBtn = document.getElementById('success-ok-btn');
+
+        // Show confirm overlay
+        createBtn.addEventListener('click', () => {
+            confirmOverlay.classList.remove('hidden');
+        });
+
+        // Cancel
+        confirmNo.addEventListener('click', () => {
+            confirmOverlay.classList.add('hidden');
+        });
+
+        // Confirm → show loading → success
+        confirmYes.addEventListener('click', () => {
+
+            const tags = Array.from(tagsContainer.querySelectorAll('.badge'))
+                .map(tag => tag.textContent.replace('×', '').trim());
+            hiddenTagsInput.value = tags.join(',');
+
+            confirmOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                successOverlay.classList.remove('hidden');
+            }, 5000);
+        });
+
+        // Success OK
+        successOkBtn.addEventListener('click', () => {
+            successOverlay.classList.add('hidden');
+            form.submit();
+        });
     });
-
-    const form = document.querySelector('form');
-
-    form.addEventListener('submit', (e) => {
-        const tags = Array.from(tagsContainer.querySelectorAll('span'))
-            .map(span => span.textContent.replace('×', '').trim());
-        document.getElementById('tags-hidden').value = tags.join(',');
-    });
-
-
-
 </script>
 
 {% endblock %}

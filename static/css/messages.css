@@ -1,3 +1,20 @@
+.contact-box {
+  width: 100%;
+  min-height: 150px;
+  color: black;
+  background-color: #FFEBD6;
+  box-shadow: 0 0px 8px rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  margin: 20px auto;
+  display: flex;
+  /* make it a flex container */
+  flex-direction: column;
+  /* stack text elements */
+  justify-content: center;
+  /* vertical center */
+  align-items: flex-start;
+  /* keep text left-aligned */
+}
 #toggle-filters {
     background-color: #FFDCB7;
     color: #582D00;
@@ -85,11 +102,14 @@ input::placeholder {
 }
 
 .circle-image {
-  width: 150px;       /* set width */
-  height: 150px;      /* set height (same as width for perfect circle) */
-  border-radius: 50%; /* makes it circular */
+  width: 150px;
+  /* set width */
+  height: 150px;
+  /* set height (same as width for perfect circle) */
+  border-radius: 50%;
+  /* makes it circular */
   object-fit: cover;
-  margin-right: 70px; 
+  margin-right: 70px;
 }
 
 .more-actions-toggle {
@@ -124,7 +144,7 @@ input::placeholder {
   padding: 5px;
   background-color: #D9D9D9;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 220px;
   border: 1px solid black;
 }

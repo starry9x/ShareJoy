@@ -15,7 +15,7 @@
         </p>
     </div>
     <a href="{{ url_for('activity_create') }}"
-        class="btn btn-danger activity-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">
+        class="btn btn-danger cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">
         <i class="fa-solid fa-plus" aria-hidden="true"></i> Create Activity
     </a>
 </div>
@@ -126,4 +126,20 @@
     {% endfor %}
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<script>
+    const successOverlay = document.getElementById('success-overlay');
+    if (successOverlay) {
+        successOverlay.classList.remove('hidden');
+        setTimeout(() => {
+            successOverlay.classList.add('hidden');
+        }, 2000);
+    }
+</script>
+{% endif %}
+{% endwith %}
 {% endblock %}
