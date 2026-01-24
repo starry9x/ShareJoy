@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/groups.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+    <div class="confirm-icon warning">⚠️</div>
+
+    <h1 class="confirm-title">Leave "{{ group.name }}"?</h1>
+    <p class="confirm-message">Are you sure you want to leave this group?</p>
+
+    <div class="confirm-details">
+        <p>If you leave:</p>
+        <ul>
+            <li>You'll no longer have access to group chats and posts</li>
+            <li>Your buddy connection will be removed</li>
+            <li>You'll need to go through the buddy matching process again to rejoin</li>
+        </ul>
+    </div>
+
+    <div class="confirm-actions">
+        <a href="{{ url_for('group_settings', group_id=group.id) }}" class="btn-cancel">
+            <i class="fa-solid fa-xmark"></i> Cancel
+        </a>
+        <form method="POST" action="{{ url_for('leave_group', group_id=group.id) }}" style="display: inline;">
+            <button type="submit" class="btn-confirm-danger">
+                <i class="fa-solid fa-right-from-bracket"></i> Leave Group
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

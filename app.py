@@ -682,6 +682,12 @@ def toggle_buddy_system(group_id):
     return redirect(url_for("group_settings", group_id=group_id))
 
 
+@app.route("/group/<int:group_id>/leave/confirm")
+def leave_group_confirm(group_id):
+    group = Group.query.get_or_404(group_id)
+    return render_template("group_leave_confirm.html", group=group, title="Leave Group")
+
+
 @app.route("/group/<int:group_id>/leave", methods=["POST"])
 def leave_group(group_id):
     group = Group.query.get_or_404(group_id)
@@ -815,6 +821,12 @@ def delete_comment(comment_id):
         return jsonify({'success': True})
 
     return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
+
+@app.route("/group/<int:group_id>/delete/confirm")
+def delete_group_confirm(group_id):
+    group = Group.query.get_or_404(group_id)
+    return render_template("group_delete_confirm.html", group=group, title="Delete Group")
 
 
 @app.route("/group/<int:group_id>/delete", methods=["POST"])
