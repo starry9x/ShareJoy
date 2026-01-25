@@ -84,8 +84,6 @@ def messages():
 
     return render_template("messages.html", contacts=contacts, title="Messages")
 
-
-
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
     contact = Contact.query.get_or_404(contact_id)
@@ -118,6 +116,24 @@ def create_contact():
         return redirect(url_for("messages"))  # back to chat list
 
     return render_template("create_contact.html", title="Create Contact")
+
+@app.route('/delete_contact/<int:contact_id>', methods=['POST'])
+def delete_contact(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+    db.session.delete(contact)
+    db.session.commit()
+    return redirect(url_for('messages'))
+
+@app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
+def edit_contact(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+    if request.method == 'POST':
+        contact.name = request.form.get('name', contact.name)
+        contact.phone = request.form.get('phone', contact.phone)
+        contact.short_desc = request.form.get('short_desc', contact.short_desc)
+        db.session.commit()
+        return redirect(url_for('messages'))
+    return render_template('edit_contact.html', contact=contact, title="Edit Contact")
 
 @app.route("/activities")
 def activities():
@@ -675,6 +691,12 @@ def toggle_buddy_system(group_id):
     return redirect(url_for("group_settings", group_id=group_id))
 
 
+@app.route("/group/<int:group_id>/leave/confirm")
+def leave_group_confirm(group_id):
+    group = Group.query.get_or_404(group_id)
+    return render_template("group_leave_confirm.html", group=group, title="Leave Group")
+
+
 @app.route("/group/<int:group_id>/leave", methods=["POST"])
 def leave_group(group_id):
     group = Group.query.get_or_404(group_id)
@@ -808,6 +830,12 @@ def delete_comment(comment_id):
         return jsonify({'success': True})
 
     return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
+
+@app.route("/group/<int:group_id>/delete/confirm")
+def delete_group_confirm(group_id):
+    group = Group.query.get_or_404(group_id)
+    return render_template("group_delete_confirm.html", group=group, title="Delete Group")
 
 
 @app.route("/group/<int:group_id>/delete", methods=["POST"])

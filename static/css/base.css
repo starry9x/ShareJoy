@@ -2,7 +2,7 @@
     width: 100%;
     min-height: 100px;
     color: #582D00;
-    background-color: #FDF6F0;
+    background-color: #fff2e6;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.256);
     padding-top: 20px;
     padding-bottom: 15px;
@@ -87,7 +87,8 @@ h2 {
 .form-select {
     background-color: #FDFAF7;
     border: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.13);
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 
@@ -332,13 +333,19 @@ input::placeholder {
     color: #000;
 }
 
-/* .btn.delete {
-    color: #fff;
-    background-color: #F60D0D;
-    border: none;
+/* Modals */
+.modal-content {
+  border-radius: 0.8rem; 
 }
 
-.btn.delete:hover {
-    background-color: #d40b0b;
-    border: none;
-} */
+.modal-header {
+  border-bottom: none !important;
+  padding-bottom: 0;
+}
+
+.modal-footer {
+  border-top: none !important;
+  padding-top: 0;
+  padding-bottom: 0.25rem;
+  padding-right: 0.75rem; 
+}

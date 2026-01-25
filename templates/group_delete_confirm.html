@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/groups.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+    <div class="confirm-icon danger">🗑️</div>
+
+    <h1 class="confirm-title">Delete "{{ group.name }}"?</h1>
+    <p class="confirm-message danger">This action cannot be undone!</p>
+
+    <div class="confirm-details danger">
+        <p><strong>Warning:</strong> Deleting this group will permanently remove:</p>
+        <ul>
+            <li>All group members ({{ group.current_participants }} people)</li>
+            <li>All chat messages and conversations</li>
+            <li>All posts, comments, and likes</li>
+            <li>All buddy connections</li>
+            <li>The group itself</li>
+        </ul>
+        <p style="margin-top: 15px; font-weight: 700;">This cannot be reversed!</p>
+    </div>
+
+    <div class="confirm-actions">
+        <a href="{{ url_for('group_settings', group_id=group.id) }}" class="btn-cancel">
+            <i class="fa-solid fa-xmark"></i> Cancel
+        </a>
+        <form method="POST" action="{{ url_for('delete_group', group_id=group.id) }}" style="display: inline;">
+            <button type="submit" class="btn-confirm-danger delete">
+                <i class="fa-solid fa-trash"></i> Delete Permanently
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
