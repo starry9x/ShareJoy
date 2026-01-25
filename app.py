@@ -309,42 +309,40 @@ def schedule():
 def profile():
     return render_template("profile.html", title="Profile")
 
+
 @app.route("/signup")
 def signup():
     return render_template("signup.html")
 
-@app.route("/forgotpassword")
-@app.route("/safetynprivacy")
-def profile():
-    return render_template("safetynprivacy.html", title="Safety & Privacy")
-
-@app.route("/accessibility")
-def profile():
-    return render_template("accessibility.html", title="Accessibility")
 
 @app.route("/forgot-password")
 def forgot_password():
     return render_template("forgotpassword.html")
 
-@app.route("/accessibility")
-def accessibility():
-    return render_template("accessibility.html")
 
 @app.route("/safetynprivacy")
-def safetynprivacy():
-    return render_template("safetynprivacy.html")
+def safety_and_privacy():
+    return render_template("safetynprivacy.html", title="Safety & Privacy")
+
+
+@app.route("/accessibility")
+def accessibility():
+    return render_template("accessibility.html", title="Accessibility")
+
 
 @app.route("/achievements")
 def achievements():
     return render_template("achievements.html")
 
+
 @app.route("/loginpage")
 def loginpage():
     return render_template("loginpage.html")
 
-@app.route('/logout')
+
+@app.route("/logout")
 def logout():
-    return redirect(url_for('loginpage'))
+    return redirect(url_for("loginpage"))
 
 # ==========================================
 #  GROUPS ROUTES
