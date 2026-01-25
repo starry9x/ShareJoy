@@ -305,7 +305,7 @@ h2 {
     color: #000;
 }
 
-/* Overlays */
+/* Overlay */
 .overlay {
     position: fixed;
     inset: 0;
@@ -362,6 +362,76 @@ h2 {
 #success-ok-btn {
     min-width: 100px;
     padding: 0.5rem 1rem;
+}
+
+/* Buttons */
+.cancel-btn,
+.successbtn,
+.okbtn {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    padding: 0.4rem 1rem;
+}
+
+.cancel-btn {
+    background-color: #D1D1D1;
+    color: #000;
+    font-size: 1.2rem;
+}
+
+.cancel-btn:hover {
+    background-color: #a8a8a8;
+    color: #FFF;
+}
+
+.successbtn {
+    background-color: #FFB587;
+    color: #582D00;
+    font-size: 1.2rem;
+}
+
+.successbtn:hover {
+    background-color: #ba7326;
+    color: #FFF;
+}
+
+.okbtn {
+    background-color: #1AC54A;
+    color: #FDF6F0;
+    font-size: 1.1rem;
+}
+
+.okbtn:hover {
+    background-color: #13832e;
+    color: #FFF;
+}
+
+/* Text & cards */
+.cardsec {
+    width: 60%;
+    border-radius: 10px;
+}
+
+.cardhead {
+    color: #000;
+    font-size: 1.4rem;
+}
+
+.carddesc {
+    color: #4D4D4D;
+    font-size: 1.2rem;
+}
+
+#loading-overlay {
+    color: #000;
+}
+
+.loading-text {
+    font-size: 1.3rem;
+}
+
+.success-text {
+    color: #000;
 }
 
 /* Modals */
