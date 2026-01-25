@@ -105,14 +105,16 @@
     <!-- Right side: dropdown -->
     <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
       <button class="more-actions-toggle d-flex align-items-center justify-content-center"
-              onclick="toggleDropdown(this)">
-        <i class="fa-solid fa-chevron-down chevron-icon"></i>
+        onclick="toggleDropdown(this)">
         <span class="fs-6">More actions</span>
+        <i class="fa-solid fa-chevron-down chevron-icon"></i>
       </button>
 
       <div class="more-actions-menu d-none">
         <button class="menu-item">Edit contact</button>
-        <button class="menu-item">Delete contact</button>
+        <form method="post" action="{{ url_for('delete_contact', contact_id=contact.id) }}" style="display:inline;">
+          <button class="menu-item">Delete contact</button>
+        </form>
         <button class="menu-item">Delete chat history</button>
       </div>
     </div>

@@ -84,8 +84,6 @@ def messages():
 
     return render_template("messages.html", contacts=contacts, title="Messages")
 
-
-
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
     contact = Contact.query.get_or_404(contact_id)
@@ -118,6 +116,13 @@ def create_contact():
         return redirect(url_for("messages"))  # back to chat list
 
     return render_template("create_contact.html", title="Create Contact")
+
+@app.route('/delete_contact/<int:contact_id>', methods=['POST'])
+def delete_contact(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+    db.session.delete(contact)
+    db.session.commit()
+    return redirect(url_for('messages'))
 
 @app.route("/activities")
 def activities():
