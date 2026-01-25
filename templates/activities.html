@@ -14,8 +14,7 @@
             {% if num_activities == 1 %}activity{% else %}activities{% endif %}.
         </p>
     </div>
-    <a href="{{ url_for('activity_create') }}"
-        class="btn btn-danger cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">
+    <a href="{{ url_for('activity_create') }}" class="btn btn-danger cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">
         <i class="fa-solid fa-plus" aria-hidden="true"></i> Create Activity
     </a>
 </div>
@@ -40,13 +39,14 @@
     <div class="col-12 card-spacing">
         <div class="activity-card position-relative">
             <div class="card-actions position-absolute top-0 end-0 d-flex gap-0">
-                <a href="{{ url_for('edit_activity', activity_id=activity.id) }}" class="btn edit">
+                <button type="button" class="btn edit" data-action="edit"
+                    data-url="{{ url_for('edit_activity', activity_id=activity.id) }}">
                     <i class="fa-solid fa-pen-to-square"></i>
-                </a>
+                </button>
 
-                <form method="post" action="{{ url_for('activity_delete', activity_id=activity.id) }}" class="d-inline">
-                    <button type="submit" class="btn delete"
-                        onclick="return confirm('Are you sure you want to delete this activity?');">
+                <form method="post" action="{{ url_for('activity_delete', activity_id=activity.id) }}"
+                    class="d-inline delete-form">
+                    <button type="button" class="btn delete" data-action="delete">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </form>
@@ -124,22 +124,84 @@
         </div>
     </div>
     {% endfor %}
+    <div id="action-confirm-overlay" class="overlay hidden">
+        <div class="bg-white p-4 shadow cardsec">
+            <h4 id="confirm-title" class="cardhead mb-2"></h4>
+            <p id="confirm-text" class="carddesc fw-semibold"></p>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button id="confirm-cancel" class="btn cancel-btn btn-sm fw-semibold">
+                    Cancel
+                </button>
+                <button id="confirm-ok" class="btn successbtn btn-sm fw-semibold">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
 <script>
-    const successOverlay = document.getElementById('success-overlay');
-    if (successOverlay) {
-        successOverlay.classList.remove('hidden');
-        setTimeout(() => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const actionConfirmOverlay = document.getElementById('action-confirm-overlay');
+        const actionTitle = document.getElementById('confirm-title');
+        const actionText = document.getElementById('confirm-text');
+        const confirmBtn = document.getElementById('confirm-ok');
+        const cancelBtn = document.getElementById('confirm-cancel');
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const successOverlay = document.getElementById('success-overlay');
+        const successOkBtn = document.getElementById('success-ok-btn');
+
+        let pendingAction = null;
+
+        document.querySelectorAll('.btn.delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                actionTitle.textContent = 'Delete Activity';
+                actionText.innerHTML = 'Are you sure you want to delete this activity? <br> This action cannot be undone and all participants will be notified.';
+
+                confirmBtn.classList.remove('btn-success');
+                confirmBtn.classList.add('btn-danger');
+
+                pendingAction = () => {
+                    actionConfirmOverlay.classList.add('hidden');
+                    loadingOverlay.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        loadingOverlay.classList.add('hidden');
+                        successOverlay.classList.remove('hidden');
+                        successOverlay.querySelector('.success-text h4').textContent = 'Activity Deleted!';
+                        successOverlay.querySelector('.success-text p').textContent = 'The activity has been successfully deleted.';
+                    }, 3000);
+                };
+
+                actionConfirmOverlay.classList.remove('hidden');
+            });
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            actionConfirmOverlay.classList.add('hidden');
+            pendingAction = null;
+
+            confirmBtn.classList.remove('btn-danger');
+            confirmBtn.classList.add('btn-success');
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            if (pendingAction) pendingAction();
+        });
+
+        successOkBtn.addEventListener('click', () => {
             successOverlay.classList.add('hidden');
-        }, 2000);
-    }
+            if (pendingAction) {
+                const form = document.querySelector('.delete-form');
+                if (form) form.submit();
+            }
+        });
+    });
+
 </script>
-{% endif %}
-{% endwith %}
 {% endblock %}
