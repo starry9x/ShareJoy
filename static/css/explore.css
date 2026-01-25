@@ -95,6 +95,34 @@
     color: #582D00;
 }
 
-.badge-online, .badge-inperson {
+.badge-online,
+.badge-inperson {
     padding: 0.2rem 0.4rem 0.2rem 0.4rem !important;
+}
+
+.join-btn {
+    color: #582D00;
+    background-color: #FFB587;
+    font-size: 1.2rem;
+    margin-bottom: -1.5rem;
+}
+
+.join-btn:hover,
+.join-btn:active {
+    background-color: #79532B !important;
+    color: #FFEBD6 !important;
+}
+
+.joined, .maxbtn {
+    color: #FFFFFF !important;
+    background-color: #6B6B6B !important;
+    font-size: 1.2rem;
+    margin-bottom: -1.5rem;
+}
+
+.createdbtn {
+    color: #FFEBD6 !important;
+    background-color: #79532B !important;
+    font-size: 1.2rem;
+    margin-bottom: -1.5rem;
 }

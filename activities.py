@@ -16,3 +16,4 @@ class Activity(db.Model):
     participants = db.Column(db.Integer)
     tags = db.Column(db.String(200))
     creator = db.Column(db.String(50))
+    join_activity = db.Column(db.String(50))

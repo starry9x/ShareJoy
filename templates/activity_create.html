@@ -150,6 +150,19 @@
     </div>
 </div>
 
+<!-- Validation Overlay -->
+<div id="validation-overlay" class="overlay hidden">
+    <div class="bg-white p-4 shadow cardsec w-md-50 mx-auto">
+        <h4 class="cardhead mb-2">Required fields incomplete</h4>
+        <p class="carddesc fw-semibold">Please fill out all required fields before submitting.</p>
+        <div class="d-flex justify-content-end mt-3">
+            <button type="button" id="validation-ok-btn" class="btn cancelbtn fw-semibold shadow-sm validationbtn">
+                Okay
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Confirm Overlay -->
 <div id="confirm-overlay" class="overlay hidden">
     <div class="bg-white p-4 shadow cardsec w-md-50">
@@ -165,17 +178,16 @@
         </p>
 
         <!-- Buttons -->
-        <div class="d-flex justify-content-end gap-2">
-            <button type="button" id="confirm-no" class="btn cancel-btn btn-sm fw-semibold">
+        <div class="d-flex justify-content-end gap-3">
+            <button type="button" id="confirm-no" class="btn cancel-btn btn-sm fw-semibold shadow-sm">
                 Cancel
             </button>
-            <button type="button" id="confirm-yes" class="btn successbtn btn-sm fw-semibold">
+            <button type="button" id="confirm-yes" class="btn successbtn btn-sm fw-semibold shadow-sm">
                 Create Activity
             </button>
         </div>
     </div>
 </div>
-
 
 <!-- Loading Overlay -->
 <div id="loading-overlay" class="overlay hidden fs-6">
@@ -193,11 +205,9 @@
             <h4>Activity Created!</h4>
             <p class="carddesc success-text fw-semibold">Your activity is now visible to others.</p>
         </div>
-        <button type="button" id="success-ok-btn" class="btn okbtn mt-1 fw-semibold">Okay</button>
+        <button type="button" id="success-ok-btn" class="btn okbtn mt-1 fw-semibold shadow-sm">Okay</button>
     </div>
 </div>
-
-
 
 {% endblock %}
 
@@ -206,6 +216,26 @@
     document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
+            const placeholderText = input.type === 'date' ? 'dd/mm/yyyy' : 'HH:MM';
+            input.value = '';
+            input.setAttribute('data-placeholder', placeholderText);
+            input.classList.add('is-placeholder');
+            input.placeholder = placeholderText;
+
+            input.addEventListener('focus', () => {
+                if (input.classList.contains('is-placeholder')) {
+                    input.value = '';
+                    input.classList.remove('is-placeholder');
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                if (!input.value) {
+                    input.classList.add('is-placeholder');
+                    input.value = '';
+                }
+            });
+
             input.addEventListener('change', () => {
                 input.classList.remove('is-placeholder');
             });
@@ -237,21 +267,13 @@
 
             const tag = document.createElement('span');
             tag.className = 'badge bg-secondary d-flex align-items-center gap-1';
-            tag.innerHTML = `
-            ${tagText}
-            <button type="button" class="tag-delete">×</button>
-        `;
-
-            tag.querySelector('.tag-delete').addEventListener('click', () => {
-                tag.remove();
-            });
-
+            tag.innerHTML = `${tagText} <button type="button" class="tag-delete">×</button>`;
+            tag.querySelector('.tag-delete').addEventListener('click', () => tag.remove());
             tagsContainer.appendChild(tag);
             tagInput.value = '';
         }
 
         addTagBtn.addEventListener('click', addTag);
-
         tagInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -259,31 +281,44 @@
             }
         });
 
+        // Form and overlays
         const form = document.querySelector('form');
         const createBtn = document.getElementById('create-btn');
 
-        const confirmOverlay = document.getElementById('confirm-overlay');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const successOverlay = document.getElementById('success-overlay');
+        const validationOverlay = document.getElementById('validation-overlay');
+        const validationOkBtn = document.getElementById('validation-ok-btn');
 
+        const confirmOverlay = document.getElementById('confirm-overlay');
         const confirmYes = document.getElementById('confirm-yes');
         const confirmNo = document.getElementById('confirm-no');
 
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const successOverlay = document.getElementById('success-overlay');
         const successOkBtn = document.getElementById('success-ok-btn');
 
-        // Show confirm overlay
         createBtn.addEventListener('click', () => {
-            confirmOverlay.classList.remove('hidden');
+            if (form.checkValidity()) {
+                confirmOverlay.classList.remove('hidden');
+            } else {
+                validationOverlay.classList.remove('hidden');
+            }
         });
 
-        // Cancel
+        validationOkBtn.addEventListener('click', () => {
+            validationOverlay.classList.add('hidden');
+
+            form.reportValidity();
+        });
+
+        validationOkBtn.addEventListener('click', () => {
+            validationOverlay.classList.add('hidden');
+        });
+
         confirmNo.addEventListener('click', () => {
             confirmOverlay.classList.add('hidden');
         });
 
-        // Confirm → show loading → success
         confirmYes.addEventListener('click', () => {
-
             const tags = Array.from(tagsContainer.querySelectorAll('.badge'))
                 .map(tag => tag.textContent.replace('×', '').trim());
             hiddenTagsInput.value = tags.join(',');
@@ -294,10 +329,10 @@
             setTimeout(() => {
                 loadingOverlay.classList.add('hidden');
                 successOverlay.classList.remove('hidden');
-            }, 3000);
+            }, 2000);
         });
 
-        // Success OK
+        // Success overlay OK button
         successOkBtn.addEventListener('click', () => {
             successOverlay.classList.add('hidden');
             form.submit();
