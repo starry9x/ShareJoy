@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="signup-container">
+  <h1>Create Account</h1>
+    <form action="/" method="GET">
+
+  <form>
+    <input type="text" placeholder="Full Name" required>
+    <input type="email" placeholder="Email Address" required>
+    <input type="password" placeholder="Password" required>
+    <input type="password" placeholder="Confirm Password" required>
+
+    <textarea placeholder="Short Bio"></textarea>
+
+    <button type="submit">Create Account</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const password = document.getElementById("password");
+  const confirmPassword = document.getElementById("confirmPassword");
+  const signUpBtn = document.getElementById("signUpBtn");
+  const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+  function validatePasswords() {
+    if (confirmPassword.value !== password.value) {
+      confirmPasswordError.textContent = "Passwords do not match.";
+      signUpBtn.disabled = true;
+    } else {
+      confirmPasswordError.textContent = "";
+      signUpBtn.disabled = false;
+    }
+  }
+
+  password.addEventListener("input", validatePasswords);
+  confirmPassword.addEventListener("input", validatePasswords);
+</script>
+{% endblock %}

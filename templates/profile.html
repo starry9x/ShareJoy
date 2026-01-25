@@ -46,7 +46,7 @@
                 <button class="btn btn-primary" onclick="openModal()">
                     <i class="fas fa-edit"></i> Edit Profile
                 </button>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">
                     <i class="fas fa-sign-out-alt"></i> Log Out
                 </a>
             </div>
@@ -71,7 +71,7 @@
                     <li><i class="fas fa-check"></i> Text-to-speech function</li>
                 </ul>
                 
-                <a href="{{ url_for('main.accessibility') }}" class="open-btn">
+                <a href="/accessibility" class="open-btn">
                     Open <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -88,7 +88,7 @@
                     <li><i class="fas fa-check"></i> Data sharing preferences</li>
                 </ul>
                 
-                <a href="{{ url_for('main.safety_privacy') }}" class="open-btn">
+                <a href="/safetynprivacy" class="open-btn">
                     Open <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -105,7 +105,7 @@
                     <li><i class="fas fa-check"></i> Milestone celebrations</li>
                 </ul>
                 
-                <a href="{{ url_for('main.achievements') }}" class="open-btn">
+                <a href="/achievements" class="open-btn">
                     Open <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
