@@ -47,4 +47,135 @@
 
 .fa-tag {
     margin-right: 0.4rem;
+<<<<<<< Updated upstream
+=======
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.overlay-box {
+    background: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 14px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    min-width: 260px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Spinner */
+.spinner {
+    border: 5px solid #D7D7D7;
+    border-top: 5px solid #797979;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-border {
+    width: 5rem;
+    height: 5rem;
+    border-width: 0.45rem;
+}
+
+/* Success */
+.fa-circle-check {
+    color: #1AC54A !important;
+    font-size: 5rem;
+}
+
+#success-ok-btn {
+    min-width: 100px;
+    padding: 0.5rem 1rem;
+}
+
+/* Buttons */
+.cancel-btn,
+.successbtn,
+.okbtn {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    padding: 0.4rem 1rem;
+}
+
+.cancel-btn {
+    background-color: #D1D1D1;
+    color: #000;
+    font-size: 1.2rem;
+}
+
+.cancel-btn:hover {
+    background-color: #a8a8a8;
+    color: #FFF;
+}
+
+.successbtn {
+    background-color: #FFB587;
+    color: #582D00;
+    font-size: 1.2rem;
+}
+
+.successbtn:hover {
+    background-color: #ba7326;
+    color: #FFF;
+}
+
+.okbtn {
+    background-color: #1AC54A;
+    color: #FDF6F0;
+    font-size: 1.1rem;
+}
+
+.okbtn:hover {
+    background-color: #13832e;
+    color: #FFF;
+}
+
+/* Text & cards */
+.cardsec {
+    width: 60%;
+    border-radius: 10px;
+}
+
+.cardhead {
+    color: #000;
+    font-size: 1.4rem;
+}
+
+.carddesc {
+    color: #4D4D4D;
+    font-size: 1.2rem;
+}
+
+#loading-overlay {
+    color: #000;
+}
+
+.loading-text {
+    font-size: 1.3rem;
+}
+
+.success-text {
+    color: #000;
+>>>>>>> Stashed changes
 }

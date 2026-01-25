@@ -313,7 +313,19 @@ def profile():
 def signup():
     return render_template("signup.html")
 
+<<<<<<< Updated upstream
 @app.route("/forgotpassword")
+=======
+@app.route("/safetynprivacy")
+def profile():
+    return render_template("safetynprivacy.html", title="Safety & Privacy")
+
+@app.route("/accessibility")
+def profile():
+    return render_template("accessibility.html", title="Accessibility")
+
+@app.route("/forgot-password")
+>>>>>>> Stashed changes
 def forgot_password():
     return render_template("forgotpassword.html")
 

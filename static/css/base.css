@@ -205,6 +205,7 @@ input::placeholder {
     background: #d40b0b;
 }
 
+<<<<<<< Updated upstream
 /* Overlay */
 .overlay {
     position: fixed;
@@ -333,6 +334,8 @@ input::placeholder {
     color: #000;
 }
 
+=======
+>>>>>>> Stashed changes
 /* Modals */
 .modal-content {
   border-radius: 0.8rem; 
@@ -346,6 +349,12 @@ input::placeholder {
 .modal-footer {
   border-top: none !important;
   padding-top: 0;
+<<<<<<< Updated upstream
   padding-bottom: 0.25rem;
   padding-right: 0.75rem; 
 }
+=======
+  padding-bottom: 0.25rem; /* tighten bottom spacing */
+  padding-right: 0.75rem; 
+}
+>>>>>>> Stashed changes
