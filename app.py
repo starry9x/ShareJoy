@@ -168,7 +168,6 @@ def activity_delete(activity_id):
     activity = Activity.query.get_or_404(activity_id)
     db.session.delete(activity)
     db.session.commit()
-    flash(f'Activity "{activity.name}" has been deleted.', "success")
     return redirect(url_for("activities"))
 
 @app.route('/activity/create', methods=['GET', 'POST'])
@@ -218,7 +217,6 @@ def activity_create():
 
         db.session.add(new_activity)
         db.session.commit()
-        flash(f'Activity "{name}" has been created.', "success")
         return redirect(url_for('activities'))
 
     my_activities_count = Activity.query.filter_by(creator="me").count()
@@ -246,13 +244,8 @@ def edit_activity(activity_id):
         tags_str = request.form.get('tags', '')
         activity.tags = tags_str
 
-        try:
-            db.session.commit()
-            flash('Activity updated successfully!', 'success')
-            return redirect(url_for('activities'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating activity: {e}', 'danger')
+        db.session.commit()
+        return redirect(url_for('activities'))
 
     tags = activity.tags.split(',') if activity.tags else []
     
