@@ -124,6 +124,17 @@ def delete_contact(contact_id):
     db.session.commit()
     return redirect(url_for('messages'))
 
+@app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
+def edit_contact(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+    if request.method == 'POST':
+        contact.name = request.form.get('name', contact.name)
+        contact.phone = request.form.get('phone', contact.phone)
+        contact.short_desc = request.form.get('short_desc', contact.short_desc)
+        db.session.commit()
+        return redirect(url_for('messages'))
+    return render_template('edit_contact.html', contact=contact, title="Edit Contact")
+
 @app.route("/activities")
 def activities():
     activities = Activity.query.filter_by(creator="me").order_by(Activity.date.asc()).all()

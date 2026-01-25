@@ -10,7 +10,6 @@
 }
 
 
-/* keep text left-aligned */
 #toggle-filters {
   background-color: #FFDCB7;
   color: #582D00;
@@ -165,3 +164,4 @@ input::placeholder {
   background-color: #c4c4c4 !important;
   color: #000000 !important;
 }
+

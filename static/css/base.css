@@ -87,7 +87,8 @@ h2 {
 .form-select {
     background-color: #FDFAF7;
     border: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.13);
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 
@@ -202,4 +203,21 @@ input::placeholder {
 
 .cta-btn:hover {
     background: #d40b0b;
+}
+
+/* Modals */
+.modal-content {
+  border-radius: 0.8rem; 
+}
+
+.modal-header {
+  border-bottom: none !important;
+  padding-bottom: 0;
+}
+
+.modal-footer {
+  border-top: none !important;
+  padding-top: 0;
+  padding-bottom: 0.25rem; /* tighten bottom spacing */
+  padding-right: 0.75rem; 
 }
