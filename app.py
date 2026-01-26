@@ -130,13 +130,43 @@ def delete_contact(contact_id):
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 def edit_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
+
     if request.method == 'POST':
-        contact.name = request.form.get('name', contact.name)
-        contact.phone = request.form.get('phone', contact.phone)
-        contact.short_desc = request.form.get('short_desc', contact.short_desc)
+        name = request.form.get('name', '').strip()
+        phone = request.form.get('phone', '').strip()
+        short_desc = request.form.get('short_desc', '').strip()
+
+        errors = []
+        # Validation rules
+        if not name:
+            errors.append("Name is required.")
+        elif len(name) > 100:
+            errors.append("Name cannot exceed 100 characters.")
+
+        if phone and (len(phone) > 20 or not phone.isdigit()):
+            errors.append("Phone must be digits only and max 20 characters.")
+
+        if short_desc and len(short_desc) > 120:
+            errors.append("Short description cannot exceed 120 characters.")
+
+        if errors:
+            # Re-render form with errors
+            return render_template(
+                'edit_contact.html',
+                contact=contact,
+                errors=errors,
+                title="Edit Contact"
+            )
+
+        # Save if valid
+        contact.name = name
+        contact.phone = phone
+        contact.short_desc = short_desc
         db.session.commit()
-        flash("Contact updated successfully!", "contact_updated")
-        return redirect(url_for('messages'))
+
+        # Redirect with query parameter instead of flash
+        return redirect(url_for('messages', status='updated'))
+
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
 
 # Activities Routes

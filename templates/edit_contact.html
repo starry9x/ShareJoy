@@ -29,23 +29,43 @@
       <form method="POST" id="saveChangesForm" action="{{ url_for('edit_contact', contact_id=contact.id) }}">
         <!-- Name -->
         <div class="mb-3">
-          <label for="name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+          <label for="name" class="form-label fw-semibold">
+            Name <span class="text-danger">*</span>
+          </label>
           <input type="text" class="form-control" id="name" name="name"
-                 value="{{ contact.name }}" required>
+              value="{{ contact.name }}" 
+              required maxlength="35"
+              placeholder="Enter full name">
+          <div class="form-text text-danger d-none" id="nameError">
+            Name is required and must be under 35 characters.
+          </div>
         </div>
 
         <!-- Phone -->
         <div class="mb-3">
           <label for="phone" class="form-label fw-semibold">Phone</label>
           <input type="text" class="form-control" id="phone" name="phone"
-                 value="{{ contact.phone or '' }}" placeholder="Enter phone number...">
+              value="{{ contact.phone or '' }}" 
+              placeholder="Enter phone number..."
+              pattern="^[0-9]{12}$" maxlength="12"
+              title="Phone number must be exactly 12 digits">
+        <div class="form-text text-danger d-none" id="phoneError">
+          Phone must be exactly 12 digits.
         </div>
+
 
         <!-- Short Description -->
         <div class="mb-3">
-          <label for="short_desc" class="form-label fw-semibold">Short Description (optional)</label>
+          <label for="short_desc" class="form-label fw-semibold">
+            Short Description (optional)
+          </label>
           <input type="text" class="form-control" id="short_desc" name="short_desc"
-                 value="{{ contact.short_desc or '' }}" placeholder="Workshop partner, Grandma, etc.">
+                value="{{ contact.short_desc or '' }}" 
+                placeholder="Workshop partner, Grandma, etc."
+                maxlength="120">
+          <div class="form-text text-danger d-none" id="descError">
+            Description must be under 120 characters.
+          </div>
         </div>
 
         <!-- Buttons -->
@@ -89,9 +109,49 @@
 
 {% block extra_js %}
 <script>
-function openSaveModal(contactId) {
-  const modal = new bootstrap.Modal(document.getElementById('saveChangesModal'));
-  modal.show();
+function validateFields() {
+  const nameInput = document.getElementById('name');
+  const phoneInput = document.getElementById('phone');
+  const descInput = document.getElementById('short_desc');
+
+  let valid = true;
+
+  document.getElementById('nameError').classList.add('d-none');
+  document.getElementById('phoneError').classList.add('d-none');
+  document.getElementById('descError').classList.add('d-none');
+
+  if (!nameInput.value.trim() || nameInput.value.length > 35) {
+    document.getElementById('nameError').classList.remove('d-none');
+    valid = false;
+  }
+
+  if (phoneInput.value.trim()) {
+    const phonePattern = /^[0-9]{8,12}$/;
+    if (!phonePattern.test(phoneInput.value.trim())) {
+      document.getElementById('phoneError').classList.remove('d-none');
+      valid = false;
+    }
+  }
+
+  if (descInput.value.trim().length > 120) {
+    document.getElementById('descError').classList.remove('d-none');
+    valid = false;
+  }
+
+  return valid;
 }
+
+function openSaveModal() {
+  if (validateFields()) {
+    const modal = new bootstrap.Modal(document.getElementById('saveChangesModal'));
+    modal.show();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('name').addEventListener('input', validateFields);
+  document.getElementById('phone').addEventListener('input', validateFields);
+  document.getElementById('short_desc').addEventListener('input', validateFields);
+});
 </script>
 {% endblock %}
