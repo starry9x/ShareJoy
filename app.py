@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, abort
 from extensions import db, migrate
 from messages import Message, Contact
 from activities import Activity
@@ -18,6 +18,11 @@ with app.app_context():
     db.create_all()
     
 app.secret_key = os.urandom(24)
+
+def get_current_user():
+    # TEMP: replace with real login later
+    return "me"
+
 
 @app.template_filter("sgtime")
 def sgtime(dt):
@@ -135,9 +140,13 @@ def edit_contact(contact_id):
         return redirect(url_for('messages'))
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
 
+# Activities Routes
 @app.route("/activities")
 def activities():
-    activities = Activity.query.filter_by(creator="me").order_by(Activity.date.asc()).all()
+    current_user = get_current_user()
+
+    activities = (Activity.query.filter_by(creator=current_user).order_by(Activity.date.asc()).all())
+
 
     for activity in activities:
         activity.tags = activity.tags.split(",") if activity.tags else []
@@ -166,6 +175,11 @@ def activities():
 @app.route("/activity/delete/<int:activity_id>", methods=["POST"])
 def activity_delete(activity_id):
     activity = Activity.query.get_or_404(activity_id)
+    current_user = get_current_user()
+
+    if activity.creator != current_user:
+        abort(403)
+
     db.session.delete(activity)
     db.session.commit()
     return redirect(url_for("activities"))
@@ -198,6 +212,8 @@ def activity_create():
         display_date = dt.strftime("%d %b %Y")
         display_time = dt.strftime("%I:%M %p").lstrip("0")
 
+        current_user = get_current_user()
+
         new_activity = Activity(
             name=name,
             description=description,
@@ -212,7 +228,7 @@ def activity_create():
             max_participants=max_participants,
             participants=0,
             tags=tags,
-            creator='me'
+            creator=current_user
         )
 
         db.session.add(new_activity)
@@ -227,6 +243,10 @@ def activity_create():
 @app.route('/activities/edit/<int:activity_id>', methods=['GET', 'POST'])
 def edit_activity(activity_id):
     activity = Activity.query.get_or_404(activity_id)
+    current_user = get_current_user()
+
+    if activity.creator != current_user:
+        abort(403)
 
     if request.method == 'POST':
         activity.name = request.form['name']
@@ -260,6 +280,7 @@ def edit_activity(activity_id):
 
 @app.route("/explore")
 def explore():
+    current_user = get_current_user()
     query = Activity.query
 
     search = request.args.get("search")
@@ -299,11 +320,35 @@ def explore():
             parsed_time = datetime.strptime(a.time, "%I:%M %p")
         a.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
+        if a.creator == current_user:
+            a.join_activity = "created"
+        elif a.participants >= a.max_participants:
+            a.join_activity = "max"
+        else:
+            a.join_activity = "false"
+
     return render_template("explore.html", activities=activities)
+
+@app.route('/update-join', methods=['POST'])
+def update_join():
+    data = request.get_json()
+    activity_id = data.get('activity_id')
+    join_activity = data.get('join_activity')
+
+    activity = Activity.query.get(activity_id)
+    if not activity:
+        return jsonify({'success': False, 'message': 'Activity not found'})
+
+    activity.join_activity = 'true' if join_activity else 'false'
+    db.session.commit()
+
+    return jsonify({'success': True})
 
 @app.route("/schedule")
 def schedule():
     return render_template("schedule.html", title="Schedule")
+
+#end of activites routes
 
 @app.route("/profile")
 def profile():

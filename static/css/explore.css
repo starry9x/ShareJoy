@@ -113,11 +113,17 @@
     color: #FFEBD6 !important;
 }
 
-.joined, .maxbtn {
+.joined,
+.maxbtn {
     color: #FFFFFF !important;
     background-color: #6B6B6B !important;
     font-size: 1.2rem;
     margin-bottom: -1.5rem;
+}
+
+.joined:hover {
+    color: #FFFFFF !important;
+    background-color: #2e2c2c !important;
 }
 
 .createdbtn {
@@ -125,4 +131,10 @@
     background-color: #79532B !important;
     font-size: 1.2rem;
     margin-bottom: -1.5rem;
+}
+
+.joined:disabled,
+.maxbtn:disabled,
+.createdbtn:disabled {
+    opacity: 1 !important;
 }

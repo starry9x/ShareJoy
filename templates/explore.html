@@ -189,15 +189,20 @@
                 <span>#{{ tag }}</span>
                 {% endfor %}
             </div>
+
             <div class="mt-3 text-center">
                 {% if activity.join_activity == 'false' %}
-                <button type="button" class="btn join-btn fw-semibold w-100 shadow-sm">
+                <button type="button" class="btn join-btn fw-semibold w-100 shadow-sm"
+                    data-activity-id="{{ activity.id }}" data-date="{{ activity.display_date }}"
+                    data-time="{{ activity.display_time }}">
                     Join Activity
                 </button>
 
                 {% elif activity.join_activity == 'true' %}
-                <button type="button" class="btn joined fw-semibold w-100 shadow-sm" disabled>
-                Joined
+                <button type="button" class="btn joined fw-semibold w-100 shadow-sm"
+                    data-activity-id="{{ activity.id }}" data-date="{{ activity.display_date }}"
+                    data-time="{{ activity.display_time }}">
+                    Joined
                 </button>
 
                 {% elif activity.join_activity == 'max' %}
@@ -211,7 +216,6 @@
                 </button>
                 {% endif %}
             </div>
-
         </div>
     </div>
     {% endfor %}
@@ -223,6 +227,82 @@
     </div>
     {% endif %}
 </div>
+<!-- Join Confirmation Overlay -->
+<div id="join-confirm-overlay" class="overlay hidden">
+    <div class="bg-white p-4 shadow cardsec w-md-50">
+        <div class="fw-bold mb-2 ms-1 cardhead">
+            <h4>Join Activity</h4>
+        </div>
+        <p class="mb-3 ms-1 fw-semibold carddesc">
+            You're about to join [insert activity name] on [insert activity date] at [insert activity time]. The
+            organizer will be notified
+            of your registration.
+        </p>
+        <div class="d-flex justify-content-end gap-3">
+            <button type="button" id="join-cancel" class="btn cancel-btn btn-sm fw-semibold shadow-sm">
+                Cancel
+            </button>
+            <button type="button" id="join-confirm" class="btn successbtn btn-sm fw-semibold shadow-sm">
+                Join Activity
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Overlay -->
+<div id="success-overlay" class="overlay hidden">
+    <div class="text-center">
+        <i class="fa-regular fa-circle-check text-success"></i>
+        <div class="fw-bold mt-3 cardhead success-text">
+            <h4>Activity Joined!</h4>
+            <p class="carddesc success-text fw-semibold">The organizer will be notified.</p>
+        </div>
+        <button type="button" id="success-ok-btn" class="btn okbtn mt-1 fw-semibold shadow-sm">Okay</button>
+    </div>
+</div>
+
+<!-- Leave Confirmation Overlay -->
+<div id="leave-confirm-overlay" class="overlay hidden">
+    <div class="bg-white p-4 shadow cardsec w-md-50">
+        <div class="fw-bold mb-2 ms-1 cardhead">
+            <h4>Leave Activity</h4>
+        </div>
+        <p class="mb-3 ms-1 fw-semibold carddesc">
+            Are you sure you want to leave this activity?
+        </p>
+        <div class="d-flex justify-content-end gap-3">
+            <button type="button" id="leave-cancel" class="btn cancel-btn btn-sm fw-semibold shadow-sm">
+                Cancel
+            </button>
+            <button type="button" id="leave-confirm" class="btn redbtn btn-sm fw-semibold shadow-sm">
+                Leave Activity
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Overlay -->
+<div id="successjoined-overlay" class="overlay hidden">
+    <div class="bg-white p-4 shadow cardsec">
+        <h4 class="cardhead mb-2">Activity Left</h4>
+        <p class="carddesc fw-semibold">The organizer will be notified.</p>
+
+        <div class="d-flex justify-content-end">
+            <button type="button" id="success-ok-btn" class="btn redbtn btn-sm fw-semibold shadow-sm">
+                Okay
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="overlay hidden fs-6">
+    <div class="text-center">
+        <div class="spinner-border" role="status"></div>
+        <p class="fw-semibold mt-2 loading-text">Loading...</p>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -232,21 +312,162 @@
         const filters = document.getElementById('filters-container');
 
         const manuallyOpened = sessionStorage.getItem('filtersOpen');
-
-        if (!manuallyOpened) {
-            filters.classList.add('d-none');
-        }
+        if (!manuallyOpened) filters.classList.add('d-none');
 
         toggleBtn.addEventListener('click', function () {
             filters.classList.toggle('d-none');
-
             if (!filters.classList.contains('d-none')) {
                 sessionStorage.setItem('filtersOpen', 'true');
             } else {
                 sessionStorage.removeItem('filtersOpen');
             }
         });
+
+        // Overlays
+        const joinOverlay = document.getElementById('join-confirm-overlay');
+        const leaveOverlay = document.getElementById('leave-confirm-overlay');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const successOverlay = document.getElementById('success-overlay');
+        const successOverlayText = successOverlay.querySelector('.carddesc') || successOverlay.querySelector('p');
+        const joinConfirmBtn = document.getElementById('join-confirm');
+        const joinCancelBtn = document.getElementById('join-cancel');
+        const leaveConfirmBtn = document.getElementById('leave-confirm');
+        const leaveCancelBtn = document.getElementById('leave-cancel');
+        const successOkBtns = successOverlay.querySelectorAll('#success-ok-btn');
+
+        let currentBtn = null;
+        let currentActivityId = null;
+        let currentActivityData = {};
+
+        document.querySelectorAll('.join-btn, .joined').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentBtn = btn;
+                currentActivityId = btn.dataset.activityId;
+                currentActivityData.name = btn.closest('.activity-card').querySelector('h5').textContent;
+                currentActivityData.date = currentBtn.dataset.date;
+                currentActivityData.time = currentBtn.dataset.time;
+
+                if (btn.classList.contains('join-btn')) {
+                    joinOverlay.querySelector('.carddesc').textContent = `You're about to join "${currentActivityData.name}" on ${currentActivityData.date} at ${currentActivityData.time}. The organizer will be notified of your registration.`;
+                    joinOverlay.classList.remove('hidden');
+                } else if (btn.classList.contains('joined')) {
+                    leaveOverlay.classList.remove('hidden');
+                }
+            });
+        });
+
+        joinCancelBtn.addEventListener('click', () => {
+            joinOverlay.classList.add('hidden');
+            currentBtn = null;
+            currentActivityId = null;
+        });
+
+        leaveCancelBtn.addEventListener('click', () => {
+            leaveOverlay.classList.add('hidden');
+            currentBtn = null;
+            currentActivityId = null;
+        });
+
+        function updateJoinStatus(activityId, join) {
+            loadingOverlay.classList.remove('hidden');
+            const startTime = Date.now();
+
+            return fetch('/update-join', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activity_id: activityId, join_activity: join })
+            })
+                .then(res => res.json())
+                .then(result => {
+                    const elapsed = Date.now() - startTime;
+                    const remaining = 2000 - elapsed;
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            loadingOverlay.classList.add('hidden');
+                            resolve(result);
+                        }, remaining > 0 ? remaining : 0);
+                    });
+                })
+                .catch(err => {
+                    loadingOverlay.classList.add('hidden');
+                    throw err;
+                });
+        }
+
+        joinConfirmBtn.addEventListener('click', async () => {
+            if (currentBtn && currentActivityId) {
+                joinOverlay.classList.add('hidden');
+
+                try {
+                    const result = await updateJoinStatus(currentActivityId, true);
+                    if (result.success) {
+                        pendingJoinChange = { btn: currentBtn, join: true };
+
+                        successOverlayText.textContent = 'The organizer will be notified.';
+                        successOverlay.classList.remove('hidden');
+                    } else {
+                        alert('Failed to join activity.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error updating activity.');
+                } finally {
+                    currentBtn = null;
+                    currentActivityId = null;
+                }
+            }
+        });
+
+        leaveConfirmBtn.addEventListener('click', async () => {
+            if (currentBtn && currentActivityId) {
+                leaveOverlay.classList.add('hidden');
+
+                try {
+                    const result = await updateJoinStatus(currentActivityId, false);
+                    if (result.success) {
+                        pendingJoinChange = { btn: currentBtn, join: false };
+
+                        document.getElementById('successjoined-overlay').classList.remove('hidden');
+                    } else {
+                        alert('Failed to leave activity.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error updating activity.');
+                } finally {
+                    currentBtn = null;
+                    currentActivityId = null;
+                }
+            }
+        });
+
+
+        // Join success overlay OK
+        successOkBtns.forEach(btn => btn.addEventListener('click', () => {
+            successOverlay.classList.add('hidden');
+            if (pendingJoinChange && pendingJoinChange.join) {
+                const btnEl = pendingJoinChange.btn;
+                btnEl.classList.remove('join-btn');
+                btnEl.classList.add('joined');
+                btnEl.textContent = 'Joined';
+            }
+            pendingJoinChange = null;
+        }));
+
+        // Leave success overlay OK
+        document.querySelectorAll('#successjoined-overlay #success-ok-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('successjoined-overlay').classList.add('hidden');
+                if (pendingJoinChange && pendingJoinChange.join === false) {
+                    const btnEl = pendingJoinChange.btn;
+                    btnEl.classList.remove('joined');
+                    btnEl.classList.add('join-btn');
+                    btnEl.textContent = 'Join Activity';
+                }
+                pendingJoinChange = null;
+            });
+        });
+
     });
 </script>
-
 {% endblock %}
