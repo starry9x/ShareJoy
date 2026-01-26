@@ -359,24 +359,6 @@ def profile():
 def signup():
     return render_template("signup.html")
 
-<<<<<<< Updated upstream
-
-@app.route("/forgot-password")
-def forgot_password():
-    return render_template("forgotpassword.html")
-
-
-@app.route("/safetynprivacy")
-def safety_and_privacy():
-    return render_template("safetynprivacy.html", title="Safety & Privacy")
-
-
-@app.route("/accessibility")
-def accessibility():
-    return render_template("accessibility.html", title="Accessibility")
-
-
-=======
 @app.route("/safetynprivacy")
 def safetynprivacy():
     return render_template("safetynprivacy.html", title="Safety & Privacy")
@@ -386,10 +368,9 @@ def accessibility():
     return render_template("accessibility.html", title="Accessibility")
 
 @app.route("/forgotpassword")
-def forgot_password():
+def forgotpassword():
     return render_template("forgotpassword.html")
 
->>>>>>> Stashed changes
 @app.route("/achievements")
 def achievements():
     return render_template("achievements.html")
