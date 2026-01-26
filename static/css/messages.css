@@ -9,7 +9,6 @@
   padding: 1rem;
 }
 
-
 #toggle-filters {
   background-color: #FFDCB7;
   color: #582D00;
@@ -17,62 +16,10 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.256) !important;
 }
 
-.clearbtn {
-  background-color: #df1919;
-  color: #ffffff;
-  border: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-}
-
-.clearbtn:hover {
-  background-color: #b31d1d;
-  color: #ffffff;
-}
-
 input::placeholder {
   font-style: italic;
   font-weight: 600;
   color: #582D00;
-}
-
-/* Search bar input */
-.searchbar {
-  background-color: transparent !important;
-  border: none !important;
-}
-
-/* Search button */
-.search-btn {
-  background-color: #FFDCB7;
-  color: #582D00;
-  border: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-  font-weight: 600;
-}
-
-.search-btn:hover {
-  background-color: #ba7326;
-  color: #FFFFFF;
-}
-
-/* Search bar wrapper */
-.box1 {
-  background-color: #fff3db;
-  color: #000000;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.256) !important;
-  ;
-}
-
-.box2 {
-  background-color: #ffffff;
-  color: #582D00;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-}
-
-.btn-danger {
-  background: #F60D0D;
-  border: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.158);
 }
 
 .contact-btn {

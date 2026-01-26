@@ -138,3 +138,9 @@
 .createdbtn:disabled {
     opacity: 1 !important;
 }
+
+input::placeholder {
+  font-style: italic;
+  font-weight: 600;
+  color: #582D00;
+}
