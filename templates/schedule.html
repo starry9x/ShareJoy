@@ -2,30 +2,240 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/activities.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/schedule.css') }}">
 {% endblock %}
 
 {% block content %}
 
-<div class="section-box d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-    <div>
+<div class="section-box mb-4 pb-4">
+    <div class="mb-3">
         <h1>My Schedule</h1>
         <p>View your scheduled activities.</p>
     </div>
-    <!-- Stats -->
-    <div class="d-flex gap-3 mt-3 mt-md-0">
-        <div class="stat-box text-center">
+
+    <!-- Stats Row -->
+    <div class="d-flex flex-wrap gap-5 pt-2 justify-content-center fw-semibold">
+        <!-- Total Activities -->
+        <div class="stat-box">
             <p class="mb-1">Total Activities</p>
-            <h2 class="mb-0">3</h2>
+            <h2 class="mb-0 fw-bold">{{ activities|length }}</h2>
         </div>
 
-        <div class="stat-box text-center">
+        <!-- This Week -->
+        <div class="stat-box">
             <p class="mb-1">This Week</p>
-            <h2 class="mb-0">2</h2>
+            <h2 class="mb-0 fw-bold">
+                {{ activities|selectattr("display_date_obj", "in_this_week")|list|length }}
+            </h2>
         </div>
 
-        <div class="stat-box text-center">
+        <!-- Organizing -->
+        <div class="stat-box">
             <p class="mb-1">Organizing</p>
-            <h2 class="mb-0">2</h2>
+            <h2 class="mb-0 fw-bold">
+                {{ activities|selectattr("join_activity", "equalto", "created")|list|length }}
+            </h2>
+        </div>
+    </div>
+</div>
+
+<div class="sectionbox3 mx-auto shadow-sm mb-4">
+    <div class="card-header mx-auto">
+        <h2 class="fw-semibold">Upcoming Week</h2>
+        <p>Your activities in the next 7 days.</p>
+    </div>
+    <div class="sectionbox4 mx-auto border-0">
+        <div class="row">
+            {% for activity in upcoming_week_activities %}
+            <div class="col-12 card-spacing">
+                <div class="activity-card position-relative">
+                    <div class="card-actions position-absolute top-0 end-0 d-flex gap-0">
+                        <button type="button" class="btn edit" data-action="edit"
+                            data-url="{{ url_for('edit_activity', activity_id=activity.id) }}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+
+                        <form method="post" action="{{ url_for('activity_delete', activity_id=activity.id) }}"
+                            class="d-inline delete-form">
+                            <button type="button" class="btn delete" data-action="delete">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text">
+                        <div class="d-flex align-items-center gap-2 spacing">
+                            <h5 class="mb-0">{{ activity.name }}</h5>
+                            {% if activity.type == 'Creative Arts' %}
+                            <span class="badge badge-creativearts">🎨Creative Arts</span>
+                            {% elif activity.type == 'Social' %}
+                            <span class="badge badge-social">🎲Social</span>
+                            {% elif activity.type == 'Learning' %}
+                            <span class="badge badge-learning">📖Learning</span>
+                            {% elif activity.type == 'Physical' %}
+                            <span class="badge badge-physical">🏃Physical</span>
+                            {% elif activity.type == 'Nature' %}
+                            <span class="badge badge-nature">🌲Nature</span>
+                            {% elif activity.type == 'Technology' %}
+                            <span class="badge badge-technology">💻Technology</span>
+                            {% endif %}
+                        </div>
+
+                        <p>{{ activity.description }}</p>
+
+                        <div class="d-flex flex-wrap gap-2 fw-semibold spacing">
+                            <span>
+                                📅 {{ activity.display_date }}, {{ activity.display_time }}
+                            </span>
+
+                            <span>⏱
+                                {% set h = activity.duration_hours %}
+                                {% set m = activity.duration_minutes %}
+                                {% if h and m %}
+                                {{ h }} hour{% if h > 1 %}s{% endif %} {{ m }} minute{% if m > 1 %}s{% endif %}
+                                {% elif h %}
+                                {{ h }} hour{% if h > 1 %}s{% endif %}
+                                {% elif m %}
+                                {{ m }} minute{% if m > 1 %}s{% endif %}
+                                {% else %}
+                                0 minutes
+                                {% endif %}
+                            </span>
+
+                            <div class="col-12">
+                                {% if activity.format_type|lower == 'online' %}
+                                🖥️ Online
+                                {% else %}
+                                📍 {{ activity.location }}
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 spacing">
+                            <span class="badge 
+                    {% if activity.energy == 'Low' %}energy-low
+                    {% elif activity.energy == 'Medium' %}energy-medium
+                    {% elif activity.energy == 'High' %}energy-high
+                    {% endif %}">
+                                ⚡{{ activity.energy }} energy
+                            </span>
+                            <span class="badge participants">🫂{{ activity.participants }}/{{ activity.max_participants
+                                }}
+                                participants</span>
+                        </div>
+
+                        <div class="activity-tags">
+                            {% for tag in activity.tags %}
+                            <span>#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="sectionbox3 mx-auto shadow-sm">
+    <div class="card-header mx-auto">
+        <h2 class="fw-semibold">Other Scheduled Activities</h2>
+        <p>Activities happening in more than 7 days.</p>
+    </div>
+    <div class="sectionbox4 mx-auto border-0">
+        <div class="row">
+            {% for activity in other_activities %}
+            <div class="col-12 card-spacing">
+                <div class="activity-card position-relative">
+                    <div class="card-actions position-absolute top-0 end-0 d-flex gap-0">
+                        <button type="button" class="btn edit" data-action="edit"
+                            data-url="{{ url_for('edit_activity', activity_id=activity.id) }}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+
+                        <form method="post" action="{{ url_for('activity_delete', activity_id=activity.id) }}"
+                            class="d-inline delete-form">
+                            <button type="button" class="btn delete" data-action="delete">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text">
+                        <div class="d-flex align-items-center gap-2 spacing">
+                            <h5 class="mb-0">{{ activity.name }}</h5>
+                            {% if activity.type == 'Creative Arts' %}
+                            <span class="badge badge-creativearts">🎨Creative Arts</span>
+                            {% elif activity.type == 'Social' %}
+                            <span class="badge badge-social">🎲Social</span>
+                            {% elif activity.type == 'Learning' %}
+                            <span class="badge badge-learning">📖Learning</span>
+                            {% elif activity.type == 'Physical' %}
+                            <span class="badge badge-physical">🏃Physical</span>
+                            {% elif activity.type == 'Nature' %}
+                            <span class="badge badge-nature">🌲Nature</span>
+                            {% elif activity.type == 'Technology' %}
+                            <span class="badge badge-technology">💻Technology</span>
+                            {% endif %}
+                        </div>
+
+                        <p>{{ activity.description }}</p>
+
+                        <div class="d-flex flex-wrap gap-2 fw-semibold spacing">
+                            <span>
+                                📅 {{ activity.display_date }}, {{ activity.display_time }}
+                            </span>
+
+                            <span>⏱
+                                {% set h = activity.duration_hours %}
+                                {% set m = activity.duration_minutes %}
+                                {% if h and m %}
+                                {{ h }} hour{% if h > 1 %}s{% endif %} {{ m }} minute{% if m > 1 %}s{% endif %}
+                                {% elif h %}
+                                {{ h }} hour{% if h > 1 %}s{% endif %}
+                                {% elif m %}
+                                {{ m }} minute{% if m > 1 %}s{% endif %}
+                                {% else %}
+                                0 minutes
+                                {% endif %}
+                            </span>
+
+                            <div class="col-12">
+                                {% if activity.format_type|lower == 'online' %}
+                                🖥️ Online
+                                {% else %}
+                                📍 {{ activity.location }}
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 spacing">
+                            <span class="badge 
+                    {% if activity.energy == 'Low' %}energy-low
+                    {% elif activity.energy == 'Medium' %}energy-medium
+                    {% elif activity.energy == 'High' %}energy-high
+                    {% endif %}">
+                                ⚡{{ activity.energy }} energy
+                            </span>
+                            <span class="badge participants">🫂{{ activity.participants }}/{{
+                                activity.max_participants
+                                }}
+                                participants</span>
+                        </div>
+
+                        <div class="activity-tags">
+                            {% for tag in activity.tags %}
+                            <span>#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>
