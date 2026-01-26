@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for, ses
 from extensions import db, migrate
 from messages import Message, Contact
 from activities import Activity
-from datetime import datetime
+from datetime import datetime, timedelta
 from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage
 import os
 import pytz
@@ -345,9 +345,60 @@ def update_join():
 
     return jsonify({'success': True})
 
+
+@app.template_test('in_this_week')
+def in_this_week(date):
+    if not date:
+        return False
+    today = datetime.today().date()
+    start_of_week = today - timedelta(days=today.weekday())
+    end_of_week = start_of_week + timedelta(days=6)
+    return start_of_week <= date <= end_of_week
+
 @app.route("/schedule")
 def schedule():
-    return render_template("schedule.html", title="Schedule")
+    current_user = get_current_user()
+
+    activities = Activity.query.filter_by(creator=current_user).order_by(Activity.date.asc()).all()
+
+    upcoming_week_activities = []
+    other_activities = []
+
+    today = datetime.today().date()
+    next_week = today + timedelta(days=7)
+
+    for activity in activities:
+        activity.tags = activity.tags.split(",") if activity.tags else []
+
+        # Parse date
+        try:
+            parsed_date = datetime.strptime(activity.date, "%Y-%m-%d")
+        except ValueError:
+            parsed_date = datetime.strptime(activity.date, "%d %b %Y")
+
+        activity.display_date = parsed_date.strftime("%d %b %Y")
+        activity.display_date_obj = parsed_date.date()
+
+        activity.join_activity = "created" if activity.creator == current_user else "false"
+
+        if today <= activity.display_date_obj <= next_week:
+            upcoming_week_activities.append(activity)
+        elif activity.display_date_obj > next_week:
+            other_activities.append(activity)
+
+    total_activities = len(activities)
+    this_week_activities = len(upcoming_week_activities)
+    organizing_activities = sum(1 for a in activities if a.join_activity == "created")
+
+    return render_template(
+        "schedule.html",
+        title="Schedule",
+        total_activities=total_activities,
+        this_week_activities=this_week_activities,
+        organizing_activities=organizing_activities,
+        upcoming_week_activities=upcoming_week_activities,
+        other_activities=other_activities
+    )
 
 #end of activites routes
 
