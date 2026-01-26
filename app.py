@@ -360,21 +360,17 @@ def profile():
 def signup():
     return render_template("signup.html")
 
-
-@app.route("/forgot-password")
-def forgot_password():
-    return render_template("forgotpassword.html")
-
-
 @app.route("/safetynprivacy")
-def safety_and_privacy():
+def safetynprivacy():
     return render_template("safetynprivacy.html", title="Safety & Privacy")
-
 
 @app.route("/accessibility")
 def accessibility():
     return render_template("accessibility.html", title="Accessibility")
 
+@app.route("/forgotpassword")
+def forgotpassword():
+    return render_template("forgotpassword.html")
 
 @app.route("/achievements")
 def achievements():

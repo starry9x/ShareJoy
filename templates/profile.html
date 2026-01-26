@@ -6,10 +6,17 @@
 {% endblock %}
 
 {% block content %}
-<h1>
-  <div class="profile-card">
+<div class="profile-page">
+
+  <!-- =====================
+       PROFILE CARD
+  ====================== -->
+  <section class="profile-card">
+
     <div class="profile-top">
+
       <div class="profile-left">
+<<<<<<< Updated upstream
         <img src="{{ url_for('static', filename='images/default-avatar.png') }}" class="avatar">
         <div>
           <div class="name">Leon Kennedy</div>
@@ -18,42 +25,29 @@
           <div class="info"><i class="fa-solid fa-user"></i> "I love running and cooking"</div>
         </div>
         
+=======
+        <img src="{{ url_for('static', filename='images/default-avatar.png') }}" class="avatar" alt="Profile Picture">
+
+>>>>>>> Stashed changes
         <div class="profile-info">
-            <h1 class="profile-name" id="profileName">{{ current_user.name if current_user else 'Leon Kennedy' }}</h1>
-            <div class="profile-email">
-                <i class="fas fa-envelope"></i>
-                <span id="profileEmail">{{ current_user.email if current_user else 'leon.kennedy@gmail.com' }}</span>
-            </div>
-            <div class="joined-date">
-                <i class="far fa-calendar-alt"></i> Joined March 2023
-            </div>
-            
-            <p class="profile-quote" id="profileQuote">"I love running and cooking"</p>
-            
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <div class="stat-number" id="postCount">142</div>
-                    <div class="stat-label">Posts</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="followerCount">67</div>
-                    <div class="stat-label">Followers</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="followingCount">167</div>
-                    <div class="stat-label">Following</div>
-                </div>
-            </div>
-            
-            <div class="action-buttons">
-                <button class="btn btn-primary" onclick="openModal()">
-                    <i class="fas fa-edit"></i> Edit Profile
-                </button>
-                <a href="{{ url_for('logout') }}" class="btn btn-secondary">
-                    <i class="fas fa-sign-out-alt"></i> Log Out
-                </a>
-            </div>
+          <h1 class="profile-name">Leon Kennedy</h1>
+
+          <div class="info">
+            <i class="fa-solid fa-envelope"></i>
+            leon.kennedy@gmail.com
+          </div>
+
+          <div class="info">
+            <i class="fa-solid fa-calendar"></i>
+            Joined March 2023
+          </div>
+
+          <div class="info">
+            <i class="fa-solid fa-user"></i>
+            "I love running and cooking"
+          </div>
         </div>
+<<<<<<< Updated upstream
     </section>
     
     <!-- Settings Section -->
@@ -149,90 +143,207 @@
         </div>
     </section>
 </div>
+=======
+>>>>>>> Stashed changes
       </div>
 
       <div class="profile-right">
         <span class="tag">Youth</span>
-        <a href="{{ url_for('loginpage') }}" class="logout">Log Out</a>
+
+        <!-- LOG OUT -->
+        <a href="/loginpage" class="logout-btn">
+          Log Out
+        </a>
+      </div>
+
+    </div>
+
+    <!-- HORIZONTAL LINE -->
+    <hr class="divider">
+
+    <!-- STATS -->
+    <div class="stats">
+      <div>
+        <strong>142</strong>
+        <span>Posts</span>
+      </div>
+      <div>
+        <strong>67</strong>
+        <span>Followers</span>
+      </div>
+      <div>
+        <strong>167</strong>
+        <span>Following</span>
       </div>
     </div>
 
-    <div class="stats">
-      <div><strong>142</strong><span>Posts</span></div>
-      <div><strong>67</strong><span>Followers</span></div>
-      <div><strong>167</strong><span>Following</span></div>
-    </div>
+    <!-- HORIZONTAL LINE -->
+    <hr class="divider">
 
+    <!-- ACTIONS -->
     <div class="actions">
-      <button id="editProfile"><i class="fa-solid fa-pen"></i> Edit Profile</button>
-      <button><i class="fa-solid fa-share-nodes"></i> Share Profile</button>
+      <button id="editProfile">
+        <i class="fa-solid fa-pen-to-square"></i> <span id="edit-btn-text">Edit Profile</span>
+      </button>
+      <button id="shareProfile">
+        <i class="fa-solid fa-share-nodes"></i> Share Profile
+      </button>
     </div>
-  </div>
-</h1>
 
-<p>
+  </section>
+
+  <!-- =====================
+       SETTINGS SECTION
+  ====================== -->
   <section class="settings">
     <h2>Account Settings & Features</h2>
 
     <div class="settings-grid">
+
+      <!-- Accessibility -->
       <div class="setting-card">
-        <i class="fa-solid fa-universal-access"></i>
+        <div class="icon-wrapper accessibility">
+          <i class="fa-solid fa-universal-access"></i>
+        </div>
+        
         <h3>Accessibility Settings</h3>
-        <ul>
-          <li>Change font size</li>
+        <p class="setting-description">
+          Make the page comfortable for you. Adjust the text, colours, or layout with simple tools.
+        </p>
+
+        <ul class="setting-list">
+          <li>Change font size of webpage</li>
           <li>High contrast mode</li>
-          <li>Text-to-speech</li>
+          <li>Text-to-speech function</li>
         </ul>
-        <a href="accessibility.html">Open →</a>
+
+        <a href="/accessibility">Open →</a>
       </div>
 
+      <!-- Safety & Privacy -->
       <div class="setting-card">
-        <i class="fa-solid fa-shield-halved"></i>
+        <div class="icon-wrapper safety">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        
         <h3>Safety & Privacy</h3>
-        <ul>
-          <li>Guardian profile</li>
+        <p class="setting-description">
+          Choose what you want to share and keep your account safe in just a few easy steps.
+        </p>
+
+        <ul class="setting-list">
+          <li>Guardian oversight profile (optional)</li>
           <li>Privacy controls</li>
           <li>Login security</li>
+          <li>Data sharing preferences</li>
         </ul>
-        <a href="safetynprivacy.html">Open →</a>
+
+        <a href="/safetynprivacy">Open →</a>
       </div>
 
+      <!-- Achievements -->
       <div class="setting-card">
-        <i class="fa-solid fa-trophy"></i>
+        <div class="icon-wrapper achievements">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        
         <h3>Achievements & Progress</h3>
-        <ul>
-          <li>Trophies & badges</li>
-          <li>Progress tracking</li>
-          <li>Milestones</li>
+        <p class="setting-description">
+          See your activities and achievements. Stay motivated as you complete more together.
+        </p>
+
+        <ul class="setting-list">
+          <li>Trophy and badges collection</li>
+          <li>Progress tracking for consistency</li>
+          <li>Activity completion stats</li>
+          <li>Milestone celebrations</li>
         </ul>
-        <a href="{{ url_for('achievements') }}">Open →</a>
+
+        <a href="/achievements">Open →</a>
       </div>
+
     </div>
   </section>
 
+  <!-- =====================
+       ABOUT ME
+  ====================== -->
   <section class="about">
-    <h2><i class="fa-solid fa-circle-info"></i> About Me</h2>
+    <h2>
+      <i class="fa-solid fa-circle-info"></i> About Me
+    </h2>
+    <hr class="about-divider">
 
     <div class="about-box">
       <strong>Bio</strong>
-      <p id="bio">Student passionate about volunteering. Love running and cooking.</p>
+      <p id="bio-text">Student passionate about volunteering. Love running and cooking.</p>
+      <textarea id="bio-edit" class="edit-textarea" style="display: none;">Student passionate about volunteering. Love running and cooking.</textarea>
     </div>
 
     <div class="about-box">
       <strong>Work</strong>
-      <p id="work">Working part time at Starbucks.</p>
+      <p id="work-text">Working part time at Starbucks.</p>
+      <textarea id="work-edit" class="edit-textarea" style="display: none;">Working part time at Starbucks.</textarea>
     </div>
 
     <div class="about-box">
       <strong>Education</strong>
-      <p id="education">Nanyang Polytechnic, Diploma in Business and Financial Technology</p>
+      <p id="education-text">Nanyang Polytechnic, Diploma in Business and Financial Technology</p>
+      <textarea id="education-edit" class="edit-textarea" style="display: none;">Nanyang Polytechnic, Diploma in Business and Financial Technology</textarea>
     </div>
   </section>
-</p>
 
+</div>
+
+<!-- =====================
+     SCRIPT
+====================== -->
 <script>
+  let isEditMode = false;
+
   document.getElementById("editProfile").addEventListener("click", () => {
-    alert("Edit mode enabled (prototype)");
+    isEditMode = !isEditMode;
+    
+    const editBtn = document.getElementById("edit-btn-text");
+    const bioText = document.getElementById("bio-text");
+    const bioEdit = document.getElementById("bio-edit");
+    const workText = document.getElementById("work-text");
+    const workEdit = document.getElementById("work-edit");
+    const educationText = document.getElementById("education-text");
+    const educationEdit = document.getElementById("education-edit");
+    
+    if (isEditMode) {
+      // Switch to edit mode
+      editBtn.textContent = "Save Profile";
+      
+      // Hide text, show textareas
+      bioText.style.display = "none";
+      bioEdit.style.display = "block";
+      workText.style.display = "none";
+      workEdit.style.display = "block";
+      educationText.style.display = "none";
+      educationEdit.style.display = "block";
+    } else {
+      // Save changes and switch back to view mode
+      editBtn.textContent = "Edit Profile";
+      
+      // Update text content from textareas
+      bioText.textContent = bioEdit.value;
+      workText.textContent = workEdit.value;
+      educationText.textContent = educationEdit.value;
+      
+      // Show text, hide textareas
+      bioText.style.display = "block";
+      bioEdit.style.display = "none";
+      workText.style.display = "block";
+      workEdit.style.display = "none";
+      educationText.style.display = "block";
+      educationEdit.style.display = "none";
+    }
+  });
+  
+  document.getElementById("shareProfile").addEventListener("click", () => {
+    alert("Share profile (prototype)");
   });
 </script>
 {% endblock %}

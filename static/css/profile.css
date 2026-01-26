@@ -1,13 +1,26 @@
+/* PAGE WRAPPER */
+.profile-page {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* =====================
+   PROFILE CARD
+===================== */
 .profile-card {
   background: #ffd9b0;
   border-radius: 20px;
-  padding: 30px;
+  padding: 28px;
   margin-bottom: 40px;
 }
 
 .profile-top {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
 }
 
 .profile-left {
@@ -16,45 +29,102 @@
 }
 
 .avatar {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
+  object-fit: cover;
+  background: #d0d0d0;
 }
 
-.name {
-  font-size: 22px;
+.profile-info {
+  max-width: 520px;
+}
+
+.profile-name {
+  font-size: 32px;
   font-weight: 700;
+  margin-bottom: 8px;
+  color: #000;
 }
 
 .info {
-  color: #555;
-  font-size: 14px;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.info i {
+  margin-right: 8px;
+  color: #666;
+}
+
+/* RIGHT SIDE */
+.profile-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
 }
 
 .tag {
   background: #7fb3ff;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 12px 40px;
+  border-radius: 30px;
   color: white;
+  font-size: 20px;
+  font-weight: 600;
+  display: inline-block;
 }
 
-.logout {
-  display: block;
-  margin-top: 10px;
+.logout-btn {
   color: #007bff;
+  font-weight: 600;
+  font-size: 18px;
+  text-decoration: underline;
 }
 
+.logout-btn:hover {
+  color: #0056b3;
+}
+
+/* DIVIDER */
+.divider {
+  border: none;
+  border-top: 2px solid #999;
+  margin: 20px 0;
+}
+
+/* =====================
+   STATS
+===================== */
 .stats {
   display: flex;
   justify-content: space-around;
   margin: 20px 0;
+  text-align: center;
 }
 
-.stats div strong {
-  font-size: 26px;
-  color: #ff7a00;
+.stats div {
+  flex: 1;
 }
 
+.stats strong {
+  font-size: 32px;
+  color: #ff8c42;
+  display: block;
+  font-weight: 700;
+}
+
+.stats span {
+  display: block;
+  font-size: 18px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* =====================
+   ACTION BUTTONS
+===================== */
 .actions {
   display: flex;
   justify-content: center;
@@ -64,59 +134,237 @@
 .actions button {
   background: #ffb074;
   border: none;
-  padding: 12px 20px;
-  border-radius: 14px;
+  padding: 14px 28px;
+  border-radius: 16px;
   font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* SETTINGS */
+.actions button:hover {
+  background: #ffa35c;
+}
+
+.actions button i {
+  font-size: 16px;
+}
+
+/* =====================
+   SETTINGS SECTION
+===================== */
+.settings {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
 .settings h2 {
-  font-size: 28px;
-  margin-bottom: 20px;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #000;
 }
 
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
 }
 
 .setting-card {
-  background: #ffa94d;
-  border-radius: 20px;
-  padding: 20px;
+  background: #ffad5a;
+  border-radius: 24px;
+  padding: 32px;
   color: black;
+  display: flex;
+  flex-direction: column;
 }
 
-.setting-card i {
-  font-size: 32px;
+/* Icon wrapper */
+.icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.icon-wrapper i {
+  font-size: 36px;
+}
+
+.icon-wrapper.accessibility {
+  background: #b3d9ff;
+}
+
+.icon-wrapper.accessibility i {
+  color: #4d94ff;
+}
+
+.icon-wrapper.safety {
+  background: #c8f5c8;
+}
+
+.icon-wrapper.safety i {
+  color: #4d994d;
+}
+
+.icon-wrapper.achievements {
+  background: #fff4b3;
+}
+
+.icon-wrapper.achievements i {
+  color: #cc9900;
+}
+
+.setting-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #000;
+}
+
+.setting-description {
+  font-size: 15px;
+  margin: 0 0 16px 0;
+  font-style: italic;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+/* FEATURE LIST */
+.setting-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 16px 0 24px 0;
+  flex-grow: 1;
+}
+
+.setting-list li {
+  font-size: 15px;
   margin-bottom: 10px;
+  padding-left: 28px;
+  position: relative;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.setting-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #ff6b00;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .setting-card a {
   display: inline-block;
-  margin-top: 12px;
-  background: #ff7a00;
+  background: #ff6b00;
   color: white;
-  padding: 10px 16px;
-  border-radius: 20px;
+  padding: 14px 32px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600;
+  align-self: flex-start;
+  transition: background 0.3s;
 }
 
-/* ABOUT */
+.setting-card a:hover {
+  background: #e86000;
+}
+
+/* =====================
+   ABOUT SECTION
+===================== */
 .about {
-  margin-top: 40px;
+  margin-top: 50px;
+}
+
+.about h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #000;
+}
+
+.about h2 i {
+  margin-right: 8px;
+}
+
+.about-divider {
+  border: none;
+  border-top: 2px solid #ccc;
+  margin-bottom: 24px;
 }
 
 .about-box {
-  background: #f1f1f1;
-  padding: 20px;
-  border-radius: 14px;
+  background: #e8e8e8;
+  padding: 28px;
+  border-radius: 16px;
   margin-bottom: 20px;
 }
 
+.about-box strong {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 18px;
+  color: #666;
+}
+
+.about-box p {
+  font-size: 18px;
+  color: #000;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Edit mode textarea */
+.edit-textarea {
+  width: 100%;
+  font-size: 18px;
+  color: #000;
+  line-height: 1.5;
+  padding: 12px;
+  border: 2px solid #999;
+  border-radius: 8px;
+  font-family: "Segoe UI", sans-serif;
+  resize: vertical;
+  min-height: 60px;
+  background: white;
+}
+
+/* =====================
+   RESPONSIVE
+===================== */
 @media (max-width: 768px) {
   .profile-top {
     flex-direction: column;
-    gap: 20px;
+  }
+
+  .profile-right {
+    align-items: flex-start;
+  }
+
+  .stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .actions button {
+    width: 100%;
+  }
+  
+  .settings-grid {
+    grid-template-columns: 1fr;
   }
 }
