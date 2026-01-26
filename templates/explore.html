@@ -24,7 +24,6 @@
                 </button>
             </div>
         </form>
-
         <button id="toggle-filters" class="btn btn-lg fw-semibold mt-2 mt-md-0 ms-md-2">
             <i class="fa-solid fa-filter"></i> Filters
         </button>
@@ -190,6 +189,29 @@
                 <span>#{{ tag }}</span>
                 {% endfor %}
             </div>
+            <div class="mt-3 text-center">
+                {% if activity.join_activity == 'false' %}
+                <button type="button" class="btn join-btn fw-semibold w-100 shadow-sm">
+                    Join Activity
+                </button>
+
+                {% elif activity.join_activity == 'true' %}
+                <button type="button" class="btn joined fw-semibold w-100 shadow-sm" disabled>
+                Joined
+                </button>
+
+                {% elif activity.join_activity == 'max' %}
+                <button type="button" class="btn maxbtn fw-semibold w-100 shadow-sm" disabled>
+                    Activity Full
+                </button>
+
+                {% elif activity.join_activity == 'created' %}
+                <button type="button" class="btn createdbtn fw-semibold w-100 shadow-sm" disabled>
+                    Created by You
+                </button>
+                {% endif %}
+            </div>
+
         </div>
     </div>
     {% endfor %}

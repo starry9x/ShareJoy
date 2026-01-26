@@ -168,7 +168,6 @@ def activity_delete(activity_id):
     activity = Activity.query.get_or_404(activity_id)
     db.session.delete(activity)
     db.session.commit()
-    flash(f'Activity "{activity.name}" has been deleted.', "success")
     return redirect(url_for("activities"))
 
 @app.route('/activity/create', methods=['GET', 'POST'])
@@ -218,7 +217,6 @@ def activity_create():
 
         db.session.add(new_activity)
         db.session.commit()
-        flash(f'Activity "{name}" has been created.', "success")
         return redirect(url_for('activities'))
 
     my_activities_count = Activity.query.filter_by(creator="me").count()
@@ -246,13 +244,8 @@ def edit_activity(activity_id):
         tags_str = request.form.get('tags', '')
         activity.tags = tags_str
 
-        try:
-            db.session.commit()
-            flash('Activity updated successfully!', 'success')
-            return redirect(url_for('activities'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating activity: {e}', 'danger')
+        db.session.commit()
+        return redirect(url_for('activities'))
 
     tags = activity.tags.split(',') if activity.tags else []
     
@@ -316,17 +309,40 @@ def schedule():
 def profile():
     return render_template("profile.html", title="Profile")
 
+
 @app.route("/signup")
 def signup():
     return render_template("signup.html")
+
 
 @app.route("/forgot-password")
 def forgot_password():
     return render_template("forgotpassword.html")
 
+
+@app.route("/safetynprivacy")
+def safety_and_privacy():
+    return render_template("safetynprivacy.html", title="Safety & Privacy")
+
+
+@app.route("/accessibility")
+def accessibility():
+    return render_template("accessibility.html", title="Accessibility")
+
+
+@app.route("/achievements")
+def achievements():
+    return render_template("achievements.html")
+
+
 @app.route("/loginpage")
 def loginpage():
     return render_template("loginpage.html")
+
+
+@app.route("/logout")
+def logout():
+    return redirect(url_for("loginpage"))
 
 # ==========================================
 #  GROUPS ROUTES

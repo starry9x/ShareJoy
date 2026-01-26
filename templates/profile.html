@@ -2,17 +2,20 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    <!-- Profile Header Section -->
-    <section class="profile-header">
-        <div class="profile-pic-section">
-            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture" class="profile-pic" id="profilePicture">
-            <button class="change-pic-btn" onclick="openModal()">
-                <i class="fas fa-camera"></i> Change Photo
-            </button>
+<h1>
+  <div class="profile-card">
+    <div class="profile-top">
+      <div class="profile-left">
+        <img src="{{ url_for('static', filename='images/default-avatar.png') }}" class="avatar">
+        <div>
+          <div class="name">Leon Kennedy</div>
+          <div class="info"><i class="fa-solid fa-envelope"></i> leon.kennedy@gmail.com</div>
+          <div class="info"><i class="fa-solid fa-calendar"></i> Joined March 2023</div>
+          <div class="info"><i class="fa-solid fa-user"></i> "I love running and cooking"</div>
         </div>
         
         <div class="profile-info">
@@ -46,7 +49,7 @@
                 <button class="btn btn-primary" onclick="openModal()">
                     <i class="fas fa-edit"></i> Edit Profile
                 </button>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">
                     <i class="fas fa-sign-out-alt"></i> Log Out
                 </a>
             </div>
@@ -71,7 +74,7 @@
                     <li><i class="fas fa-check"></i> Text-to-speech function</li>
                 </ul>
                 
-                <a href="{{ url_for('main.accessibility') }}" class="open-btn">
+                <a href="/accessibility" class="open-btn">
                     Open <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -88,7 +91,7 @@
                     <li><i class="fas fa-check"></i> Data sharing preferences</li>
                 </ul>
                 
-                <a href="{{ url_for('main.safety_privacy') }}" class="open-btn">
+                <a href="/safetynprivacy" class="open-btn">
                     Open <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -105,7 +108,7 @@
                     <li><i class="fas fa-check"></i> Milestone celebrations</li>
                 </ul>
                 
-                <a href="{{ url_for('main.achievements') }}" class="open-btn">
+                <a href="/achievements" class="open-btn">
                     Open <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -146,193 +149,90 @@
         </div>
     </section>
 </div>
+      </div>
 
-<!-- Edit Profile Modal -->
-<div class="modal-overlay" id="editProfileModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h2 class="modal-title">Edit Profile</h2>
-            <button class="close-modal" onclick="closeModal()">&times;</button>
-        </div>
-        
-        <form id="profileForm" onsubmit="saveProfile(event)">
-            <div class="form-group">
-                <label class="form-label" for="editName">Full Name</label>
-                <input type="text" class="form-input" id="editName" value="{{ current_user.name if current_user else 'Leon Kennedy' }}" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="editEmail">Email Address</label>
-                <input type="email" class="form-input" id="editEmail" value="{{ current_user.email if current_user else 'leon.kennedy@gmail.com' }}" required>
-                <small style="color: #666; font-size: 13px;">Email must be valid</small>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="editQuote">Profile Quote</label>
-                <input type="text" class="form-input" id="editQuote" value="I love running and cooking">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="editBio">Bio</label>
-                <textarea class="form-textarea" id="editBio">Student passionate about volunteering. Love running and cooking.</textarea>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="editWork">Work</label>
-                <input type="text" class="form-input" id="editWork" value="Working part time at Starbucks">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="editEducation">Education</label>
-                <input type="text" class="form-input" id="editEducation" value="Nanyang Polytechnic, Diploma in Business and Financial Technology">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="editRelationship">Relationship</label>
-                <input type="text" class="form-input" id="editRelationship" value="Single">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="editInterests">Interests</label>
-                <input type="text" class="form-input" id="editInterests" value="Running, Cooking, Volunteering, Technology, Finance">
-            </div>
-            
-            <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </div>
-        </form>
+      <div class="profile-right">
+        <span class="tag">Youth</span>
+        <a href="{{ url_for('loginpage') }}" class="logout">Log Out</a>
+      </div>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
+    <div class="stats">
+      <div><strong>142</strong><span>Posts</span></div>
+      <div><strong>67</strong><span>Followers</span></div>
+      <div><strong>167</strong><span>Following</span></div>
+    </div>
+
+    <div class="actions">
+      <button id="editProfile"><i class="fa-solid fa-pen"></i> Edit Profile</button>
+      <button><i class="fa-solid fa-share-nodes"></i> Share Profile</button>
+    </div>
+  </div>
+</h1>
+
+<p>
+  <section class="settings">
+    <h2>Account Settings & Features</h2>
+
+    <div class="settings-grid">
+      <div class="setting-card">
+        <i class="fa-solid fa-universal-access"></i>
+        <h3>Accessibility Settings</h3>
+        <ul>
+          <li>Change font size</li>
+          <li>High contrast mode</li>
+          <li>Text-to-speech</li>
+        </ul>
+        <a href="accessibility.html">Open →</a>
+      </div>
+
+      <div class="setting-card">
+        <i class="fa-solid fa-shield-halved"></i>
+        <h3>Safety & Privacy</h3>
+        <ul>
+          <li>Guardian profile</li>
+          <li>Privacy controls</li>
+          <li>Login security</li>
+        </ul>
+        <a href="safetynprivacy.html">Open →</a>
+      </div>
+
+      <div class="setting-card">
+        <i class="fa-solid fa-trophy"></i>
+        <h3>Achievements & Progress</h3>
+        <ul>
+          <li>Trophies & badges</li>
+          <li>Progress tracking</li>
+          <li>Milestones</li>
+        </ul>
+        <a href="{{ url_for('achievements') }}">Open →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="about">
+    <h2><i class="fa-solid fa-circle-info"></i> About Me</h2>
+
+    <div class="about-box">
+      <strong>Bio</strong>
+      <p id="bio">Student passionate about volunteering. Love running and cooking.</p>
+    </div>
+
+    <div class="about-box">
+      <strong>Work</strong>
+      <p id="work">Working part time at Starbucks.</p>
+    </div>
+
+    <div class="about-box">
+      <strong>Education</strong>
+      <p id="education">Nanyang Polytechnic, Diploma in Business and Financial Technology</p>
+    </div>
+  </section>
+</p>
+
 <script>
-    // Profile data
-    let profileData = {
-        name: "{{ current_user.name if current_user else 'Leon Kennedy' }}",
-        email: "{{ current_user.email if current_user else 'leon.kennedy@gmail.com' }}",
-        quote: "I love running and cooking",
-        bio: "Student passionate about volunteering. Love running and cooking.",
-        work: "Working part time at Starbucks.",
-        education: "Nanyang Polytechnic, Diploma in Business and Financial Technology",
-        relationship: "Single",
-        interests: "Running, Cooking, Volunteering, Technology, Finance",
-        posts: 142,
-        followers: 67,
-        following: 167,
-        profilePic: "{{ url_for('static', filename='images/default-avatar.png') }}"
-    };
-    
-    // Modal functions
-    function openModal() {
-        document.getElementById('editProfileModal').style.display = 'flex';
-        
-        // Populate form with current data
-        document.getElementById('editName').value = profileData.name;
-        document.getElementById('editEmail').value = profileData.email;
-        document.getElementById('editQuote').value = profileData.quote.replace(/"/g, '');
-        document.getElementById('editBio').value = profileData.bio;
-        document.getElementById('editWork').value = profileData.work;
-        document.getElementById('editEducation').value = profileData.education;
-        document.getElementById('editRelationship').value = profileData.relationship;
-        document.getElementById('editInterests').value = profileData.interests;
-    }
-    
-    function closeModal() {
-        document.getElementById('editProfileModal').style.display = 'none';
-    }
-    
-    // Save profile changes
-    function saveProfile(event) {
-        event.preventDefault();
-        
-        // Get form values
-        const name = document.getElementById('editName').value;
-        const email = document.getElementById('editEmail').value;
-        const quote = document.getElementById('editQuote').value;
-        const bio = document.getElementById('editBio').value;
-        const work = document.getElementById('editWork').value;
-        const education = document.getElementById('editEducation').value;
-        const relationship = document.getElementById('editRelationship').value;
-        const interests = document.getElementById('editInterests').value;
-        
-        // Validate email
-        if (!validateEmail(email)) {
-            alert("Please enter a valid email address.");
-            return;
-        }
-        
-        // Update profile data
-        profileData.name = name;
-        profileData.email = email;
-        profileData.quote = `"${quote}"`;
-        profileData.bio = bio;
-        profileData.work = work;
-        profileData.education = education;
-        profileData.relationship = relationship;
-        profileData.interests = interests;
-        
-        // Update UI
-        updateProfileUI();
-        
-        // Close modal
-        closeModal();
-        
-        // Show success message
-        alert("Profile updated successfully!");
-        
-        // Here you would typically send the data to your backend
-        // Example: fetch('/update-profile', { method: 'POST', body: JSON.stringify(profileData) })
-    }
-    
-    // Update UI with profile data
-    function updateProfileUI() {
-        document.getElementById('profileName').textContent = profileData.name;
-        document.getElementById('profileEmail').textContent = profileData.email;
-        document.getElementById('profileQuote').textContent = profileData.quote;
-        document.getElementById('aboutBio').textContent = profileData.bio;
-        document.getElementById('aboutWork').textContent = profileData.work;
-        document.getElementById('aboutEducation').textContent = profileData.education;
-        document.getElementById('aboutRelationship').textContent = profileData.relationship;
-        document.getElementById('aboutInterests').textContent = profileData.interests;
-        document.getElementById('postCount').textContent = profileData.posts;
-        document.getElementById('followerCount').textContent = profileData.followers;
-        document.getElementById('followingCount').textContent = profileData.following;
-        document.getElementById('profilePicture').src = profileData.profilePic;
-    }
-    
-    // Email validation function
-    function validateEmail(email) {
-        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(String(email).toLowerCase());
-    }
-    
-    // Change profile picture
-    document.addEventListener('DOMContentLoaded', function() {
-        const profilePic = document.getElementById('profilePicture');
-        if (profilePic) {
-            profilePic.addEventListener('click', function() {
-                const newPic = prompt("Enter URL for new profile picture:", profileData.profilePic);
-                if (newPic && newPic.trim() !== "") {
-                    profileData.profilePic = newPic.trim();
-                    updateProfileUI();
-                }
-            });
-        }
-        
-        // Close modal when clicking outside
-        const modalOverlay = document.getElementById('editProfileModal');
-        if (modalOverlay) {
-            modalOverlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeModal();
-                }
-            });
-        }
-        
-        // Initialize UI with profile data
-        updateProfileUI();
-    });
+  document.getElementById("editProfile").addEventListener("click", () => {
+    alert("Edit mode enabled (prototype)");
+  });
 </script>
 {% endblock %}

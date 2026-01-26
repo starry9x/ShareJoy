@@ -143,79 +143,227 @@
                 <!-- Buttons -->
                 <div class="d-flex justify-content-end gap-2">
                     <a href="{{ url_for('activities') }}" class="btn cancelbtn fw-semibold">Cancel</a>
-                    <button type="submit" class="btn dobtn fw-semibold">Update Activity</button>
+                    <button type="button" id="edit-btn" class="btn dobtn fw-semibold">
+                        Update Activity
+                    </button>
                 </div>
-
             </form>
         </div>
+    </div>
+</div>
+
+<!-- Validation Overlay -->
+<div id="validation-overlay" class="overlay hidden">
+    <div class="bg-white p-4 shadow cardsec w-md-50 mx-auto">
+        <h4 class="cardhead mb-2">Required fields incomplete</h4>
+        <p class="carddesc fw-semibold">Please fill out all required fields before submitting.</p>
+        <div class="d-flex justify-content-end mt-3">
+            <button type="button" id="validation-ok-btn" class="btn cancelbtn fw-semibold shadow-sm validationbtn">
+                Okay
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Overlay -->
+<div id="confirm-overlay" class="overlay hidden">
+    <div class="bg-white p-4 shadow cardsec w-md-50">
+        <!-- Title -->
+        <div class="fw-bold mb-2 ms-1 cardhead">
+            <h4>Update Activity</h4>
+        </div>
+
+        <!-- Description -->
+        <p class="mb-3 ms-1 fw-semibold carddesc">
+            Are you sure you want to update this activity? <br>
+            Your changes will be saved and all participants will be notified
+        </p>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end gap-3">
+            <button type="button" id="confirm-no" class="btn cancel-btn btn-sm fw-semibold shadow-sm">
+                Cancel
+            </button>
+            <button type="button" id="confirm-yes" class="btn successbtn btn-sm fw-semibold shadow-sm">
+                Update Activity
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="overlay hidden fs-6">
+    <div class="text-center">
+        <div class="spinner-border" role="status"></div>
+        <p class="fw-semibold mt-2 loading-text">Loading...</p>
+    </div>
+</div>
+
+<!-- Success Overlay -->
+<div id="success-overlay" class="overlay hidden">
+    <div class="text-center">
+        <i class="fa-regular fa-circle-check text-success"></i>
+        <div class="fw-bold mt-3 cardhead success-text">
+            <h4>Activity Updated!</h4>
+            <p class="carddesc success-text fw-semibold">All participants will be notified.</p>
+        </div>
+        <button type="button" id="success-ok-btn" class="btn okbtn mt-1 fw-semibold shadow-sm">Okay</button>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    const formatSelect = document.getElementById('format-select');
-    const locationField = document.getElementById('location-field');
-    const locationInput = locationField.querySelector('input');
+    document.addEventListener('DOMContentLoaded', () => {
 
-    let tempInPersonLocation = locationInput.value;
+        // Date & Time inputs: keep pre-filled values, only handle placeholder styling
+        document.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
+            const placeholderText = input.type === 'date' ? 'dd/mm/yyyy' : 'HH:MM';
+            if (!input.value) {
+                input.classList.add('is-placeholder');
+                input.placeholder = placeholderText;
+            }
 
-    function toggleLocationField() {
-        if (formatSelect.value === 'In-Person') {
-            locationField.style.display = 'block';
-            locationInput.required = true;
-            locationInput.value = tempInPersonLocation;
-        } else {
-            tempInPersonLocation = locationInput.value;
-            locationField.style.display = 'none';
-            locationInput.required = false;
-            locationInput.value = 'Online';
+            input.addEventListener('focus', () => {
+                if (input.classList.contains('is-placeholder')) {
+                    input.value = '';
+                    input.classList.remove('is-placeholder');
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                if (!input.value) {
+                    input.classList.add('is-placeholder');
+                    input.value = '';
+                }
+            });
+
+            input.addEventListener('change', () => {
+                input.classList.remove('is-placeholder');
+            });
+        });
+
+        // Location field toggle
+        const formatSelect = document.querySelector('select[name="format_type"]');
+        const locationField = document.getElementById('location-field');
+        const locationInput = locationField.querySelector('input');
+        let tempInPersonLocation = locationInput.value;
+
+        function toggleLocationField() {
+            if (formatSelect.value === 'In-Person') {
+                locationField.style.display = 'block';
+                locationInput.required = true;
+                locationInput.value = tempInPersonLocation;
+            } else {
+                tempInPersonLocation = locationInput.value;
+                locationField.style.display = 'none';
+                locationInput.required = false;
+                locationInput.value = 'Online';
+            }
         }
-    }
 
-    toggleLocationField();
-    formatSelect.addEventListener('change', toggleLocationField);
+        toggleLocationField();
+        formatSelect.addEventListener('change', toggleLocationField);
 
-    const tagInput = document.getElementById('tag-input');
-    const addTagBtn = document.getElementById('add-tag-btn');
-    const tagsContainer = document.getElementById('tags-container');
+        // Tags functionality
+        const tagInput = document.getElementById('tag-input');
+        const addTagBtn = document.getElementById('add-tag-btn');
+        const tagsContainer = document.getElementById('tags-container');
+        const hiddenTagsInput = document.getElementById('tags-hidden');
 
-    function addTag(tagText) {
-        if (!tagText) return;
-        const existingTags = Array.from(tagsContainer.querySelectorAll('span'))
-            .map(span => span.textContent.replace('×', '').trim().toLowerCase());
-        if (existingTags.includes(tagText.toLowerCase())) return;
+        function addTag(tagText) {
+            if (!tagText) return;
+            const existingTags = Array.from(tagsContainer.querySelectorAll('span'))
+                .map(span => span.textContent.replace('×', '').trim().toLowerCase());
+            if (existingTags.includes(tagText.toLowerCase())) return;
 
-        const tag = document.createElement('span');
-        tag.className = 'badge bg-secondary d-flex align-items-center gap-1';
-        tag.innerHTML = `${tagText} <button type="button" class="tag-delete">×</button>`;
-        tag.querySelector('.tag-delete').addEventListener('click', () => tagsContainer.removeChild(tag));
-        tagsContainer.appendChild(tag);
-    }
+            const tag = document.createElement('span');
+            tag.className = 'badge bg-secondary d-flex align-items-center gap-1';
+            tag.innerHTML = `${tagText} <button type="button" class="tag-delete">×</button>`;
+            tag.querySelector('.tag-delete').addEventListener('click', () => tagsContainer.removeChild(tag));
+            tagsContainer.appendChild(tag);
+        }
 
-    addTagBtn.addEventListener('click', () => {
-        addTag(tagInput.value.trim());
-        tagInput.value = '';
-    });
-
-    tagInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
+        addTagBtn.addEventListener('click', () => {
             addTag(tagInput.value.trim());
             tagInput.value = '';
-        }
-    });
+        });
 
-    document.querySelectorAll('.tag-delete').forEach(btn => {
-        btn.addEventListener('click', e => btn.parentElement.remove());
-    });
+        tagInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag(tagInput.value.trim());
+                tagInput.value = '';
+            }
+        });
 
-    const form = document.querySelector('form');
-    form.addEventListener('submit', e => {
-        const tags = Array.from(tagsContainer.querySelectorAll('span'))
-            .map(span => span.textContent.replace('×', '').trim());
-        document.getElementById('tags-hidden').value = tags.join(',');
+        // Delete existing tags
+        document.querySelectorAll('.tag-delete').forEach(btn => {
+            btn.addEventListener('click', e => btn.parentElement.remove());
+        });
+
+        // On submit, collect tags
+        const form = document.querySelector('form');
+        form.addEventListener('submit', e => {
+            const tags = Array.from(tagsContainer.querySelectorAll('span'))
+                .map(span => span.textContent.replace('×', '').trim());
+            document.getElementById('tags-hidden').value = tags.join(',');
+        });
+
+        // Form and overlays
+        const editBtn = document.getElementById('edit-btn');
+
+        const validationOverlay = document.getElementById('validation-overlay');
+        const validationOkBtn = document.getElementById('validation-ok-btn');
+
+        const confirmOverlay = document.getElementById('confirm-overlay');
+        const confirmYes = document.getElementById('confirm-yes');
+        const confirmNo = document.getElementById('confirm-no');
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const successOverlay = document.getElementById('success-overlay');
+        const successOkBtn = document.getElementById('success-ok-btn');
+
+        editBtn.addEventListener('click', () => {
+            if (form.checkValidity()) {
+                confirmOverlay.classList.remove('hidden');
+            } else {
+                validationOverlay.classList.remove('hidden');
+            }
+        });
+
+        validationOkBtn.addEventListener('click', () => {
+            validationOverlay.classList.add('hidden');
+            form.reportValidity();
+        });
+
+        validationOkBtn.addEventListener('click', () => {
+            validationOverlay.classList.add('hidden');
+        });
+
+        confirmNo.addEventListener('click', () => {
+            confirmOverlay.classList.add('hidden');
+        });
+
+        confirmYes.addEventListener('click', () => {
+            const tags = Array.from(tagsContainer.querySelectorAll('.badge'))
+                .map(tag => tag.textContent.replace('×', '').trim());
+            hiddenTagsInput.value = tags.join(',');
+
+            confirmOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                successOverlay.classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Success overlay OK button
+        successOkBtn.addEventListener('click', () => {
+            successOverlay.classList.add('hidden');
+            form.submit();
+        });
     });
 </script>
-
-{% endblock %}
+{% endblock %}S
