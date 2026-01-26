@@ -7,9 +7,9 @@ from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage
 import os
 import pytz
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
+app.secret_key = "some_random_secret"
 
 db.init_app(app)
 migrate.init_app(app, db)
