@@ -17,8 +17,6 @@ migrate.init_app(app, db)
 with app.app_context():
     db.create_all()
     
-app.secret_key = os.urandom(24)
-
 def get_current_user():
     # TEMP: replace with real login later
     return "me"
@@ -125,8 +123,9 @@ def delete_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
     db.session.delete(contact)
     db.session.commit()
+    # Flash a message with a category so messages.html can detect it
+    flash("Contact deleted successfully!", "contact_deleted")
     return redirect(url_for('messages'))
-
 
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 def edit_contact(contact_id):
@@ -139,7 +138,6 @@ def edit_contact(contact_id):
         flash("Contact updated successfully!", "contact_updated")
         return redirect(url_for('messages'))
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
-
 
 # Activities Routes
 @app.route("/activities")
