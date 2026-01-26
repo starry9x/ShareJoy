@@ -23,7 +23,11 @@ def get_current_user():
     # TEMP: replace with real login later
     return "me"
 
+@app.route("/")
+def home():
+    return render_template("homepage.html", title="Home")
 
+# Messages routes
 @app.template_filter("sgtime")
 def sgtime(dt):
     if not dt:
@@ -33,12 +37,6 @@ def sgtime(dt):
         dt = dt.replace(tzinfo=pytz.utc)
     sg_tz = pytz.timezone("Asia/Singapore")
     return dt.astimezone(sg_tz).strftime("%d %b %Y %H:%M")
-
-
-@app.route("/")
-def home():
-    return render_template("homepage.html", title="Home")
-
 
 @app.route("/messages")
 def messages():
@@ -129,6 +127,7 @@ def delete_contact(contact_id):
     db.session.commit()
     return redirect(url_for('messages'))
 
+
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 def edit_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
@@ -137,8 +136,10 @@ def edit_contact(contact_id):
         contact.phone = request.form.get('phone', contact.phone)
         contact.short_desc = request.form.get('short_desc', contact.short_desc)
         db.session.commit()
+        flash("Contact updated successfully!", "contact_updated")
         return redirect(url_for('messages'))
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
+
 
 # Activities Routes
 @app.route("/activities")
@@ -410,21 +411,17 @@ def profile():
 def signup():
     return render_template("signup.html")
 
-
-@app.route("/forgot-password")
-def forgot_password():
-    return render_template("forgotpassword.html")
-
-
 @app.route("/safetynprivacy")
-def safety_and_privacy():
+def safetynprivacy():
     return render_template("safetynprivacy.html", title="Safety & Privacy")
-
 
 @app.route("/accessibility")
 def accessibility():
     return render_template("accessibility.html", title="Accessibility")
 
+@app.route("/forgotpassword")
+def forgotpassword():
+    return render_template("forgotpassword.html")
 
 @app.route("/achievements")
 def achievements():
