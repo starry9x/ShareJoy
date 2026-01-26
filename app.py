@@ -433,10 +433,6 @@ def loginpage():
     return render_template("loginpage.html")
 
 
-@app.route("/logout")
-def logout():
-    return redirect(url_for("loginpage"))
-
 # ==========================================
 #  GROUPS ROUTES
 # ==========================================

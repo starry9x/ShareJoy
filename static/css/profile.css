@@ -36,6 +36,48 @@
   background: #d0d0d0;
 }
 
+/* Avatar Container with Upload/Delete Buttons */
+.avatar-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.avatar-overlay {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  display: flex;
+  gap: 5px;
+}
+
+.avatar-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: #ffb074;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.avatar-btn:hover {
+  background: #ffa35c;
+}
+
+.avatar-btn.delete-btn {
+  background: #ff4444;
+}
+
+.avatar-btn.delete-btn:hover {
+  background: #cc0000;
+}
+
 .profile-info {
   max-width: 520px;
 }
@@ -150,6 +192,15 @@
 
 .actions button i {
   font-size: 16px;
+}
+
+/* Save Profile button (blue when in save mode) */
+.actions button.save-mode {
+  background: #4d94ff;
+}
+
+.actions button.save-mode:hover {
+  background: #3375e6;
 }
 
 /* =====================
