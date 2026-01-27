@@ -4,8 +4,8 @@ import pytz
 class Contact(db.Model):
     __tablename__ = 'contact'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    phone = db.Column(db.String(20))
+    name = db.Column(db.String(35), nullable=False)
+    phone = db.Column(db.String(12))
     short_desc = db.Column(db.String(120))
     image_url = db.Column(db.String(200))
 

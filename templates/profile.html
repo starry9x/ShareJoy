@@ -8,291 +8,192 @@
 {% block content %}
 <div class="profile-page">
 
-	<!-- =====================
+  <!-- =====================
        PROFILE CARD
   ====================== -->
-	<section class="profile-card">
+  <section class="profile-card">
 
-		<div class="profile-top">
+    <div class="profile-top">
 
-			<div class="profile-left">
-				<img src="{{ url_for('static', filename='images/default-avatar.png') }}" class="avatar">
-				<div>
-					<div class="name">Leon Kennedy</div>
-					<div class="info"><i class="fa-solid fa-envelope"></i> leon.kennedy@gmail.com</div>
-					<div class="info"><i class="fa-solid fa-calendar"></i> Joined March 2023</div>
-					<div class="info"><i class="fa-solid fa-user"></i> "I love running and cooking"</div>
-				</div>
+      <div class="profile-left">
+        <div class="avatar-container">
+          <img id="profileImage" src="https://static.vecteezy.com/system/resources/thumbnails/002/534/006/small/social-media-chatting-online-blank-profile-picture-head-and-body-icon-people-standing-icon-grey-background-free-vector.jpg" class="avatar" alt="Profile Picture">
+          <div class="avatar-overlay">
+            <button id="uploadBtn" class="avatar-btn">
+              <i class="fa-solid fa-camera"></i>
+            </button>
+            <button id="deleteBtn" class="avatar-btn delete-btn" style="display: none;">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+          <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+        </div>
 
-				<img src="{{ url_for('static', filename='images/default-avatar.png') }}" class="avatar"
-					alt="Profile Picture">
+        <div class="profile-info">
+          <h1 class="profile-name">Leon Kennedy</h1>
 
-				<div class="profile-info">
-					<h1 class="profile-name">Leon Kennedy</h1>
+          <div class="info">
+            <i class="fa-solid fa-envelope"></i>
+            leon.kennedy@gmail.com
+          </div>
 
-					<div class="info">
-						<i class="fa-solid fa-envelope"></i>
-						leon.kennedy@gmail.com
-					</div>
+          <div class="info">
+            <i class="fa-solid fa-calendar"></i>
+            Joined March 2023
+          </div>
 
-					<div class="info">
-						<i class="fa-solid fa-calendar"></i>
-						Joined March 2023
-					</div>
+          <div class="info">
+            <i class="fa-solid fa-user"></i>
+            "I love running and cooking"
+          </div>
+        </div>
+      </div>
 
-					<div class="info">
-						<i class="fa-solid fa-user"></i>
-						"I love running and cooking"
-					</div>
-				</div>
-	</section>
+      <div class="profile-right">
+        <span class="tag">Youth</span>
 
-	<!-- Settings Section -->
-	<section class="settings-section">
-		<h2 class="section-title">
-			<i class="fas fa-cog"></i> Account Settings & Features
-		</h2>
+        <!-- LOG OUT -->
+        <a href="/loginpage" class="logout-btn">
+          Log Out
+        </a>
+      </div>
 
-		<div class="settings-grid">
-			<!-- Accessibility Settings -->
-			<div class="setting-card">
-				<h3 class="setting-title">Accessibility Settings</h3>
-				<p class="setting-description">Make the page comfortable for you. Adjust the text, colours, or layout
-					with simple tools.</p>
+    </div>
 
-				<ul class="setting-features">
-					<li><i class="fas fa-check"></i> Change font size of webpage</li>
-					<li><i class="fas fa-check"></i> High contrast mode</li>
-					<li><i class="fas fa-check"></i> Text-to-speech function</li>
-				</ul>
+    <!-- HORIZONTAL LINE -->
+    <hr class="divider">
 
-				<a href="/accessibility" class="open-btn">
-					Open <i class="fas fa-arrow-right"></i>
-				</a>
-			</div>
+    <!-- STATS -->
+    <div class="stats">
+      <div>
+        <strong>142</strong>
+        <span>Posts</span>
+      </div>
+      <div>
+        <strong>67</strong>
+        <span>Followers</span>
+      </div>
+      <div>
+        <strong>167</strong>
+        <span>Following</span>
+      </div>
+    </div>
 
-			<!-- Safety & Privacy -->
-			<div class="setting-card">
-				<h3 class="setting-title">Safety & Privacy</h3>
-				<p class="setting-description">Choose what you want to share and keep your account safe in just a few
-					easy steps.</p>
+    <!-- HORIZONTAL LINE -->
+    <hr class="divider">
 
-				<ul class="setting-features">
-					<li><i class="fas fa-check"></i> Guardian oversight profile (optional)</li>
-					<li><i class="fas fa-check"></i> Privacy controls</li>
-					<li><i class="fas fa-check"></i> Login security</li>
-					<li><i class="fas fa-check"></i> Data sharing preferences</li>
-				</ul>
+    <!-- ACTIONS -->
+    <div class="actions">
+      <button id="editProfile">
+        <i class="fa-solid fa-pen-to-square"></i> <span id="edit-btn-text">Edit Profile</span>
+      </button>
+      <button id="shareProfile">
+        <i class="fa-solid fa-share-nodes"></i> Share Profile
+      </button>
+    </div>
 
-				<a href="/safetynprivacy" class="open-btn">
-					Open <i class="fas fa-arrow-right"></i>
-				</a>
-			</div>
+  </section>
 
-			<!-- Achievements & Progress -->
-			<div class="setting-card">
-				<h3 class="setting-title">Achievements & Progress</h3>
-				<p class="setting-description">See your activities and achievements. Stay motivated as you complete more
-					together.</p>
-
-				<ul class="setting-features">
-					<li><i class="fas fa-check"></i> Trophy and badges collection</li>
-					<li><i class="fas fa-check"></i> Progress tracking for consistency</li>
-					<li><i class="fas fa-check"></i> Activity completion stats</li>
-					<li><i class="fas fa-check"></i> Milestone celebrations</li>
-				</ul>
-
-				<a href="/achievements" class="open-btn">
-					Open <i class="fas fa-arrow-right"></i>
-				</a>
-			</div>
-		</div>
-	</section>
-
-	<!-- About Me Section -->
-	<section class="about-section">
-		<h2 class="section-title">
-			<i class="fas fa-user"></i> About Me
-		</h2>
-
-		<div class="about-grid">
-			<div class="about-card">
-				<h3 class="about-title"><i class="fas fa-id-card"></i> Bio</h3>
-				<p class="about-content" id="aboutBio">Student passionate about volunteering. Love running and cooking.
-				</p>
-			</div>
-
-			<div class="about-card">
-				<h3 class="about-title"><i class="fas fa-briefcase"></i> Work</h3>
-				<p class="about-content" id="aboutWork">Working part time at Starbucks.</p>
-			</div>
-
-			<div class="about-card">
-				<h3 class="about-title"><i class="fas fa-graduation-cap"></i> Education</h3>
-				<p class="about-content" id="aboutEducation">Nanyang Polytechnic, Diploma in Business and Financial
-					Technology</p>
-			</div>
-
-			<div class="about-card">
-				<h3 class="about-title"><i class="fas fa-heart"></i> Relationship</h3>
-				<p class="about-content" id="aboutRelationship">Single</p>
-			</div>
-
-			<div class="about-card">
-				<h3 class="about-title"><i class="fas fa-star"></i> Interests</h3>
-				<p class="about-content" id="aboutInterests">Running, Cooking, Volunteering, Technology, Finance</p>
-			</div>
-		</div>
-	</section>
-</div>
-
-<div class="profile-right">
-	<span class="tag">Youth</span>
-
-	<!-- LOG OUT -->
-	<a href="/loginpage" class="logout-btn">
-		Log Out
-	</a>
-</div>
-
-</div>
-
-<!-- HORIZONTAL LINE -->
-<hr class="divider">
-
-<!-- STATS -->
-<div class="stats">
-	<div>
-		<strong>142</strong>
-		<span>Posts</span>
-	</div>
-	<div>
-		<strong>67</strong>
-		<span>Followers</span>
-	</div>
-	<div>
-		<strong>167</strong>
-		<span>Following</span>
-	</div>
-</div>
-
-<!-- HORIZONTAL LINE -->
-<hr class="divider">
-
-<!-- ACTIONS -->
-<div class="actions">
-	<button id="editProfile">
-		<i class="fa-solid fa-pen-to-square"></i> <span id="edit-btn-text">Edit Profile</span>
-	</button>
-	<button id="shareProfile">
-		<i class="fa-solid fa-share-nodes"></i> Share Profile
-	</button>
-</div>
-
-</section>
-
-<!-- =====================
+  <!-- =====================
        SETTINGS SECTION
   ====================== -->
-<section class="settings">
-	<h2>Account Settings & Features</h2>
+  <section class="settings">
+    <h2>Account Settings & Features</h2>
 
-	<div class="settings-grid">
+    <div class="settings-grid">
 
-		<!-- Accessibility -->
-		<div class="setting-card">
-			<div class="icon-wrapper accessibility">
-				<i class="fa-solid fa-universal-access"></i>
-			</div>
+      <!-- Accessibility -->
+      <div class="setting-card">
+        <div class="icon-wrapper accessibility">
+          <i class="fa-solid fa-universal-access"></i>
+        </div>
+        
+        <h3>Accessibility Settings</h3>
+        <p class="setting-description">
+          Make the page comfortable for you. Adjust the text, colours, or layout with simple tools.
+        </p>
 
-			<h3>Accessibility Settings</h3>
-			<p class="setting-description">
-				Make the page comfortable for you. Adjust the text, colours, or layout with simple tools.
-			</p>
+        <ul class="setting-list">
+          <li>Change font size of webpage</li>
+          <li>High contrast mode</li>
+          <li>Text-to-speech function</li>
+        </ul>
 
-			<ul class="setting-list">
-				<li>Change font size of webpage</li>
-				<li>High contrast mode</li>
-				<li>Text-to-speech function</li>
-			</ul>
+        <a href="/accessibility">Open →</a>
+      </div>
 
-			<a href="/accessibility">Open →</a>
-		</div>
+      <!-- Safety & Privacy -->
+      <div class="setting-card">
+        <div class="icon-wrapper safety">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        
+        <h3>Safety & Privacy</h3>
+        <p class="setting-description">
+          Choose what you want to share and keep your account safe in just a few easy steps.
+        </p>
 
-		<!-- Safety & Privacy -->
-		<div class="setting-card">
-			<div class="icon-wrapper safety">
-				<i class="fa-solid fa-shield-halved"></i>
-			</div>
+        <ul class="setting-list">
+          <li>Guardian oversight profile (optional)</li>
+          <li>Privacy controls</li>
+          <li>Login security</li>
+          <li>Data sharing preferences</li>
+        </ul>
 
-			<h3>Safety & Privacy</h3>
-			<p class="setting-description">
-				Choose what you want to share and keep your account safe in just a few easy steps.
-			</p>
+        <a href="/safetynprivacy">Open →</a>
+      </div>
 
-			<ul class="setting-list">
-				<li>Guardian oversight profile (optional)</li>
-				<li>Privacy controls</li>
-				<li>Login security</li>
-				<li>Data sharing preferences</li>
-			</ul>
+      <!-- Achievements -->
+      <div class="setting-card">
+        <div class="icon-wrapper achievements">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        
+        <h3>Achievements & Progress</h3>
+        <p class="setting-description">
+          See your activities and achievements. Stay motivated as you complete more together.
+        </p>
 
-			<a href="/safetynprivacy">Open →</a>
-		</div>
+        <ul class="setting-list">
+          <li>Trophy and badges collection</li>
+          <li>Progress tracking for consistency</li>
+          <li>Activity completion stats</li>
+          <li>Milestone celebrations</li>
+        </ul>
 
-		<!-- Achievements -->
-		<div class="setting-card">
-			<div class="icon-wrapper achievements">
-				<i class="fa-solid fa-trophy"></i>
-			</div>
+        <a href="/achievements">Open →</a>
+      </div>
 
-			<h3>Achievements & Progress</h3>
-			<p class="setting-description">
-				See your activities and achievements. Stay motivated as you complete more together.
-			</p>
+    </div>
+  </section>
 
-			<ul class="setting-list">
-				<li>Trophy and badges collection</li>
-				<li>Progress tracking for consistency</li>
-				<li>Activity completion stats</li>
-				<li>Milestone celebrations</li>
-			</ul>
-
-			<a href="/achievements">Open →</a>
-		</div>
-
-	</div>
-</section>
-
-<!-- =====================
+  <!-- =====================
        ABOUT ME
   ====================== -->
-<section class="about">
-	<h2>
-		<i class="fa-solid fa-circle-info"></i> About Me
-	</h2>
-	<hr class="about-divider">
+  <section class="about">
+    <h2>
+      <i class="fa-solid fa-circle-info"></i> About Me
+    </h2>
+    <hr class="about-divider">
 
-	<div class="about-box">
-		<strong>Bio</strong>
-		<p id="bio-text">Student passionate about volunteering. Love running and cooking.</p>
-		<textarea id="bio-edit" class="edit-textarea"
-			style="display: none;">Student passionate about volunteering. Love running and cooking.</textarea>
-	</div>
+    <div class="about-box">
+      <strong>Bio</strong>
+      <p id="bio-text">Student passionate about volunteering. Love running and cooking.</p>
+      <textarea id="bio-edit" class="edit-textarea" style="display: none;">Student passionate about volunteering. Love running and cooking.</textarea>
+    </div>
 
-	<div class="about-box">
-		<strong>Work</strong>
-		<p id="work-text">Working part time at Starbucks.</p>
-		<textarea id="work-edit" class="edit-textarea" style="display: none;">Working part time at Starbucks.</textarea>
-	</div>
+    <div class="about-box">
+      <strong>Work</strong>
+      <p id="work-text">Working part time at Starbucks.</p>
+      <textarea id="work-edit" class="edit-textarea" style="display: none;">Working part time at Starbucks.</textarea>
+    </div>
 
-	<div class="about-box">
-		<strong>Education</strong>
-		<p id="education-text">Nanyang Polytechnic, Diploma in Business and Financial Technology</p>
-		<textarea id="education-edit" class="edit-textarea"
-			style="display: none;">Nanyang Polytechnic, Diploma in Business and Financial Technology</textarea>
-	</div>
-</section>
+    <div class="about-box">
+      <strong>Education</strong>
+      <p id="education-text">Nanyang Polytechnic, Diploma in Business and Financial Technology</p>
+      <textarea id="education-edit" class="edit-textarea" style="display: none;">Nanyang Polytechnic, Diploma in Business and Financial Technology</textarea>
+    </div>
+  </section>
 
 </div>
 
@@ -300,58 +201,95 @@
      SCRIPT
 ====================== -->
 <script>
-	document.addEventListener("DOMContentLoaded", () => {
-		let isEditMode = false;
+  let isEditMode = false;
+  const defaultImage = "https://static.vecteezy.com/system/resources/thumbnails/002/534/006/small/social-media-chatting-online-blank-profile-picture-head-and-body-icon-people-standing-icon-grey-background-free-vector.jpg";
 
-		const editProfileBtn = document.getElementById("editProfile");
-		const shareProfileBtn = document.getElementById("shareProfile");
+  // ===== EDIT PROFILE FUNCTIONALITY =====
+  document.getElementById("editProfile").addEventListener("click", () => {
+    isEditMode = !isEditMode;
+    
+    const editBtn = document.getElementById("edit-btn-text");
+    const bioText = document.getElementById("bio-text");
+    const bioEdit = document.getElementById("bio-edit");
+    const workText = document.getElementById("work-text");
+    const workEdit = document.getElementById("work-edit");
+    const educationText = document.getElementById("education-text");
+    const educationEdit = document.getElementById("education-edit");
+    
+    if (isEditMode) {
+      // Switch to edit mode
+      editBtn.textContent = "Save Profile";
+      
+      // Hide text, show textareas
+      bioText.style.display = "none";
+      bioEdit.style.display = "block";
+      workText.style.display = "none";
+      workEdit.style.display = "block";
+      educationText.style.display = "none";
+      educationEdit.style.display = "block";
+    } else {
+      // Save changes and switch back to view mode
+      editBtn.textContent = "Edit Profile";
+      
+      // Update text content from textareas
+      bioText.textContent = bioEdit.value;
+      workText.textContent = workEdit.value;
+      educationText.textContent = educationEdit.value;
+      
+      // Show text, hide textareas
+      bioText.style.display = "block";
+      bioEdit.style.display = "none";
+      workText.style.display = "block";
+      workEdit.style.display = "none";
+      educationText.style.display = "block";
+      educationEdit.style.display = "none";
+    }
+  });
+  
+  // ===== SHARE PROFILE FUNCTIONALITY =====
+  document.getElementById("shareProfile").addEventListener("click", () => {
+    alert("Share profile (prototype)");
+  });
 
-		if (editProfileBtn) {
-			editProfileBtn.addEventListener("click", () => {
-				isEditMode = !isEditMode;
+  // ===== PROFILE PICTURE FUNCTIONALITY =====
+  const profileImage = document.getElementById("profileImage");
+  const uploadBtn = document.getElementById("uploadBtn");
+  const deleteBtn = document.getElementById("deleteBtn");
+  const imageUpload = document.getElementById("imageUpload");
 
-				const editBtnText = document.getElementById("edit-btn-text");
-				const bioText = document.getElementById("bio-text");
-				const bioEdit = document.getElementById("bio-edit");
-				const workText = document.getElementById("work-text");
-				const workEdit = document.getElementById("work-edit");
-				const educationText = document.getElementById("education-text");
-				const educationEdit = document.getElementById("education-edit");
+  // Check if there's a saved image in localStorage
+  const savedImage = localStorage.getItem("profileImage");
+  if (savedImage && savedImage !== defaultImage) {
+    profileImage.src = savedImage;
+    deleteBtn.style.display = "block";
+  }
 
-				if (isEditMode) {
-					// Switch to edit mode
-					if (editBtnText) editBtnText.textContent = "Save Profile";
+  // Upload button - trigger file input
+  uploadBtn.addEventListener("click", () => {
+    imageUpload.click();
+  });
 
-					if (bioText) bioText.style.display = "none";
-					if (bioEdit) bioEdit.style.display = "block";
-					if (workText) workText.style.display = "none";
-					if (workEdit) workEdit.style.display = "block";
-					if (educationText) educationText.style.display = "none";
-					if (educationEdit) educationEdit.style.display = "block";
+  // Handle image upload
+  imageUpload.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imageData = event.target.result;
+        profileImage.src = imageData;
+        localStorage.setItem("profileImage", imageData);
+        deleteBtn.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 
-				} else {
-					// Save changes and switch back to view mode
-					if (editBtnText) editBtnText.textContent = "Edit Profile";
-
-					if (bioText && bioEdit) bioText.textContent = bioEdit.value;
-					if (workText && workEdit) workText.textContent = workEdit.value;
-					if (educationText && educationEdit) educationText.textContent = educationEdit.value;
-
-					if (bioText) bioText.style.display = "block";
-					if (bioEdit) bioEdit.style.display = "none";
-					if (workText) workText.style.display = "block";
-					if (workEdit) workEdit.style.display = "none";
-					if (educationText) educationText.style.display = "block";
-					if (educationEdit) educationEdit.style.display = "none";
-				}
-			});
-		}
-
-		if (shareProfileBtn) {
-			shareProfileBtn.addEventListener("click", () => {
-				alert("Share profile (prototype)");
-			});
-		}
-	});
+  // Delete button - restore default image
+  deleteBtn.addEventListener("click", () => {
+    profileImage.src = defaultImage;
+    localStorage.removeItem("profileImage");
+    deleteBtn.style.display = "none";
+    imageUpload.value = ""; // Clear file input
+  });
 </script>
 {% endblock %}

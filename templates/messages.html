@@ -173,24 +173,19 @@
   </div>
 </div>
 
-
-<!-- Edit Contact Modal -->
-<div class="modal fade" id="editContactModal" tabindex="-1" aria-labelledby="editContactLabel" aria-hidden="true">
+<!-- Edit Contact Saved Modal -->
+<div class="modal fade" id="editContactModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-2">
       <div class="modal-header">
-        <h4 class="modal-title fw-bold" id="editContactLabel">Save Contact Changes</h4>
+        <h4 class="modal-title fw-bold">Contact Updated</h4>
       </div>
       <div class="modal-body">
-        Are you sure you want to save the changes to this contact?<br>
-        <span class="fw-semibold text-primary">Once saved, the old details will be replaced.</span>
+        Contact details have been saved successfully.
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
-        <!-- Submit the main edit form -->
-        <button type="button" class="btn btn-primary fw-semibold"
-                onclick="document.getElementById('saveChangesForm').submit()">
-          Save Changes
+        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">
+          OK
         </button>
       </div>
     </div>
@@ -207,43 +202,34 @@
     if (!menu || !chevron) return;
 
     const isOpen = !menu.classList.contains('d-none');
-    menu.classList.toggle('d-none', isOpen);
-    chevron.classList.toggle('rotate-up', !isOpen);
+    if (isOpen) {
+      menu.classList.add('d-none');
+      chevron.classList.remove('rotate-up');
+    } else {
+      menu.classList.remove('d-none');
+      chevron.classList.add('rotate-up');
+    }
   }
 
+  // --- Filters toggle with sessionStorage (remembers state) ---
   document.addEventListener('DOMContentLoaded', function () {
     const toggleBtn = document.getElementById('toggle-filters');
     const filters = document.getElementById('filters-container');
 
-    if (toggleBtn && filters) {
-      if (sessionStorage.getItem('filtersOpen') === 'true') {
-        filters.classList.remove('d-none');
-      }
+    if (!toggleBtn || !filters) return;
 
-      toggleBtn.addEventListener('click', function () {
-        filters.classList.toggle('d-none');
-        sessionStorage.setItem('filtersOpen', !filters.classList.contains('d-none'));
-      });
+    // restore state
+    if (sessionStorage.getItem('filtersOpen') === 'true') {
+      filters.classList.remove('d-none');
     }
 
-    const filterButtons = document.querySelectorAll('.filter-option');
-    const clearFiltersDiv = document.getElementById('clear-filters');
-
-    filterButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const siblings = button.parentElement.querySelectorAll('.filter-option');
-        siblings.forEach(sib => sib.classList.remove('active'));
-        button.classList.add('active');
-
-        if (button.dataset.filter === '' && !button.dataset.status) {
-          clearFiltersDiv.classList.add('d-none');
-        } else {
-          clearFiltersDiv.classList.remove('d-none');
-        }
-      });
+    toggleBtn.addEventListener('click', function () {
+      filters.classList.toggle('d-none');
+      sessionStorage.setItem('filtersOpen', !filters.classList.contains('d-none'));
     });
   });
 
+  // --- Helpers to set hidden inputs when filter buttons are clicked ---
   function setFilter(type) {
     document.getElementById('filter-type').value = type;
   }
@@ -252,20 +238,56 @@
     document.getElementById('status-filter').value = status;
   }
 
-  function openDeleteModal(contactId) {
-    const form = document.getElementById('deleteContactForm');
-    form.action = `/delete_contact/${contactId}`;
-    const modal = new bootstrap.Modal(document.getElementById('deleteContactModal'));
-    modal.show();
-  }
-</script>
+  // --- Make filter buttons show active state (no auto-submit) ---
+  document.addEventListener('DOMContentLoaded', function () {
+    const filterButtons = document.querySelectorAll('.filter-option');
+    const clearFiltersDiv = document.getElementById('clear-filters'); // new div in HTML
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-      {% if category == 'contact_updated' %}
-        const modal = new bootstrap.Modal(document.getElementById('editContactModal'));
-        modal.show();
-      {% endif %}
-    {% endfor %}
-  {% endwith %}
+    filterButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        // Remove active from siblings
+        const siblings = button.parentElement.querySelectorAll('.filter-option');
+        siblings.forEach(sib => sib.classList.remove('active'));
+
+        // Add active to clicked button
+        button.classList.add('active');
+
+        // Show or hide the clear filters link
+        if (button.dataset.filter === '' && !button.dataset.status) {
+          // 🚫 No Filter selected → hide the link
+          clearFiltersDiv.classList.add('d-none');
+        } else {
+          // Any real filter selected → show the link
+          clearFiltersDiv.classList.remove('d-none');
+        }
+      });
+    });
+  });
+
+  //---  Delete Contact Confirmation ----
+  function openDeleteModal(contactId) {
+  const form = document.getElementById('deleteContactForm');
+  form.action = `/delete_contact/${contactId}`;
+  const modal = new bootstrap.Modal(document.getElementById('deleteContactModal'));
+  modal.show();
+}
+
+  // --- Edit Contact Confirmation ---
+  function openEditModal() {
+    const modalEl = document.getElementById('editContactModal');
+    if (!modalEl || !window.bootstrap) return;
+    new bootstrap.Modal(modalEl).show();
+  }
+
+  // Trigger edit modal via Flask flash
+  document.addEventListener('DOMContentLoaded', function () {
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        {% if category == 'contact_updated' %}
+          openEditModal();
+        {% endif %}
+      {% endfor %}
+    {% endwith %}
+  });
+</script>
 {% endblock %}
