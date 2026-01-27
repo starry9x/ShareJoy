@@ -34,29 +34,12 @@
 
     <!-- Filters toggle button -->
     <button id="toggle-filters" class="btn btn-lg fw-semibold mt-2 mt-md-0 ms-md-2">
-      <i class="fa-solid fa-filter"></i> Filters
+      <i class="fa-solid fa-filter"></i> Filter
     </button>
   </div>
 
   <!-- Filters panel -->
   <div id="filters-container" class="mt-3 d-none">
-    <!-- Filter by field -->
-    <div class="mb-2 d-flex flex-column">
-      <span class="fw-semibold mb-2">Filter by Field</span>
-      <div class="d-flex flex-wrap gap-1">
-        <!-- New default 'No Filter' option -->
-        <button type="button" class="filter-option {% if not request.args.get('filter_type') %}active{% endif %}"
-          data-filter="">🚫 No Filter</button>
-        <button type="button" class="filter-option {% if request.args.get('filter_type') == 'name' %}active{% endif %}"
-          data-filter="name">👤 Name</button>
-        <button type="button" class="filter-option {% if request.args.get('filter_type') == 'phone' %}active{% endif %}"
-          data-filter="phone">📞 Phone</button>
-        <button type="button"
-          class="filter-option {% if request.args.get('filter_type') == 'message' %}active{% endif %}"
-          data-filter="message">💬 Message</button>
-      </div>
-    </div>
-
 
     <!-- Status filter -->
     <div class="mb-2 d-flex flex-column">
@@ -74,7 +57,7 @@
 
     <div id="clear-filters" class="mt-3 text-start d-none">
       <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold">
-        Clear all filters
+        Clear filter
       </a>
     </div>
 
@@ -82,52 +65,73 @@
 
 </div>
 
+<!-- Chats always visible -->
+<h3>Chats</h3>
+{% if contacts %}
+  {% for contact in contacts %}
+    <div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
+          <div class="d-flex align-items-center justify-content-between w-100">
+        <!-- Left side (no extra onclick here) -->
+        <div class="d-flex align-items-center">
+          <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" 
+              alt="Profile Image" class="circle-image">
+          <div>
+            <h1 class="mb-1 me-5 brown">{{ contact.name }}</h1>
+            <p class="mb-0 brown">
+              {% if contact.last_chat %}
+                Last chatted on {{ contact.last_chat|sgtime }}
+              {% else %}
+                No chats yet
+              {% endif %}
+            </p>
+          </div>
+        </div>
 
-{% for contact in contacts %}
-<div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
-  <div class="d-flex align-items-center justify-content-between w-100">
-    <!-- Left side (no extra onclick here) -->
-    <div class="d-flex align-items-center">
-      <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" 
-           alt="Profile Image" class="circle-image">
+        <!-- Right side: dropdown -->
+        <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
+          <button class="more-actions-toggle d-flex align-items-center justify-content-center"
+            onclick="toggleDropdown(this)">
+            <span class="fs-6 fw-semibold">More actions</span>
+            <i class="me-4 fa-solid fa-chevron-down chevron-icon"></i>
+          </button>
+
+          <div class="more-actions-menu d-none">
+            <form method="get" action="{{ url_for('edit_contact', contact_id=contact.id) }}" style="display:inline;">
+              <button type="submit" class="menu-item">
+                Edit Contact
+              </button>
+            </form>
+
+            <form method="post" action="{{ url_for('delete_contact', contact_id=contact.id) }}" style="display:inline;">
+              <button type="button" class="menu-item text-danger"onclick="openDeleteModal({{ contact.id }}); event.stopPropagation();">
+                Delete contact
+              </button>
+            </form>
+            <button class="menu-item text-danger">Delete chat history</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No chats found.</p>
+{% endif %}
+
+<!-- Messages only visible when searching -->
+{% if request.args.get('search') %}
+  <h3>Messages</h3>
+  {% if messages %}
+    {% for m in messages %}
       <div>
-        <h1 class="mb-1 me-5">{{ contact.name }}</h1>
-        <p class="mb-0">
-          {% if contact.last_chat %}
-            Last chatted on {{ contact.last_chat|sgtime }}
-          {% else %}
-            No chats yet
-          {% endif %}
-        </p>
+        <strong>{{ m.contact.name }}</strong>: {{ m.content }}
+        <span class="text-muted">{{ m.timestamp }}</span>
       </div>
-    </div>
+    {% endfor %}
+  {% else %}
+    <p>No messages found.</p>
+  {% endif %}
+{% endif %}
 
-    <!-- Right side: dropdown -->
-    <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
-      <button class="more-actions-toggle d-flex align-items-center justify-content-center"
-        onclick="toggleDropdown(this)">
-        <span class="fs-6">More actions</span>
-        <i class="fa-solid fa-chevron-down chevron-icon"></i>
-      </button>
-
-      <div class="more-actions-menu d-none">
-        <form method="get" action="{{ url_for('edit_contact', contact_id=contact.id) }}" style="display:inline;">
-          <button type="submit" class="menu-item">
-            Edit Contact
-          </button>
-        </form>
-
-        <form method="post" action="{{ url_for('delete_contact', contact_id=contact.id) }}" style="display:inline;">
-          <button type="button" class="menu-item text-danger"onclick="openDeleteModal({{ contact.id }}); event.stopPropagation();">
-            Delete contact
-          </button>
-        </form>
-        <button class="menu-item text-danger">Delete chat history</button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endfor %}
 
 <!-- Delete Contact Modal -->
 <div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactLabel" aria-hidden="true">
@@ -238,31 +242,36 @@
     document.getElementById('status-filter').value = status;
   }
 
-  // --- Make filter buttons show active state (no auto-submit) ---
+  //---  Make filters show active state and enable unclicking for status filters in filter panel ----
   document.addEventListener('DOMContentLoaded', function () {
-    const filterButtons = document.querySelectorAll('.filter-option');
-    const clearFiltersDiv = document.getElementById('clear-filters'); // new div in HTML
+  const filterButtons = document.querySelectorAll('.filter-option');
+  const clearFiltersDiv = document.getElementById('clear-filters');
 
-    filterButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        // Remove active from siblings
-        const siblings = button.parentElement.querySelectorAll('.filter-option');
-        siblings.forEach(sib => sib.classList.remove('active'));
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      const isActive = button.classList.contains('active');
 
-        // Add active to clicked button
+      // Remove active from siblings
+      const siblings = button.parentElement.querySelectorAll('.filter-option');
+      siblings.forEach(sib => sib.classList.remove('active'));
+
+      if (isActive) {
+        // If already active, toggle it off
+        button.classList.remove('active');
+        // Hide clear filters if nothing is active
+        clearFiltersDiv.classList.add('d-none');
+        // Reset hidden input
+        document.getElementById('status-filter').value = "";
+      } else {
+        // Otherwise activate this button
         button.classList.add('active');
-
-        // Show or hide the clear filters link
-        if (button.dataset.filter === '' && !button.dataset.status) {
-          // 🚫 No Filter selected → hide the link
-          clearFiltersDiv.classList.add('d-none');
-        } else {
-          // Any real filter selected → show the link
-          clearFiltersDiv.classList.remove('d-none');
-        }
-      });
+        clearFiltersDiv.classList.remove('d-none');
+        // Update hidden input
+        document.getElementById('status-filter').value = button.dataset.status;
+      }
     });
   });
+});
 
   //---  Delete Contact Confirmation ----
   function openDeleteModal(contactId) {
@@ -278,16 +287,5 @@
     if (!modalEl || !window.bootstrap) return;
     new bootstrap.Modal(modalEl).show();
   }
-
-  // Trigger edit modal via Flask flash
-  document.addEventListener('DOMContentLoaded', function () {
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        {% if category == 'contact_updated' %}
-          openEditModal();
-        {% endif %}
-      {% endfor %}
-    {% endwith %}
-  });
 </script>
 {% endblock %}

@@ -38,37 +38,19 @@ def sgtime(dt):
 
 @app.route("/messages")
 def messages():
-    # get query params
     search = request.args.get("search", "")
-    filter_type = request.args.get("filter_type", "name")  # NEW: default to name
-    chat_filter = request.args.get("chat")
     status_filter = request.args.get("status")
 
-    # start with base query
     query = Contact.query
 
-    # apply search depending on filter_type
     if search:
-        if filter_type == "name":
-            query = query.filter(Contact.name.ilike(f"%{search}%"))
-        elif filter_type == "phone":
-            query = query.filter(Contact.phone.ilike(f"%{search}%"))
-        elif filter_type == "message":
-            query = query.filter(Contact.messages.any(Message.content.ilike(f"%{search}%")))
-        else:
-            # fallback: search across all fields (your original behavior)
-            query = query.filter(
-                (Contact.name.ilike(f"%{search}%")) |
-                (Contact.short_desc.ilike(f"%{search}%")) |
-                (Contact.phone.ilike(f"%{search}%")) |
-                (Contact.messages.any(Message.content.ilike(f"%{search}%")))
-            )
+        query = query.filter(
+            (Contact.name.ilike(f"%{search}%")) |
+            (Contact.phone.ilike(f"%{search}%")) |
+            (Contact.short_desc.ilike(f"%{search}%")) |
+            (Contact.messages.any(Message.content.ilike(f"%{search}%")))
+        )
 
-    # filter by chat group (Family, Friends, Work, etc.)
-    if chat_filter:
-        query = query.filter(Contact.chat_group == chat_filter)
-
-    # filter by message status (Unread, Read, Archived)
     if status_filter:
         query = query.filter(Contact.message_status == status_filter)
 
@@ -83,7 +65,19 @@ def messages():
         )
         c.last_chat = last_msg.timestamp if last_msg else None
 
-    return render_template("messages.html", contacts=contacts, title="Messages")
+    # sort contacts by most recent chat
+    contacts.sort(key=lambda c: c.last_chat or 0, reverse=True)
+
+    # messages list for search results
+    messages = []
+    if search:
+        messages_query = Message.query.filter(Message.content.ilike(f"%{search}%"))
+        if status_filter:
+            messages_query = messages_query.filter(Message.status == status_filter)
+        messages = messages_query.order_by(Message.timestamp.desc()).all()
+
+    return render_template("messages.html", contacts=contacts, messages=messages, title="Messages")
+
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
