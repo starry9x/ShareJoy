@@ -18,27 +18,22 @@
         <!-- Total Activities -->
         <div class="stat-box">
             <p class="mb-1">Total Activities</p>
-            <h2 class="mb-0 fw-bold">{{ activities|length }}</h2>
+            <h2 class="mb-0 fw-bold">{{ total_activities }}</h2>
         </div>
 
         <!-- This Week -->
         <div class="stat-box">
             <p class="mb-1">This Week</p>
-            <h2 class="mb-0 fw-bold">
-                {{ activities|selectattr("display_date_obj", "in_this_week")|list|length }}
-            </h2>
+            <h2 class="mb-0 fw-bold">{{ this_week_activities }}</h2>
         </div>
 
         <!-- Organizing -->
         <div class="stat-box">
             <p class="mb-1">Organizing</p>
-            <h2 class="mb-0 fw-bold">
-                {{ activities|selectattr("join_activity", "equalto", "created")|list|length }}
-            </h2>
+            <h2 class="mb-0 fw-bold">{{ organizing_activities }}</h2>
         </div>
     </div>
 </div>
-
 <div class="sectionbox3 mx-auto shadow-sm mb-4">
     <div class="card-header mx-auto">
         <h2 class="fw-semibold">Upcoming Week</h2>
@@ -50,121 +45,35 @@
             <div class="col-12 card-spacing">
                 <div class="activity-card position-relative">
                     <div class="card-actions position-absolute top-0 end-0 d-flex gap-0">
-                        <button type="button" class="btn edit" data-action="edit"
+                        {% if activity.join_activity == 'created' %}
+                        <!-- EDIT -->
+                        <button type="button" class="btn edit"
                             data-url="{{ url_for('edit_activity', activity_id=activity.id) }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
 
+                        <!-- DELETE -->
                         <form method="post" action="{{ url_for('activity_delete', activity_id=activity.id) }}"
                             class="d-inline delete-form">
-                            <button type="button" class="btn delete" data-action="delete">
+                            <button type="button" class="btn delete">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </form>
-                    </div>
 
+                        {% elif activity.join_activity == 'true' %}
+                        <!-- LEAVE -->
+                        <button type="button" class="btn leave" data-activity-id="{{ activity.id }}">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </button>
+                        {% endif %}
+                    </div>
                     <div class="text">
                         <div class="d-flex align-items-center gap-2 spacing">
-                            <h5 class="mb-0">{{ activity.name }}</h5>
-                            {% if activity.type == 'Creative Arts' %}
-                            <span class="badge badge-creativearts">🎨Creative Arts</span>
-                            {% elif activity.type == 'Social' %}
-                            <span class="badge badge-social">🎲Social</span>
-                            {% elif activity.type == 'Learning' %}
-                            <span class="badge badge-learning">📖Learning</span>
-                            {% elif activity.type == 'Physical' %}
-                            <span class="badge badge-physical">🏃Physical</span>
-                            {% elif activity.type == 'Nature' %}
-                            <span class="badge badge-nature">🌲Nature</span>
-                            {% elif activity.type == 'Technology' %}
-                            <span class="badge badge-technology">💻Technology</span>
+                            {% if activity.days_until == 1 %}
+                            <span class="activity-day badge-day-tomorrow">Tomorrow</span>
+                            {% elif activity.days_until > 1 %}
+                            <span class="activity-day badge-day-soon">In {{ activity.days_until }} days</span>
                             {% endif %}
-                        </div>
-
-                        <p>{{ activity.description }}</p>
-
-                        <div class="d-flex flex-wrap gap-2 fw-semibold spacing">
-                            <span>
-                                📅 {{ activity.display_date }}, {{ activity.display_time }}
-                            </span>
-
-                            <span>⏱
-                                {% set h = activity.duration_hours %}
-                                {% set m = activity.duration_minutes %}
-                                {% if h and m %}
-                                {{ h }} hour{% if h > 1 %}s{% endif %} {{ m }} minute{% if m > 1 %}s{% endif %}
-                                {% elif h %}
-                                {{ h }} hour{% if h > 1 %}s{% endif %}
-                                {% elif m %}
-                                {{ m }} minute{% if m > 1 %}s{% endif %}
-                                {% else %}
-                                0 minutes
-                                {% endif %}
-                            </span>
-
-                            <div class="col-12">
-                                {% if activity.format_type|lower == 'online' %}
-                                🖥️ Online
-                                {% else %}
-                                📍 {{ activity.location }}
-                                {% endif %}
-
-                            </div>
-
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2 spacing">
-                            <span class="badge 
-                    {% if activity.energy == 'Low' %}energy-low
-                    {% elif activity.energy == 'Medium' %}energy-medium
-                    {% elif activity.energy == 'High' %}energy-high
-                    {% endif %}">
-                                ⚡{{ activity.energy }} energy
-                            </span>
-                            <span class="badge participants">🫂{{ activity.participants }}/{{ activity.max_participants
-                                }}
-                                participants</span>
-                        </div>
-
-                        <div class="activity-tags">
-                            {% for tag in activity.tags %}
-                            <span>#{{ tag }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<div class="sectionbox3 mx-auto shadow-sm">
-    <div class="card-header mx-auto">
-        <h2 class="fw-semibold">Other Scheduled Activities</h2>
-        <p>Activities happening in more than 7 days.</p>
-    </div>
-    <div class="sectionbox4 mx-auto border-0">
-        <div class="row">
-            {% for activity in other_activities %}
-            <div class="col-12 card-spacing">
-                <div class="activity-card position-relative">
-                    <div class="card-actions position-absolute top-0 end-0 d-flex gap-0">
-                        <button type="button" class="btn edit" data-action="edit"
-                            data-url="{{ url_for('edit_activity', activity_id=activity.id) }}">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-
-                        <form method="post" action="{{ url_for('activity_delete', activity_id=activity.id) }}"
-                            class="d-inline delete-form">
-                            <button type="button" class="btn delete" data-action="delete">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </form>
-                    </div>
-
-                    <div class="text">
-                        <div class="d-flex align-items-center gap-2 spacing">
                             <h5 class="mb-0">{{ activity.name }}</h5>
                             {% if activity.type == 'Creative Arts' %}
                             <span class="badge badge-creativearts">🎨Creative Arts</span>
@@ -228,7 +137,7 @@
                         </div>
 
                         <div class="activity-tags">
-                            {% for tag in activity.tags %}
+                            {% for tag in activity.display_tags %}
                             <span>#{{ tag }}</span>
                             {% endfor %}
                         </div>
@@ -239,4 +148,302 @@
         </div>
     </div>
 </div>
+
+<div class="sectionbox3 mx-auto shadow-sm">
+    <div class="card-header mx-auto">
+        <h2 class="fw-semibold">Other Scheduled Activities</h2>
+        <p>Activities happening in more than 7 days.</p>
+    </div>
+    <div class="sectionbox4 mx-auto border-0">
+        <div class="row">
+            {% for activity in other_activities %}
+            <div class="col-12 card-spacing">
+                <div class="activity-card position-relative">
+                    <div class="card-actions position-absolute top-0 end-0 d-flex gap-0">
+                        {% if activity.join_activity == 'created' %}
+                        <!-- EDIT -->
+                        <button type="button" class="btn edit"
+                            data-url="{{ url_for('edit_activity', activity_id=activity.id) }}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+
+                        <!-- DELETE -->
+                        <form method="post" action="{{ url_for('activity_delete', activity_id=activity.id) }}"
+                            class="d-inline delete-form">
+                            <button type="button" class="btn delete">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
+
+                        {% elif activity.join_activity == 'true' %}
+                        <!-- LEAVE -->
+                        <button type="button" class="btn leave" data-activity-id="{{ activity.id }}">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <div class="text">
+                        <div class="d-flex align-items-center gap-2 spacing">
+                            {% if activity.days_until == 1 %}
+                            <span class="activity-day badge-day-tomorrow">Tomorrow</span>
+                            {% elif activity.days_until > 1 %}
+                            <span class="activity-day badge-day-soon">in {{ activity.days_until }} days</span>
+                            {% endif %}
+                            <h5 class="mb-0">{{ activity.name }}</h5>
+                            {% if activity.type == 'Creative Arts' %}
+                            <span class="badge badge-creativearts">🎨Creative Arts</span>
+                            {% elif activity.type == 'Social' %}
+                            <span class="badge badge-social">🎲Social</span>
+                            {% elif activity.type == 'Learning' %}
+                            <span class="badge badge-learning">📖Learning</span>
+                            {% elif activity.type == 'Physical' %}
+                            <span class="badge badge-physical">🏃Physical</span>
+                            {% elif activity.type == 'Nature' %}
+                            <span class="badge badge-nature">🌲Nature</span>
+                            {% elif activity.type == 'Technology' %}
+                            <span class="badge badge-technology">💻Technology</span>
+                            {% endif %}
+                        </div>
+
+                        <p>{{ activity.description }}</p>
+
+                        <div class="d-flex flex-wrap gap-2 fw-semibold spacing">
+                            <span>
+                                📅 {{ activity.display_date }}, {{ activity.display_time }}
+                            </span>
+
+                            <span>⏱
+                                {% set h = activity.duration_hours %}
+                                {% set m = activity.duration_minutes %}
+                                {% if h and m %}
+                                {{ h }} hour{% if h > 1 %}s{% endif %} {{ m }} minute{% if m > 1 %}s{% endif %}
+                                {% elif h %}
+                                {{ h }} hour{% if h > 1 %}s{% endif %}
+                                {% elif m %}
+                                {{ m }} minute{% if m > 1 %}s{% endif %}
+                                {% else %}
+                                0 minutes
+                                {% endif %}
+                            </span>
+
+                            <div class="col-12">
+                                {% if activity.format_type|lower == 'online' %}
+                                🖥️ Online
+                                {% else %}
+                                📍 {{ activity.location }}
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 spacing">
+                            <span class="badge 
+                    {% if activity.energy == 'Low' %}energy-low
+                    {% elif activity.energy == 'Medium' %}energy-medium
+                    {% elif activity.energy == 'High' %}energy-high
+                    {% endif %}">
+                                ⚡{{ activity.energy }} energy
+                            </span>
+                            <span class="badge participants">🫂{{ activity.participants }}/{{
+                                activity.max_participants
+                                }}
+                                participants</span>
+                        </div>
+
+                        <div class="activity-tags">
+                            {% for tag in activity.display_tags %}
+                            <span>#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Confirm Overlay -->
+    <div id="action-confirm-overlay" class="overlay hidden">
+        <div class="bg-white p-4 shadow cardsec">
+            <h4 id="confirm-title" class="cardhead mb-2"></h4>
+            <p id="confirm-text" class="carddesc fw-semibold"></p>
+
+            <div class="d-flex justify-content-end gap-3">
+                <button id="confirm-cancel" class="btn cancel-btn btn-sm fw-semibold shadow-sm">
+                    Cancel
+                </button>
+                <button id="confirm-ok" class="btn redbtn btn-sm fw-semibold shadow-sm">
+                    Delete Activity
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="overlay hidden fs-6">
+        <div class="text-center">
+            <div class="spinner-border" role="status"></div>
+            <p class="fw-semibold mt-2 loading-text">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div id="success-overlay" class="overlay hidden">
+        <div class="bg-white p-4 shadow cardsec">
+            <h4 class="cardhead mb-2">Activity Deleted</h4>
+            <p class="carddesc fw-semibold">All participants will be notified.</p>
+
+            <div class="d-flex justify-content-end">
+                <button type="button" id="success-ok-btn" class="btn redbtn btn-sm fw-semibold shadow-sm">
+                    Okay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave Confirmation Overlay -->
+    <div id="leave-confirm-overlay" class="overlay hidden">
+        <div class="bg-white p-4 shadow cardsec w-md-50">
+            <div class="fw-bold mb-2 ms-1 cardhead">
+                <h4>Leave Activity</h4>
+            </div>
+            <p class="mb-3 ms-1 fw-semibold carddesc">
+                Are you sure you want to leave this activity?
+            </p>
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" id="leave-cancel" class="btn cancel-btn btn-sm fw-semibold shadow-sm">
+                    Cancel
+                </button>
+                <button type="button" id="leave-confirm" class="btn redbtn btn-sm fw-semibold shadow-sm">
+                    Leave Activity
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div id="successjoined-overlay" class="overlay hidden">
+        <div class="bg-white p-4 shadow cardsec">
+            <h4 class="cardhead mb-2">Activity Left</h4>
+            <p class="carddesc fw-semibold">The organizer will be notified.</p>
+
+            <div class="d-flex justify-content-end">
+                <button type="button" id="success-ok-btn" class="btn redbtn btn-sm fw-semibold shadow-sm">
+                    Okay
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Overlays
+        const deleteOverlay = document.getElementById('action-confirm-overlay');
+        const confirmTitle = document.getElementById('confirm-title');
+        const confirmText = document.getElementById('confirm-text');
+        const confirmBtn = document.getElementById('confirm-ok');
+        const cancelBtn = document.getElementById('confirm-cancel');
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const successOverlay = document.getElementById('success-overlay');
+        const successOkBtn = document.getElementById('success-ok-btn');
+
+        let pendingDeleteForm = null;
+
+        // LEAVE overlays
+        const leaveOverlay = document.getElementById('leave-confirm-overlay');
+        const leaveCancelBtn = document.getElementById('leave-cancel');
+        const leaveConfirmBtn = document.getElementById('leave-confirm');
+        const leaveSuccessOverlay = document.getElementById('successjoined-overlay');
+
+        let leaveActivityId = null;
+
+        // LEAVE buttons
+        document.querySelectorAll('.btn.leave').forEach(btn => {
+            btn.addEventListener('click', () => {
+                leaveActivityId = btn.dataset.activityId;
+                leaveOverlay.classList.remove('hidden');
+            });
+        });
+
+        // CANCEL leave
+        leaveCancelBtn.addEventListener('click', () => {
+            leaveOverlay.classList.add('hidden');
+            leaveActivityId = null;
+        });
+
+        // CONFIRM leave
+        leaveConfirmBtn.addEventListener('click', () => {
+            if (!leaveActivityId) return;
+
+            leaveOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('hidden');
+
+            fetch(`/leave-activity/${leaveActivityId}`, { method: 'POST' })
+                .then(() => {
+                    // Ensure loading spinner shows for at least 1 second
+                    setTimeout(() => {
+                        loadingOverlay.classList.add('hidden');
+                        leaveSuccessOverlay.classList.remove('hidden');
+                    }, 2000);
+                })
+                .catch(() => {
+                    loadingOverlay.classList.add('hidden');
+                    alert("Something went wrong. Please try again.");
+                });
+        });
+
+        // LEAVE success OK
+        leaveSuccessOverlay.querySelector('#success-ok-btn').addEventListener('click', () => {
+            window.location.reload();
+        });
+
+        document.querySelectorAll('.btn.edit').forEach(btn => {
+            if (!btn.dataset.url) return;
+            btn.addEventListener('click', () => {
+                window.location.href = btn.dataset.url;
+            });
+        });
+
+        document.querySelectorAll('.btn.delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const form = btn.closest('form');
+                if (!form) return;
+
+                pendingDeleteForm = form;
+
+                confirmTitle.textContent = 'Delete Activity';
+                confirmText.innerHTML = 'Are you sure you want to delete this activity? <br> This action cannot be undone and all participants will be notified.';
+
+                deleteOverlay.classList.remove('hidden');
+            });
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            deleteOverlay.classList.add('hidden');
+            pendingDeleteForm = null;
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            if (!pendingDeleteForm) return;
+
+            deleteOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                successOverlay.classList.remove('hidden');
+            }, 2000);
+        });
+
+        successOkBtn.addEventListener('click', () => {
+            successOverlay.classList.add('hidden');
+            if (pendingDeleteForm) pendingDeleteForm.submit();
+        });
+    });
+</script>
 {% endblock %}

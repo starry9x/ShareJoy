@@ -113,12 +113,12 @@
 }
 
 /* Icons */
-.fa-trash-can {
+.fa-trash-can, .fa-arrow-right-from-bracket {
     color: #F60D0D;
     font-size: 1.2rem;
 }
 
-.fa-trash-can:hover {
+.fa-trash-can:hover, .fa-arrow-right-from-bracket:hover {
     color: #a00000;
 }
 
@@ -139,7 +139,7 @@
     padding: 0.3rem;
 }
 
-.delete {
+.delete, .leave {
     margin-right: 0.5rem;
 }
 

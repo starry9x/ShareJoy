@@ -28,3 +28,21 @@
 .sectionbox4 {
     width: 95%;
 }
+
+.activity-day {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.1rem 0.7rem;
+    border-radius: 3px;
+    color: #fff;
+}
+
+.badge-day-tomorrow {
+    background-color: #D70909;
+    color: #fff;
+}
+
+.badge-day-soon {
+    background-color: #582D00;
+    color: #fff;
+}

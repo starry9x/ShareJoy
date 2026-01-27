@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for, ses
 from extensions import db, migrate
 from messages import Message, Contact
 from activities import Activity
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage
 import os
 import pytz
@@ -325,8 +325,11 @@ def explore():
             a.join_activity = "created"
         elif a.participants >= a.max_participants:
             a.join_activity = "max"
+        elif a.join_activity == 'true':
+            a.join_activity = 'true'
         else:
-            a.join_activity = "false"
+            a.join_activity = 'false'
+
 
     return render_template("explore.html", activities=activities)
 
@@ -355,20 +358,47 @@ def in_this_week(date):
     end_of_week = start_of_week + timedelta(days=6)
     return start_of_week <= date <= end_of_week
 
+@app.route("/leave-activity/<int:activity_id>", methods=["POST"])
+def leave_activity(activity_id):
+    current_user = get_current_user()
+    activity = Activity.query.get_or_404(activity_id)
+
+    # Prevent creator from leaving
+    if activity.creator == current_user:
+        return "", 403
+
+    # Only if joined
+    if activity.join_activity == 'true':
+        activity.join_activity = 'false'
+        if activity.participants > 0:
+            activity.participants -= 1
+        db.session.commit()
+
+    return "", 204
+
+
 @app.route("/schedule")
 def schedule():
     current_user = get_current_user()
-
-    activities = Activity.query.filter_by(creator=current_user).order_by(Activity.date.asc()).all()
+    activities = Activity.query.order_by(Activity.date.asc()).all()
+    today = date.today()
 
     upcoming_week_activities = []
     other_activities = []
-
-    today = datetime.today().date()
-    next_week = today + timedelta(days=7)
+    filtered_activities = []
 
     for activity in activities:
-        activity.tags = activity.tags.split(",") if activity.tags else []
+        # ONLY show:
+        # 1. Activities I created
+        # 2. Activities I joined
+        is_creator = activity.creator == current_user
+        is_joined = activity.join_activity == 'true'
+
+        if not (is_creator or is_joined):
+            continue  # 🚫 skip everything else
+
+        # Tags
+        activity.display_tags = activity.tags.split(",") if activity.tags else []
 
         # Parse date
         try:
@@ -378,17 +408,29 @@ def schedule():
 
         activity.display_date = parsed_date.strftime("%d %b %Y")
         activity.display_date_obj = parsed_date.date()
+        activity.days_until = (activity.display_date_obj - today).days
 
-        activity.join_activity = "created" if activity.creator == current_user else "false"
+        # UI state
+        if is_creator:
+            activity.join_activity = "created"
+        elif is_joined:
+            activity.join_activity = "true"
 
-        if today <= activity.display_date_obj <= next_week:
-            upcoming_week_activities.append(activity)
-        elif activity.display_date_obj > next_week:
-            other_activities.append(activity)
+        # Only future activities
+        if activity.days_until >= 0:
+            filtered_activities.append(activity)
 
-    total_activities = len(activities)
+            if activity.days_until <= 7:
+                upcoming_week_activities.append(activity)
+            else:
+                other_activities.append(activity)
+
+    # Stats
+    total_activities = len(filtered_activities)
     this_week_activities = len(upcoming_week_activities)
-    organizing_activities = sum(1 for a in activities if a.join_activity == "created")
+    organizing_activities = len(
+        [a for a in filtered_activities if a.creator == current_user]
+    )
 
     return render_template(
         "schedule.html",
@@ -399,6 +441,7 @@ def schedule():
         upcoming_week_activities=upcoming_week_activities,
         other_activities=other_activities
     )
+
 
 #end of activites routes
 
