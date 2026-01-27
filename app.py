@@ -385,11 +385,9 @@ def leave_activity(activity_id):
     current_user = get_current_user()
     activity = Activity.query.get_or_404(activity_id)
 
-    # Prevent creator from leaving
     if activity.creator == current_user:
         return "", 403
 
-    # Only if joined
     if activity.join_activity == 'true':
         activity.join_activity = 'false'
         if activity.participants > 0:
@@ -410,19 +408,14 @@ def schedule():
     filtered_activities = []
 
     for activity in activities:
-        # ONLY show:
-        # 1. Activities I created
-        # 2. Activities I joined
         is_creator = activity.creator == current_user
         is_joined = activity.join_activity == 'true'
 
         if not (is_creator or is_joined):
-            continue  # 🚫 skip everything else
+            continue
 
-        # Tags
         activity.display_tags = activity.tags.split(",") if activity.tags else []
 
-        # Parse date
         try:
             parsed_date = datetime.strptime(activity.date, "%Y-%m-%d")
         except ValueError:
@@ -432,13 +425,11 @@ def schedule():
         activity.display_date_obj = parsed_date.date()
         activity.days_until = (activity.display_date_obj - today).days
 
-        # UI state
         if is_creator:
             activity.join_activity = "created"
         elif is_joined:
             activity.join_activity = "true"
 
-        # Only future activities
         if activity.days_until >= 0:
             filtered_activities.append(activity)
 
@@ -447,7 +438,6 @@ def schedule():
             else:
                 other_activities.append(activity)
 
-    # Stats
     total_activities = len(filtered_activities)
     this_week_activities = len(upcoming_week_activities)
     organizing_activities = len(
@@ -463,7 +453,6 @@ def schedule():
         upcoming_week_activities=upcoming_week_activities,
         other_activities=other_activities
     )
-
 
 #end of activites routes
 

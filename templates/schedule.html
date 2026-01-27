@@ -354,7 +354,6 @@
 
         let pendingDeleteForm = null;
 
-        // LEAVE overlays
         const leaveOverlay = document.getElementById('leave-confirm-overlay');
         const leaveCancelBtn = document.getElementById('leave-cancel');
         const leaveConfirmBtn = document.getElementById('leave-confirm');
@@ -362,7 +361,6 @@
 
         let leaveActivityId = null;
 
-        // LEAVE buttons
         document.querySelectorAll('.btn.leave').forEach(btn => {
             btn.addEventListener('click', () => {
                 leaveActivityId = btn.dataset.activityId;
@@ -370,13 +368,11 @@
             });
         });
 
-        // CANCEL leave
         leaveCancelBtn.addEventListener('click', () => {
             leaveOverlay.classList.add('hidden');
             leaveActivityId = null;
         });
 
-        // CONFIRM leave
         leaveConfirmBtn.addEventListener('click', () => {
             if (!leaveActivityId) return;
 
@@ -385,7 +381,6 @@
 
             fetch(`/leave-activity/${leaveActivityId}`, { method: 'POST' })
                 .then(() => {
-                    // Ensure loading spinner shows for at least 1 second
                     setTimeout(() => {
                         loadingOverlay.classList.add('hidden');
                         leaveSuccessOverlay.classList.remove('hidden');
@@ -397,7 +392,6 @@
                 });
         });
 
-        // LEAVE success OK
         leaveSuccessOverlay.querySelector('#success-ok-btn').addEventListener('click', () => {
             window.location.reload();
         });
