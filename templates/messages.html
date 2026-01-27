@@ -65,16 +65,18 @@
 
 </div>
 
-<!-- Chats always visible -->
-<h3>Chats</h3>
+{% if request.args.get('search') %}
+  <h3>Chat Results</h3>
+{% endif %}
+
 {% if contacts %}
   {% for contact in contacts %}
     <div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
-          <div class="d-flex align-items-center justify-content-between w-100">
-        <!-- Left side (no extra onclick here) -->
+      <div class="d-flex align-items-center justify-content-between w-100">
+        <!-- Left side -->
         <div class="d-flex align-items-center">
           <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" 
-              alt="Profile Image" class="circle-image">
+               alt="Profile Image" class="circle-image">
           <div>
             <h1 class="mb-1 me-5 brown">{{ contact.name }}</h1>
             <p class="mb-0 brown">
@@ -90,20 +92,17 @@
         <!-- Right side: dropdown -->
         <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
           <button class="more-actions-toggle d-flex align-items-center justify-content-center"
-            onclick="toggleDropdown(this)">
+                  onclick="toggleDropdown(this)">
             <span class="fs-6 fw-semibold">More actions</span>
             <i class="me-4 fa-solid fa-chevron-down chevron-icon"></i>
           </button>
-
           <div class="more-actions-menu d-none">
             <form method="get" action="{{ url_for('edit_contact', contact_id=contact.id) }}" style="display:inline;">
-              <button type="submit" class="menu-item">
-                Edit Contact
-              </button>
+              <button type="submit" class="menu-item">Edit Contact</button>
             </form>
-
             <form method="post" action="{{ url_for('delete_contact', contact_id=contact.id) }}" style="display:inline;">
-              <button type="button" class="menu-item text-danger"onclick="openDeleteModal({{ contact.id }}); event.stopPropagation();">
+              <button type="button" class="menu-item text-danger"
+                      onclick="openDeleteModal({{ contact.id }}); event.stopPropagation();">
                 Delete contact
               </button>
             </form>
@@ -114,12 +113,15 @@
     </div>
   {% endfor %}
 {% else %}
-  <p>No chats found.</p>
+  <div class="col-12">
+        <div class="alert alert-info text-center fw-semibold">
+            No chats found.
+        </div>
+    </div>
 {% endif %}
 
-<!-- Messages only visible when searching -->
 {% if request.args.get('search') %}
-  <h3>Messages</h3>
+  <h3>Messages Results</h3>
   {% if messages %}
     {% for m in messages %}
       <div>
@@ -128,10 +130,13 @@
       </div>
     {% endfor %}
   {% else %}
-    <p>No messages found.</p>
+  <div class="col-12">
+        <div class="alert alert-info text-center fw-semibold">
+            No messages found.
+        </div>
+    </div>
   {% endif %}
 {% endif %}
-
 
 <!-- Delete Contact Modal -->
 <div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactLabel" aria-hidden="true">
