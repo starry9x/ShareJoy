@@ -1,5 +1,5 @@
 .signup-container {
-  max-width: 450px;
+  max-width: 500px;
   margin: 80px auto;
   background: #ffd9b0;
   padding: 40px;
@@ -8,7 +8,9 @@
 
 .signup-container h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  font-size: 32px;
+  color: #000;
 }
 
 .signup-container input,
@@ -18,9 +20,167 @@
   margin-bottom: 14px;
   border-radius: 10px;
   border: 1px solid #ccc;
+  font-size: 16px;
+  font-family: "Segoe UI", sans-serif;
+  box-sizing: border-box;
 }
 
-.signup-container button {
+.signup-container textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Input groups with hints */
+.input-group {
+  margin-bottom: 14px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+.input-group input {
+  margin-bottom: 4px;
+}
+
+.input-hint {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+/* Age Display */
+.age-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+
+.age-label {
+  font-size: 16px;
+  color: #333;
+}
+
+.age-label strong {
+  font-size: 18px;
+  color: #ff7a00;
+}
+
+.category-tag {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+}
+
+.category-tag.youth {
+  background: #7fb3ff;
+}
+
+.category-tag.seniors {
+  background: #9966cc;
+}
+
+.category-tag.others {
+  background: #999;
+}
+
+/* Error message */
+.error-message {
+  display: block;
+  color: #d32f2f;
+  font-size: 13px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* Upload Section */
+.upload-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 2px dashed #ccc;
+}
+
+.upload-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.upload-label i {
+  color: #ff7a00;
+  font-size: 20px;
+}
+
+.upload-hint {
+  display: block;
+  font-size: 13px;
+  color: #d32f2f;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.upload-section input[type="file"] {
+  margin-bottom: 0;
+  padding: 8px;
+  cursor: pointer;
+  background: white;
+}
+
+/* File Preview */
+.file-preview {
+  margin-top: 16px;
+  position: relative;
+}
+
+.file-preview img {
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+}
+
+.remove-file {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.remove-file:hover {
+  background: #b71c1c;
+}
+
+/* Submit Button */
+.signup-container button[type="submit"] {
   width: 100%;
   background: #ff7a00;
   color: white;
@@ -28,4 +188,31 @@
   border: none;
   border-radius: 14px;
   font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.signup-container button[type="submit"]:hover:not(:disabled) {
+  background: #e86c00;
+}
+
+.signup-container button[type="submit"]:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .signup-container {
+    margin: 40px 20px;
+    padding: 30px 20px;
+  }
+  
+  .age-display {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
 }

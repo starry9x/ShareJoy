@@ -1,0 +1,442 @@
+/* Root variables */
+:root {
+    --base-font-size: 18px;
+    --primary-brown: #5C4033;
+    --secondary-brown: #8B6F47;
+    --light-pink: #FFE4E9;
+    --light-cream: #FFE5CC;
+    --white: #FFFFFF;
+    --text-dark: #1F1F1F;
+    --text-gray: #666666;
+    --border-gray: #D1D5DB;
+    --green-active: #22C55E;
+}
+
+/* Apply base font size globally */
+body {
+    font-size: var(--base-font-size);
+    transition: font-size 0.3s ease;
+}
+
+/* Accessibility container */
+.accessibility-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header */
+.accessibility-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-gray);
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: var(--primary-brown);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.back-button:hover {
+    background-color: var(--light-cream);
+}
+
+.header-content {
+    flex: 1;
+}
+
+.accessibility-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+/* Settings sections */
+.settings-section {
+    background-color: var(--light-pink);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.icon-wrapper {
+    width: 56px;
+    height: 56px;
+    background-color: var(--light-cream);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-brown);
+    flex-shrink: 0;
+}
+
+.section-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.section-description {
+    color: var(--text-dark);
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
+}
+
+/* Font Size Controls */
+.font-size-controls {
+    margin-bottom: 1.5rem;
+}
+
+.font-size-label {
+    margin-bottom: 1rem;
+}
+
+.font-size-label h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 0.5rem 0;
+}
+
+.font-size-label p {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+.size-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.size-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid var(--primary-brown);
+    background-color: var(--white);
+    color: var(--primary-brown);
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.size-btn:hover {
+    background-color: var(--light-cream);
+    transform: scale(1.05);
+}
+
+.size-btn.active {
+    background-color: var(--primary-brown);
+    color: var(--white);
+}
+
+/* Preview Box */
+.preview-box {
+    background-color: var(--white);
+    border: 2px solid var(--border-gray);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.preview-box h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 1rem 0;
+}
+
+.preview-text {
+    color: var(--text-dark);
+    line-height: 1.6;
+    margin: 0;
+    transition: font-size 0.3s ease;
+}
+
+/* Toggle Controls */
+.toggle-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.toggle-control:last-of-type {
+    border-bottom: none;
+}
+
+.toggle-label {
+    flex: 1;
+}
+
+.toggle-label h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 0.5rem 0;
+}
+
+.toggle-label p {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #CBD5E1;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--primary-brown);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+/* TTS Options */
+.tts-options {
+    margin-top: 1.5rem;
+    display: none;
+}
+
+.voice-rate-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.voice-selector h4,
+.rate-selector h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 1rem 0;
+}
+
+.select-box {
+    background-color: #94A3B8;
+    border-radius: 12px;
+    padding: 0.5rem;
+}
+
+.select-option {
+    background-color: var(--white);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.select-option:last-child {
+    margin-bottom: 0;
+}
+
+.select-option:hover {
+    background-color: var(--light-cream);
+}
+
+.select-option.active {
+    background-color: var(--light-cream);
+}
+
+.select-option span:first-child {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.currently-selected {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    display: none;
+}
+
+.select-option.active .currently-selected {
+    display: inline;
+}
+
+/* Status Indicator */
+.status-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+}
+
+.status-label {
+    flex: 1;
+}
+
+.status-label h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 0.5rem 0;
+}
+
+.status-label p {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--green-active);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* High Contrast Mode Styles */
+body.high-contrast {
+    --primary-brown: #000000;
+    --text-dark: #000000;
+    --light-pink: #FFFFFF;
+    --light-cream: #FFFF00;
+    background-color: #FFFFFF;
+    color: #000000;
+}
+
+body.high-contrast .settings-section {
+    border: 3px solid #000000;
+}
+
+body.high-contrast .size-btn {
+    border-width: 4px;
+}
+
+/* Reduced Motion */
+body.reduced-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .accessibility-container {
+        padding: 1rem;
+    }
+
+    .accessibility-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.35rem;
+    }
+
+    .voice-rate-container {
+        grid-template-columns: 1fr;
+    }
+
+    .size-buttons {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .toggle-control {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .status-indicator {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-section {
+        padding: 1.25rem;
+    }
+
+    .icon-wrapper {
+        width: 48px;
+        height: 48px;
+    }
+
+    .size-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}

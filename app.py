@@ -481,10 +481,13 @@ def forgotpassword():
 def achievements():
     return render_template("achievements.html")
 
-
 @app.route("/loginpage")
 def loginpage():
     return render_template("loginpage.html")
+
+@app.route("/badges")
+def badges():
+    return render_template("badges.html")
 
 
 # ==========================================
