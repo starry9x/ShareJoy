@@ -2,41 +2,276 @@ from flask import Flask, render_template, request, flash, redirect, url_for, ses
 from extensions import db, migrate
 from messages import Message, Contact
 from activities import Activity
+from users import User
 from datetime import datetime, timedelta, date
 from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage
+from werkzeug.utils import secure_filename
 import os
 import pytz
+from functools import wraps
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
 app.secret_key = "some_random_secret"
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Ensure upload directory exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db.init_app(app)
 migrate.init_app(app, db)
 
 with app.app_context():
     db.create_all()
-    
+
+# ============================================
+# AUTHENTICATION HELPERS
+# ============================================
+
+def login_required(f):
+    """Decorator to require login for routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please log in to access this page.', 'error')
+            return redirect(url_for('loginpage'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 def get_current_user():
-    # TEMP: replace with real login later
-    return "me"
+    """Get the currently logged-in user"""
+    if 'user_id' in session:
+        return User.query.get(session['user_id'])
+    return None
+
+def calculate_age_category(date_of_birth):
+    """Calculate age category based on date of birth"""
+    today = date.today()
+    age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+    
+    if 15 <= age <= 35:
+        return 'Youth'
+    elif age > 60:
+        return 'Seniors'
+    else:
+        return 'Others'
+
+# ============================================
+# AUTHENTICATION ROUTES
+# ============================================
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        # Get form data
+        full_name = request.form.get("fullName")
+        email = request.form.get("email")
+        mobile = request.form.get("mobile")
+        dob_str = request.form.get("dob")
+        password = request.form.get("password")
+        confirm_password = request.form.get("confirmPassword")
+        bio = request.form.get("bio", "")
+        
+        # Validation
+        errors = []
+        
+        # Check if email already exists
+        if User.query.filter_by(email=email).first():
+            errors.append("Email already registered. Please use a different email or log in.")
+        
+        # Check password match
+        if password != confirm_password:
+            errors.append("Passwords do not match.")
+        
+        # Parse date of birth
+        try:
+            dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+        except:
+            errors.append("Invalid date of birth.")
+            dob = None
+        
+        # Handle ID card upload
+        id_card_file = request.files.get('idCard')
+        id_card_filename = None
+        
+        if id_card_file and id_card_file.filename:
+            filename = secure_filename(id_card_file.filename)
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            id_card_filename = f"{timestamp}_{filename}"
+            id_card_path = os.path.join(app.config['UPLOAD_FOLDER'], id_card_filename)
+            id_card_file.save(id_card_path)
+        else:
+            errors.append("ID card upload is required.")
+        
+        # If there are errors, show them
+        if errors:
+            for error in errors:
+                flash(error, 'error')
+            return render_template("signup.html", title="Sign Up")
+        
+        # Calculate age category
+        age_category = calculate_age_category(dob)
+        
+        # Create new user
+        new_user = User(
+            full_name=full_name,
+            email=email,
+            mobile=mobile,
+            date_of_birth=dob,
+            age_category=age_category,
+            bio=bio,
+            id_card_filename=id_card_filename
+        )
+        new_user.set_password(password)
+        
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Log the user in automatically
+            session['user_id'] = new_user.id
+            session['user_name'] = new_user.full_name
+            
+            flash('Account created successfully! Welcome to ShareJoy!', 'success')
+            return redirect(url_for('profile'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'An error occurred: {str(e)}', 'error')
+            return render_template("signup.html", title="Sign Up")
+    
+    return render_template("signup.html", title="Sign Up")
+
+
+@app.route("/loginpage", methods=["GET", "POST"])
+def loginpage():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+        
+        # Find user by email
+        user = User.query.filter_by(email=email).first()
+        
+        if user and user.check_password(password):
+            # Login successful
+            session['user_id'] = user.id
+            session['user_name'] = user.full_name
+            
+            flash(f'Welcome back, {user.full_name}!', 'success')
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid email or password. Please try again.', 'error')
+            return render_template("loginpage.html", title="Login")
+    
+    return render_template("loginpage.html", title="Login")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash('You have been logged out successfully.', 'success')
+    return redirect(url_for('loginpage'))
+
+
+@app.route("/profile")
+@login_required
+def profile():
+    user = get_current_user()
+    
+    # Format joined date
+    joined_date = user.created_at.strftime("%B %Y")
+    
+    return render_template("profile.html", 
+                         title="Profile", 
+                         user=user, 
+                         joined_date=joined_date)
+
+
+@app.route("/profile/update", methods=["POST"])
+@login_required
+def update_profile():
+    user = get_current_user()
+    
+    # Update profile fields
+    user.bio = request.form.get("bio", user.bio)
+    user.work = request.form.get("work", user.work)
+    user.education = request.form.get("education", user.education)
+    
+    # Handle profile image upload
+    if 'profileImage' in request.files:
+        profile_image = request.files['profileImage']
+        if profile_image and profile_image.filename:
+            filename = secure_filename(profile_image.filename)
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            profile_image_filename = f"profile_{timestamp}_{filename}"
+            profile_image_path = os.path.join(app.config['UPLOAD_FOLDER'], profile_image_filename)
+            profile_image.save(profile_image_path)
+            user.profile_image = profile_image_filename
+    
+    try:
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating profile: {str(e)}', 'error')
+    
+    return redirect(url_for('profile'))
+
+
+@app.route("/accessibility")
+@login_required
+def accessibility():
+    return render_template("accessibility.html", title="Accessibility Settings")
+
+
+@app.route("/safetynprivacy")
+@login_required
+def safetynprivacy():
+    return render_template("safetynprivacy.html", title="Safety & Privacy")
+
+
+@app.route("/achievements")
+@login_required
+def achievements():
+    return render_template("achievements.html", title="Achievements & Progress")
+
+
+@app.route("/badges")
+@login_required
+def badges():
+    return render_template("badges.html", title="Trophies & Badges")
+
+
+@app.route("/forgotpassword")
+def forgotpassword():
+    return render_template("forgotpassword.html")
+
+
+# ============================================
+# MAIN ROUTES
+# ============================================
 
 @app.route("/")
+@login_required
 def home():
     return render_template("homepage.html", title="Home")
 
-# Messages routes
+# ============================================
+# MESSAGES ROUTES
+# ============================================
+
 @app.template_filter("sgtime")
 def sgtime(dt):
     if not dt:
         return ""
-    # If naive, assume UTC
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=pytz.utc)
     sg_tz = pytz.timezone("Asia/Singapore")
     return dt.astimezone(sg_tz).strftime("%d %b %Y %H:%M")
 
+
 @app.route("/messages")
+@login_required
 def messages():
     search = request.args.get("search", "")
     status_filter = request.args.get("status")
@@ -56,7 +291,6 @@ def messages():
 
     contacts = query.all()
 
-    # attach last message timestamp to each contact
     for c in contacts:
         last_msg = (
             Message.query.filter_by(contact_id=c.id)
@@ -65,10 +299,8 @@ def messages():
         )
         c.last_chat = last_msg.timestamp if last_msg else None
 
-    # sort contacts by most recent chat
     contacts.sort(key=lambda c: c.last_chat or 0, reverse=True)
 
-    # messages list for search results
     messages = []
     if search:
         messages_query = Message.query.filter(Message.content.ilike(f"%{search}%"))
@@ -80,14 +312,15 @@ def messages():
 
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
+@login_required
 def textchat(contact_id):
     contact = Contact.query.get_or_404(contact_id)
+    user = get_current_user()
 
     if request.method == "POST":
         content = request.form.get("content")
         if content:
-            # Always mark sender as "me"
-            new_msg = Message(username="me", content=content, contact_id=contact.id)
+            new_msg = Message(username=user.full_name, content=content, contact_id=contact.id)
             db.session.add(new_msg)
             db.session.commit()
         return redirect(url_for("textchat", contact_id=contact.id))
@@ -97,31 +330,34 @@ def textchat(contact_id):
 
 
 @app.route("/create_contact", methods=["GET", "POST"])
+@login_required
 def create_contact():
     if request.method == "POST":
         name = request.form.get("name")
         phone = request.form.get("phone")
         short_desc = request.form.get("short_desc")
 
-        # Save to database
         new_contact = Contact(name=name, phone=phone, short_desc=short_desc)
         db.session.add(new_contact)
         db.session.commit()
 
-        return redirect(url_for("messages"))  # back to chat list
+        return redirect(url_for("messages"))
 
     return render_template("create_contact.html", title="Create Contact")
 
+
 @app.route('/delete_contact/<int:contact_id>', methods=['POST'])
+@login_required
 def delete_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
     db.session.delete(contact)
     db.session.commit()
-    # Flash a message with a category so messages.html can detect it
     flash("Contact deleted successfully!", "contact_deleted")
     return redirect(url_for('messages'))
 
+
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
+@login_required
 def edit_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
 
@@ -131,7 +367,6 @@ def edit_contact(contact_id):
         short_desc = request.form.get('short_desc', '').strip()
 
         errors = []
-        # Validation rules
         if not name:
             errors.append("Name is required.")
         elif len(name) > 100:
@@ -144,7 +379,6 @@ def edit_contact(contact_id):
             errors.append("Short description cannot exceed 120 characters.")
 
         if errors:
-            # Re-render form with errors
             return render_template(
                 'edit_contact.html',
                 contact=contact,
@@ -152,24 +386,25 @@ def edit_contact(contact_id):
                 title="Edit Contact"
             )
 
-        # Save if valid
         contact.name = name
         contact.phone = phone
         contact.short_desc = short_desc
         db.session.commit()
 
-        # Redirect with query parameter instead of flash
         return redirect(url_for('messages', status='updated'))
 
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
 
-# Activities Routes
+
+# ============================================
+# ACTIVITIES ROUTES
+# ============================================
+
 @app.route("/activities")
+@login_required
 def activities():
-    current_user = get_current_user()
-
-    activities = (Activity.query.filter_by(creator=current_user).order_by(Activity.date.asc()).all())
-
+    user = get_current_user()
+    activities = (Activity.query.filter_by(creator=user.full_name).order_by(Activity.date.asc()).all())
 
     for activity in activities:
         activity.tags = activity.tags.split(",") if activity.tags else []
@@ -195,20 +430,26 @@ def activities():
         activities=activities
     )
 
+
 @app.route("/activity/delete/<int:activity_id>", methods=["POST"])
+@login_required
 def activity_delete(activity_id):
     activity = Activity.query.get_or_404(activity_id)
-    current_user = get_current_user()
+    user = get_current_user()
 
-    if activity.creator != current_user:
+    if activity.creator != user.full_name:
         abort(403)
 
     db.session.delete(activity)
     db.session.commit()
     return redirect(url_for("activities"))
 
+
 @app.route('/activity/create', methods=['GET', 'POST'])
+@login_required
 def activity_create():
+    user = get_current_user()
+    
     if request.method == 'POST':
         name = request.form.get("name")
         description = request.form.get("description")
@@ -230,12 +471,8 @@ def activity_create():
             location = "Online"
 
         dt = datetime.strptime(f"{date_input} {time_input}", "%Y-%m-%d %H:%M")
-
-
         display_date = dt.strftime("%d %b %Y")
         display_time = dt.strftime("%I:%M %p").lstrip("0")
-
-        current_user = get_current_user()
 
         new_activity = Activity(
             name=name,
@@ -249,26 +486,29 @@ def activity_create():
             type=type_,
             energy=energy,
             max_participants=max_participants,
-            participants=0,
+            participants=1,
             tags=tags,
-            creator=current_user
+            creator=user.full_name,
+            join_activity="created"
         )
 
         db.session.add(new_activity)
         db.session.commit()
         return redirect(url_for('activities'))
 
-    my_activities_count = Activity.query.filter_by(creator="me").count()
+    my_activities_count = Activity.query.filter_by(creator=user.full_name).count()
     return render_template('activity_create.html',
                            title="Create Activity",
                            num_activities=my_activities_count)
 
+
 @app.route('/activities/edit/<int:activity_id>', methods=['GET', 'POST'])
+@login_required
 def edit_activity(activity_id):
     activity = Activity.query.get_or_404(activity_id)
-    current_user = get_current_user()
+    user = get_current_user()
 
-    if activity.creator != current_user:
+    if activity.creator != user.full_name:
         abort(403)
 
     if request.method == 'POST':
@@ -292,7 +532,7 @@ def edit_activity(activity_id):
 
     tags = activity.tags.split(',') if activity.tags else []
     
-    my_activities_count = Activity.query.filter_by(creator="me").count()
+    my_activities_count = Activity.query.filter_by(creator=user.full_name).count()
     return render_template(
         'activity_edit.html',
         title="Edit Activity",
@@ -301,9 +541,11 @@ def edit_activity(activity_id):
         tags=tags
     )
 
+
 @app.route("/explore")
+@login_required
 def explore():
-    current_user = get_current_user()
+    user = get_current_user()
     query = Activity.query
 
     search = request.args.get("search")
@@ -343,7 +585,7 @@ def explore():
             parsed_time = datetime.strptime(a.time, "%I:%M %p")
         a.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
-        if a.creator == current_user:
+        if a.creator == user.full_name:
             a.join_activity = "created"
         elif a.participants >= a.max_participants:
             a.join_activity = "max"
@@ -352,10 +594,11 @@ def explore():
         else:
             a.join_activity = 'false'
 
-
     return render_template("explore.html", activities=activities)
 
+
 @app.route('/update-join', methods=['POST'])
+@login_required
 def update_join():
     data = request.get_json()
     activity_id = data.get('activity_id')
@@ -380,12 +623,14 @@ def in_this_week(date):
     end_of_week = start_of_week + timedelta(days=6)
     return start_of_week <= date <= end_of_week
 
+
 @app.route("/leave-activity/<int:activity_id>", methods=["POST"])
+@login_required
 def leave_activity(activity_id):
-    current_user = get_current_user()
+    user = get_current_user()
     activity = Activity.query.get_or_404(activity_id)
 
-    if activity.creator == current_user:
+    if activity.creator == user.full_name:
         return "", 403
 
     if activity.join_activity == 'true':
@@ -398,8 +643,9 @@ def leave_activity(activity_id):
 
 
 @app.route("/schedule")
+@login_required
 def schedule():
-    current_user = get_current_user()
+    user = get_current_user()
     activities = Activity.query.order_by(Activity.date.asc()).all()
     today = date.today()
 
@@ -408,7 +654,7 @@ def schedule():
     filtered_activities = []
 
     for activity in activities:
-        is_creator = activity.creator == current_user
+        is_creator = activity.creator == user.full_name
         is_joined = activity.join_activity == 'true'
 
         if not (is_creator or is_joined):
@@ -441,7 +687,7 @@ def schedule():
     total_activities = len(filtered_activities)
     this_week_activities = len(upcoming_week_activities)
     organizing_activities = len(
-        [a for a in filtered_activities if a.creator == current_user]
+        [a for a in filtered_activities if a.creator == user.full_name]
     )
 
     return render_template(
@@ -454,55 +700,20 @@ def schedule():
         other_activities=other_activities
     )
 
-#end of activites routes
-
-@app.route("/profile")
-def profile():
-    return render_template("profile.html", title="Profile")
-
-
-@app.route("/signup")
-def signup():
-    return render_template("signup.html")
-
-@app.route("/safetynprivacy")
-def safetynprivacy():
-    return render_template("safetynprivacy.html", title="Safety & Privacy")
-
-@app.route("/accessibility")
-def accessibility():
-    return render_template("accessibility.html", title="Accessibility")
-
-@app.route("/forgotpassword")
-def forgotpassword():
-    return render_template("forgotpassword.html")
-
-@app.route("/achievements")
-def achievements():
-    return render_template("achievements.html")
-
-@app.route("/loginpage")
-def loginpage():
-    return render_template("loginpage.html")
-
-@app.route("/badges")
-def badges():
-    return render_template("badges.html")
-
 
 # ==========================================
 #  GROUPS ROUTES
 # ==========================================
 
 @app.route("/groups")
+@login_required
 def groups():
-    # --- AUTO-SEEDER: Creates your demo groups if none exist ---
     if Group.query.count() == 0:
         group1 = Group(
             name="Board Games Afternoon",
             description="Join us for an afternoon of classic and modern tabletop games! Friendly competition and laughter guaranteed. All skill levels welcome.",
             category="Social",
-            youth_percentage=70,  # 70% Youth
+            youth_percentage=70,
             tags="cards,puzzles,boardgames",
             current_participants=20,
             max_participants=40
@@ -511,7 +722,7 @@ def groups():
             name="Walk & Talk Nature Club",
             description="Gentle walks in neighbourhood parks with relaxed conversations and shared moments in nature.",
             category="Wellness",
-            youth_percentage=50,  # 50% Youth
+            youth_percentage=50,
             tags="Wellness,nature,Community",
             current_participants=24,
             max_participants=40
@@ -519,18 +730,10 @@ def groups():
         db.session.add(group1)
         db.session.add(group2)
         db.session.commit()
-    # -----------------------------------------------------------
 
-    # Get current user (for demo, using "Jonathan IV")
     current_user = "Jonathan IV"
-
-    # Get all groups
     all_groups = Group.query.order_by(Group.created_at.asc()).all()
-
-    # Get groups where user is a member
     my_group_ids = [m.group_id for m in GroupMember.query.filter_by(user_name=current_user).all()]
-
-    # Separate into available and joined groups
     available_groups = [g for g in all_groups if g.id not in my_group_ids]
     my_groups = [g for g in all_groups if g.id in my_group_ids]
 
@@ -541,7 +744,9 @@ def groups():
         my_groups=my_groups
     )
 
+
 @app.route("/group/create", methods=["GET", "POST"])
+@login_required
 def create_group():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
@@ -551,26 +756,21 @@ def create_group():
         tags = request.form.get("tags", "")
         current_user = "Jonathan IV"
 
-        # Server-side validation
         errors = []
 
-        # Validate group name
         if not name or len(name) < 3:
             errors.append("Group name must be at least 3 characters long.")
         elif len(name) > 100:
             errors.append("Group name cannot exceed 100 characters.")
 
-        # Validate description
         if not description or len(description) < 10:
             errors.append("Description must be at least 10 characters long.")
         elif len(description) > 500:
             errors.append("Description cannot exceed 500 characters.")
 
-        # Validate category
         if not category:
             errors.append("Please select a category.")
 
-        # Validate max participants
         try:
             max_participants = int(request.form.get("max_participants", 40))
             if max_participants < 2:
@@ -581,15 +781,10 @@ def create_group():
             errors.append("Invalid number for max participants.")
             max_participants = 40
 
-        # Handle image upload with validation
         image_file = request.files.get('group_image')
         image_filename = "default_group.jpg"
 
         if image_file and image_file.filename:
-            import os
-            from werkzeug.utils import secure_filename
-
-            # Validate file type
             allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
             filename = secure_filename(image_file.filename)
             file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
@@ -597,32 +792,26 @@ def create_group():
             if file_ext not in allowed_extensions:
                 errors.append("Invalid image file type. Please upload PNG, JPG, or GIF.")
             else:
-                # Validate file size (5MB max)
-                image_file.seek(0, 2)  # Seek to end
+                image_file.seek(0, 2)
                 file_size = image_file.tell()
-                image_file.seek(0)  # Reset to beginning
+                image_file.seek(0)
 
                 if file_size > 5 * 1024 * 1024:
                     errors.append("Image file size cannot exceed 5MB.")
                 else:
-                    # Generate unique filename and save
                     import uuid
                     unique_filename = f"{uuid.uuid4().hex}_{filename}"
-
                     upload_folder = os.path.join(app.static_folder, 'images')
                     os.makedirs(upload_folder, exist_ok=True)
-
                     image_path = os.path.join(upload_folder, unique_filename)
                     image_file.save(image_path)
                     image_filename = unique_filename
 
-        # If there are validation errors, flash them and return to form
         if errors:
             for error in errors:
                 flash(error, "error")
             return render_template("create_group.html", title="Create Group")
 
-        # Create new group with the creator as owner
         new_group = Group(
             name=name,
             description=description,
@@ -632,13 +821,12 @@ def create_group():
             current_participants=1,
             max_participants=max_participants,
             privacy=privacy,
-            owner=current_user,  # Set the owner
+            owner=current_user,
             image_url=image_filename
         )
         db.session.add(new_group)
         db.session.commit()
 
-        # Add creator as a member
         creator_member = GroupMember(
             group_id=new_group.id,
             user_name=current_user,
@@ -653,22 +841,19 @@ def create_group():
     return render_template("create_group.html", title="Create Group")
 
 
-# ==========================================
-#  GROUP INTERACTION FLOW
-# ==========================================
-
 @app.route("/group/<int:group_id>/about")
+@login_required
 def group_about(group_id):
     group = Group.query.get_or_404(group_id)
     return render_template("group_about.html", group=group, title=group.name)
 
 
 @app.route("/group/<int:group_id>/buddy-quiz", methods=["GET", "POST"])
+@login_required
 def buddy_quiz(group_id):
     group = Group.query.get_or_404(group_id)
 
     if request.method == "POST":
-        # Store the user's answers (for now just simulate)
         session['buddy_answer'] = request.form.get("answer")
         return redirect(url_for("buddy_found", group_id=group_id))
 
@@ -676,10 +861,9 @@ def buddy_quiz(group_id):
 
 
 @app.route("/group/<int:group_id>/buddy-found")
+@login_required
 def buddy_found(group_id):
     group = Group.query.get_or_404(group_id)
-
-    # Add user as a member when they complete the buddy matching
     current_user = "Jonathan IV"
     existing_member = GroupMember.query.filter_by(group_id=group_id, user_name=current_user).first()
 
@@ -697,6 +881,7 @@ def buddy_found(group_id):
 
 
 @app.route("/group/<int:group_id>/chat", methods=["GET", "POST"])
+@login_required
 def group_chat(group_id):
     group = Group.query.get_or_404(group_id)
 
@@ -716,8 +901,6 @@ def group_chat(group_id):
         return redirect(url_for("group_chat", group_id=group_id))
 
     messages = GroupChatMessage.query.filter_by(group_id=group_id).order_by(GroupChatMessage.timestamp.asc()).all()
-
-    # For demo: get or create a member for current user
     member = GroupMember.query.filter_by(group_id=group_id, user_name="Jonathan IV").first()
     if not member:
         member = GroupMember(group_id=group_id, user_name="Jonathan IV", mood_status="😊")
@@ -728,6 +911,7 @@ def group_chat(group_id):
 
 
 @app.route("/group/<int:group_id>/feed", methods=["GET", "POST"])
+@login_required
 def group_feed(group_id):
     group = Group.query.get_or_404(group_id)
 
@@ -735,21 +919,15 @@ def group_feed(group_id):
         author = request.form.get("author", "User")
         content = request.form.get("content")
 
-        # Handle image upload
         image_file = request.files.get('post_image')
         image_filename = None
 
         if image_file and image_file.filename:
-            import os
-            from werkzeug.utils import secure_filename
             import uuid
-
             filename = secure_filename(image_file.filename)
             unique_filename = f"{uuid.uuid4().hex}_{filename}"
-
             upload_folder = os.path.join(app.static_folder, 'images')
             os.makedirs(upload_folder, exist_ok=True)
-
             image_path = os.path.join(upload_folder, unique_filename)
             image_file.save(image_path)
             image_filename = unique_filename
@@ -768,11 +946,9 @@ def group_feed(group_id):
 
     posts = GroupPost.query.filter_by(group_id=group_id).order_by(GroupPost.created_at.desc()).all()
 
-    # Load comments for each post
     for post in posts:
         post.comments = GroupComment.query.filter_by(post_id=post.id).order_by(GroupComment.created_at).all()
 
-    # For demo: get or create a member for current user
     member = GroupMember.query.filter_by(group_id=group_id, user_name="Jonathan IV").first()
     if not member:
         member = GroupMember(group_id=group_id, user_name="Jonathan IV")
@@ -783,6 +959,7 @@ def group_feed(group_id):
 
 
 @app.route("/group/<int:group_id>/settings")
+@login_required
 def group_settings(group_id):
     group = Group.query.get_or_404(group_id)
     current_user = "Jonathan IV"
@@ -791,6 +968,7 @@ def group_settings(group_id):
 
 
 @app.route("/group/<int:group_id>/edit", methods=["GET", "POST"])
+@login_required
 def group_edit(group_id):
     group = Group.query.get_or_404(group_id)
 
@@ -800,28 +978,23 @@ def group_edit(group_id):
         category = request.form.get("category", "").strip()
         privacy = request.form.get("privacy", group.privacy)
 
-        # Server-side validation
         errors = []
 
-        # Validate group name
         if not name or len(name) < 3:
             errors.append("Group name must be at least 3 characters long.")
         elif len(name) > 100:
             errors.append("Group name cannot exceed 100 characters.")
 
-        # Validate description
         if not description or len(description) < 10:
             errors.append("Description must be at least 10 characters long.")
         elif len(description) > 500:
             errors.append("Description cannot exceed 500 characters.")
 
-        # Validate category
         if not category or len(category) < 2:
             errors.append("Category must be at least 2 characters long.")
         elif len(category) > 50:
             errors.append("Category cannot exceed 50 characters.")
 
-        # Validate max participants
         try:
             max_participants = int(request.form.get("max_participants", group.max_participants))
             if max_participants < 1:
@@ -832,13 +1005,11 @@ def group_edit(group_id):
             errors.append("Invalid number for max participants.")
             max_participants = group.max_participants
 
-        # If there are validation errors, flash them and return to form
         if errors:
             for error in errors:
                 flash(error, "error")
             return render_template("group_edit.html", group=group, title="Edit Group")
 
-        # Update group with validated data
         group.name = name
         group.description = description
         group.category = category
@@ -853,6 +1024,7 @@ def group_edit(group_id):
 
 
 @app.route("/group/<int:group_id>/toggle-buddy", methods=["POST"])
+@login_required
 def toggle_buddy_system(group_id):
     group = Group.query.get_or_404(group_id)
     group.buddy_system_enabled = not group.buddy_system_enabled
@@ -861,17 +1033,18 @@ def toggle_buddy_system(group_id):
 
 
 @app.route("/group/<int:group_id>/leave/confirm")
+@login_required
 def leave_group_confirm(group_id):
     group = Group.query.get_or_404(group_id)
     return render_template("group_leave_confirm.html", group=group, title="Leave Group")
 
 
 @app.route("/group/<int:group_id>/leave", methods=["POST"])
+@login_required
 def leave_group(group_id):
     group = Group.query.get_or_404(group_id)
     current_user = "Jonathan IV"
 
-    # Remove user from group members
     member = GroupMember.query.filter_by(group_id=group_id, user_name=current_user).first()
     if member:
         db.session.delete(member)
@@ -883,9 +1056,9 @@ def leave_group(group_id):
 
 
 @app.route("/group/<int:group_id>/update-mood", methods=["POST"])
+@login_required
 def update_mood(group_id):
     mood = request.form.get("mood", "😊")
-
     member = GroupMember.query.filter_by(group_id=group_id, user_name="Jonathan IV").first()
     if member:
         member.mood_status = mood
@@ -895,10 +1068,10 @@ def update_mood(group_id):
 
 
 @app.route("/group/post/<int:post_id>/like", methods=["POST"])
+@login_required
 def like_post(post_id):
     post = GroupPost.query.get_or_404(post_id)
 
-    # Handle JSON request from fetch API
     if request.is_json:
         data = request.get_json()
         liked = data.get('liked', True)
@@ -911,17 +1084,16 @@ def like_post(post_id):
         db.session.commit()
         return jsonify({'success': True, 'likes': post.likes})
 
-    # Fallback for form submission
     post.likes += 1
     db.session.commit()
     return redirect(url_for("group_feed", group_id=post.group_id))
 
 
 @app.route("/group/post/<int:post_id>/comment", methods=["POST"])
+@login_required
 def comment_post(post_id):
     post = GroupPost.query.get_or_404(post_id)
 
-    # Handle JSON request from fetch API
     if request.is_json:
         data = request.get_json()
         author = data.get("author", "User")
@@ -939,7 +1111,6 @@ def comment_post(post_id):
 
         return jsonify({'success': False, 'error': 'No content provided'})
 
-    # Fallback for form submission
     author = request.form.get("author", "User")
     content = request.form.get("content")
 
@@ -956,10 +1127,9 @@ def comment_post(post_id):
 
 
 @app.route("/group/message/<int:message_id>/delete", methods=["POST"])
+@login_required
 def delete_message(message_id):
     message = GroupChatMessage.query.get_or_404(message_id)
-
-    # Only allow deletion of own messages
     current_user = "Jonathan IV"
     if message.username == current_user:
         db.session.delete(message)
@@ -970,16 +1140,12 @@ def delete_message(message_id):
 
 
 @app.route("/group/post/<int:post_id>/delete", methods=["POST"])
+@login_required
 def delete_post(post_id):
     post = GroupPost.query.get_or_404(post_id)
-
-    # Only allow deletion of own posts
     current_user = "Jonathan IV"
     if post.author == current_user or post.author == "Jane_Tan":
-        # Delete all comments first
         GroupComment.query.filter_by(post_id=post.id).delete()
-
-        # Delete the post
         db.session.delete(post)
         db.session.commit()
         return jsonify({'success': True})
@@ -988,10 +1154,9 @@ def delete_post(post_id):
 
 
 @app.route("/group/comment/<int:comment_id>/delete", methods=["POST"])
+@login_required
 def delete_comment(comment_id):
     comment = GroupComment.query.get_or_404(comment_id)
-
-    # Only allow deletion of own comments
     current_user = "Jonathan IV"
     if comment.author == current_user:
         db.session.delete(comment)
@@ -1002,26 +1167,25 @@ def delete_comment(comment_id):
 
 
 @app.route("/group/<int:group_id>/delete/confirm")
+@login_required
 def delete_group_confirm(group_id):
     group = Group.query.get_or_404(group_id)
     return render_template("group_delete_confirm.html", group=group, title="Delete Group")
 
 
 @app.route("/group/<int:group_id>/delete", methods=["POST"])
+@login_required
 def delete_group(group_id):
     group = Group.query.get_or_404(group_id)
 
-    # Delete all related data
     GroupMember.query.filter_by(group_id=group_id).delete()
     GroupChatMessage.query.filter_by(group_id=group_id).delete()
 
-    # Delete posts and their comments
     posts = GroupPost.query.filter_by(group_id=group_id).all()
     for post in posts:
         GroupComment.query.filter_by(post_id=post.id).delete()
     GroupPost.query.filter_by(group_id=group_id).delete()
 
-    # Delete the group
     db.session.delete(group)
     db.session.commit()
 
