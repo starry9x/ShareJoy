@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/safetynprivacy.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="safety-privacy-container">
+    <!-- Header with back button -->
+    <div class="safety-privacy-header">
+        <a href="{{ url_for('profile') }}" class="back-button" aria-label="Go back to profile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+        <div class="header-content">
+            <h1>Safety & Privacy</h1>
+            <p class="subtitle">Manage your account security and privacy preferences</p>
+        </div>
+    </div>
+
+    <!-- Guardian Oversight Section -->
+    <section class="settings-section guardian-section">
+        <div class="section-header">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7V12C2 16.97 5.51 21.56 12 23C18.49 21.56 22 16.97 22 12V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="section-title-group">
+                <h2>Guardian Oversight</h2>
+                <button class="add-guardian-btn">+ Add Guardian</button>
+            </div>
+        </div>
+        
+        <p class="section-description">A guardian can help monitor your account for safety. They'll receive activity reports and can assist with security concerns. You can change or remove your guardian at any time.</p>
+        
+        <div class="guardian-card">
+            <div class="guardian-info">
+                <div class="guardian-avatar">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="30" cy="30" r="30" fill="#D1D5DB"/>
+                        <circle cx="30" cy="23" r="10" fill="#9CA3AF"/>
+                        <path d="M10 50C10 40 18 35 30 35C42 35 50 40 50 50" fill="#9CA3AF"/>
+                    </svg>
+                </div>
+                <div class="guardian-details">
+                    <h3>Ada Wong</h3>
+                    <p>Parent • Guardian since June 2023</p>
+                </div>
+            </div>
+            
+            <div class="guardian-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Access Level:</span>
+                    <span class="stat-value">Limited</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Notifications</span>
+                    <span class="stat-value">Weekly Reports</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Last Active:</span>
+                    <span class="stat-value">2 days ago</span>
+                </div>
+            </div>
+            
+            <div class="guardian-actions">
+                <button class="change-guardian-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14.166 2.5C14.3849 2.28113 14.6447 2.10752 14.9307 1.98906C15.2167 1.87061 15.5232 1.80965 15.8327 1.80965C16.1422 1.80965 16.4487 1.87061 16.7347 1.98906C17.0206 2.10752 17.2805 2.28113 17.4993 2.5C17.7182 2.71887 17.8918 2.97871 18.0103 3.26468C18.1287 3.55064 18.1897 3.85714 18.1897 4.16667C18.1897 4.47619 18.1287 4.78269 18.0103 5.06866C17.8918 5.35462 17.7182 5.61446 17.4993 5.83333L6.24935 17.0833L1.66602 18.3333L2.91602 13.75L14.166 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Change Guardian
+                </button>
+                <button class="remove-guardian-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 5L10 10M10 10L5 15M10 10L15 15M10 10L5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Remove Guardian
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Privacy Controls Section -->
+    <section class="settings-section privacy-section">
+        <div class="section-header">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>Privacy Controls</h2>
+        </div>
+        
+        <p class="section-description">Control who can see your information and interact with you on the platform.</p>
+        
+        <div class="privacy-control">
+            <div class="control-info">
+                <h3>Profile Visibility</h3>
+                <p>Choose who can see your profile information and posts</p>
+            </div>
+            <div class="dropdown-control">
+                <select id="profileVisibility" class="privacy-dropdown">
+                    <option value="everyone">Everyone</option>
+                    <option value="friends" selected>Friends Only</option>
+                    <option value="private">Only Me</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="privacy-control">
+            <div class="control-info">
+                <h3>Data Sharing</h3>
+                <p>Allow your data to be used for personalized recommendations</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="dataSharing" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        
+        <div class="privacy-control">
+            <div class="control-info">
+                <h3>Search Visibility</h3>
+                <p>Allow your profile to appear in search results</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="searchVisibility" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </section>
+
+    <!-- Security Settings Section -->
+    <section class="settings-section security-section">
+        <div class="section-header">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>Security Settings</h2>
+        </div>
+        
+        <p class="section-description">Enhance your account security with these advanced protection features.</p>
+        
+        <div class="security-control">
+            <div class="control-info">
+                <h3>Two-Factor Authentication</h3>
+                <p>Add an extra layer of security to your account</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="twoFactor">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        
+        <div class="security-control">
+            <div class="control-info">
+                <h3>Login Notifications</h3>
+                <p>Get notified when someone logs into your account from a new device</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="loginNotifications" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        
+        <div class="security-control">
+            <div class="control-info">
+                <h3>Location Services</h3>
+                <p>Allow the app to access your location for personalised features</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="locationServices">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Profile Visibility Dropdown
+    const profileVisibility = document.getElementById('profileVisibility');
+    const savedVisibility = localStorage.getItem('profileVisibility') || 'friends';
+    profileVisibility.value = savedVisibility;
+
+    profileVisibility.addEventListener('change', () => {
+        localStorage.setItem('profileVisibility', profileVisibility.value);
+    });
+
+    // Data Sharing Toggle
+    const dataSharing = document.getElementById('dataSharing');
+    const savedDataSharing = localStorage.getItem('dataSharing') !== 'false';
+    dataSharing.checked = savedDataSharing;
+
+    dataSharing.addEventListener('change', () => {
+        localStorage.setItem('dataSharing', dataSharing.checked);
+    });
+
+    // Search Visibility Toggle
+    const searchVisibility = document.getElementById('searchVisibility');
+    const savedSearchVisibility = localStorage.getItem('searchVisibility') !== 'false';
+    searchVisibility.checked = savedSearchVisibility;
+
+    searchVisibility.addEventListener('change', () => {
+        localStorage.setItem('searchVisibility', searchVisibility.checked);
+    });
+
+    // Two-Factor Authentication Toggle
+    const twoFactor = document.getElementById('twoFactor');
+    const savedTwoFactor = localStorage.getItem('twoFactor') === 'true';
+    twoFactor.checked = savedTwoFactor;
+
+    twoFactor.addEventListener('change', () => {
+        localStorage.setItem('twoFactor', twoFactor.checked);
+        if (twoFactor.checked) {
+            alert('Two-Factor Authentication has been enabled. You will receive a verification code on your registered device.');
+        }
+    });
+
+    // Login Notifications Toggle
+    const loginNotifications = document.getElementById('loginNotifications');
+    const savedLoginNotifications = localStorage.getItem('loginNotifications') !== 'false';
+    loginNotifications.checked = savedLoginNotifications;
+
+    loginNotifications.addEventListener('change', () => {
+        localStorage.setItem('loginNotifications', loginNotifications.checked);
+    });
+
+    // Location Services Toggle
+    const locationServices = document.getElementById('locationServices');
+    const savedLocationServices = localStorage.getItem('locationServices') === 'true';
+    locationServices.checked = savedLocationServices;
+
+    locationServices.addEventListener('change', () => {
+        localStorage.setItem('locationServices', locationServices.checked);
+        if (locationServices.checked) {
+            // Request location permission
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        console.log('Location access granted');
+                    },
+                    (error) => {
+                        console.log('Location access denied');
+                        locationServices.checked = false;
+                        localStorage.setItem('locationServices', false);
+                    }
+                );
+            }
+        }
+    });
+
+    // Guardian Actions
+    const changeGuardianBtn = document.querySelector('.change-guardian-btn');
+    const removeGuardianBtn = document.querySelector('.remove-guardian-btn');
+    const addGuardianBtn = document.querySelector('.add-guardian-btn');
+
+    changeGuardianBtn.addEventListener('click', () => {
+        alert('Change Guardian functionality - This would open a form to select a new guardian.');
+    });
+
+    removeGuardianBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to remove Ada Wong as your guardian?')) {
+            alert('Guardian removed successfully.');
+        }
+    });
+
+    addGuardianBtn.addEventListener('click', () => {
+        alert('Add Guardian functionality - This would open a form to add a new guardian.');
+    });
+</script>
+{% endblock %}

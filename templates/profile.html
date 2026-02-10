@@ -17,12 +17,16 @@
 
       <div class="profile-left">
         <div class="avatar-container">
-          <img id="profileImage" src="https://static.vecteezy.com/system/resources/thumbnails/002/534/006/small/social-media-chatting-online-blank-profile-picture-head-and-body-icon-people-standing-icon-grey-background-free-vector.jpg" class="avatar" alt="Profile Picture">
+          {% if user.profile_image %}
+            <img id="profileImage" src="{{ url_for('static', filename='uploads/' + user.profile_image) }}" class="avatar" alt="Profile Picture">
+          {% else %}
+            <img id="profileImage" src="https://static.vecteezy.com/system/resources/thumbnails/002/534/006/small/social-media-chatting-online-blank-profile-picture-head-and-body-icon-people-standing-icon-grey-background-free-vector.jpg" class="avatar" alt="Profile Picture">
+          {% endif %}
           <div class="avatar-overlay">
             <button id="uploadBtn" class="avatar-btn">
               <i class="fa-solid fa-camera"></i>
             </button>
-            <button id="deleteBtn" class="avatar-btn delete-btn" style="display: none;">
+            <button id="deleteBtn" class="avatar-btn delete-btn" style="{% if user.profile_image %}display: block;{% else %}display: none;{% endif %}">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
@@ -30,30 +34,30 @@
         </div>
 
         <div class="profile-info">
-          <h1 class="profile-name">Leon Kennedy</h1>
+          <h1 class="profile-name">{{ user.full_name }}</h1>
 
           <div class="info">
             <i class="fa-solid fa-envelope"></i>
-            leon.kennedy@gmail.com
+            {{ user.email }}
           </div>
 
           <div class="info">
             <i class="fa-solid fa-calendar"></i>
-            Joined March 2023
+            Joined {{ joined_date }}
           </div>
 
           <div class="info">
             <i class="fa-solid fa-user"></i>
-            "I love running and cooking"
+            "{{ user.bio or 'No bio yet' }}"
           </div>
         </div>
       </div>
 
       <div class="profile-right">
-        <span class="tag">Youth</span>
+        <span class="tag">{{ user.age_category }}</span>
 
         <!-- LOG OUT -->
-        <a href="/loginpage" class="logout-btn">
+        <a href="{{ url_for('logout') }}" class="logout-btn">
           Log Out
         </a>
       </div>
@@ -66,15 +70,15 @@
     <!-- STATS -->
     <div class="stats">
       <div>
-        <strong>142</strong>
+        <strong>{{ user.posts_count }}</strong>
         <span>Posts</span>
       </div>
       <div>
-        <strong>67</strong>
+        <strong>{{ user.followers_count }}</strong>
         <span>Followers</span>
       </div>
       <div>
-        <strong>167</strong>
+        <strong>{{ user.following_count }}</strong>
         <span>Following</span>
       </div>
     </div>
@@ -119,7 +123,7 @@
           <li>Text-to-speech function</li>
         </ul>
 
-        <a href="/accessibility">Open →</a>
+        <a href="{{ url_for('accessibility') }}">Open →</a>
       </div>
 
       <!-- Safety & Privacy -->
@@ -140,7 +144,7 @@
           <li>Data sharing preferences</li>
         </ul>
 
-        <a href="/safetynprivacy">Open →</a>
+        <a href="{{ url_for('safetynprivacy') }}">Open →</a>
       </div>
 
       <!-- Achievements -->
@@ -161,7 +165,7 @@
           <li>Milestone celebrations</li>
         </ul>
 
-        <a href="/achievements">Open →</a>
+        <a href="{{ url_for('achievements') }}">Open →</a>
       </div>
 
     </div>
@@ -176,23 +180,25 @@
     </h2>
     <hr class="about-divider">
 
-    <div class="about-box">
-      <strong>Bio</strong>
-      <p id="bio-text">Student passionate about volunteering. Love running and cooking.</p>
-      <textarea id="bio-edit" class="edit-textarea" style="display: none;">Student passionate about volunteering. Love running and cooking.</textarea>
-    </div>
+    <form id="profileForm" action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
+      <div class="about-box">
+        <strong>Bio</strong>
+        <p id="bio-text">{{ user.bio or 'Click "Edit Profile" to add your bio' }}</p>
+        <textarea id="bio-edit" name="bio" class="edit-textarea" style="display: none;">{{ user.bio or '' }}</textarea>
+      </div>
 
-    <div class="about-box">
-      <strong>Work</strong>
-      <p id="work-text">Working part time at Starbucks.</p>
-      <textarea id="work-edit" class="edit-textarea" style="display: none;">Working part time at Starbucks.</textarea>
-    </div>
+      <div class="about-box">
+        <strong>Work</strong>
+        <p id="work-text">{{ user.work or 'Click "Edit Profile" to add your work information' }}</p>
+        <textarea id="work-edit" name="work" class="edit-textarea" style="display: none;">{{ user.work or '' }}</textarea>
+      </div>
 
-    <div class="about-box">
-      <strong>Education</strong>
-      <p id="education-text">Nanyang Polytechnic, Diploma in Business and Financial Technology</p>
-      <textarea id="education-edit" class="edit-textarea" style="display: none;">Nanyang Polytechnic, Diploma in Business and Financial Technology</textarea>
-    </div>
+      <div class="about-box">
+        <strong>Education</strong>
+        <p id="education-text">{{ user.education or 'Click "Edit Profile" to add your education information' }}</p>
+        <textarea id="education-edit" name="education" class="edit-textarea" style="display: none;">{{ user.education or '' }}</textarea>
+      </div>
+    </form>
   </section>
 
 </div>
@@ -203,6 +209,7 @@
 <script>
   let isEditMode = false;
   const defaultImage = "https://static.vecteezy.com/system/resources/thumbnails/002/534/006/small/social-media-chatting-online-blank-profile-picture-head-and-body-icon-people-standing-icon-grey-background-free-vector.jpg";
+  const profileForm = document.getElementById("profileForm");
 
   // ===== EDIT PROFILE FUNCTIONALITY =====
   document.getElementById("editProfile").addEventListener("click", () => {
@@ -228,27 +235,23 @@
       educationText.style.display = "none";
       educationEdit.style.display = "block";
     } else {
-      // Save changes and switch back to view mode
+      // Save changes by submitting the form
       editBtn.textContent = "Edit Profile";
-      
-      // Update text content from textareas
-      bioText.textContent = bioEdit.value;
-      workText.textContent = workEdit.value;
-      educationText.textContent = educationEdit.value;
-      
-      // Show text, hide textareas
-      bioText.style.display = "block";
-      bioEdit.style.display = "none";
-      workText.style.display = "block";
-      workEdit.style.display = "none";
-      educationText.style.display = "block";
-      educationEdit.style.display = "none";
+      profileForm.submit();
     }
   });
   
   // ===== SHARE PROFILE FUNCTIONALITY =====
   document.getElementById("shareProfile").addEventListener("click", () => {
-    alert("Share profile (prototype)");
+    if (navigator.share) {
+      navigator.share({
+        title: '{{ user.full_name }} - ShareJoy Profile',
+        text: 'Check out my profile on ShareJoy!',
+        url: window.location.href
+      }).catch(err => console.log('Error sharing:', err));
+    } else {
+      alert("Share feature: Copy this link to share your profile!");
+    }
   });
 
   // ===== PROFILE PICTURE FUNCTIONALITY =====
@@ -256,13 +259,6 @@
   const uploadBtn = document.getElementById("uploadBtn");
   const deleteBtn = document.getElementById("deleteBtn");
   const imageUpload = document.getElementById("imageUpload");
-
-  // Check if there's a saved image in localStorage
-  const savedImage = localStorage.getItem("profileImage");
-  if (savedImage && savedImage !== defaultImage) {
-    profileImage.src = savedImage;
-    deleteBtn.style.display = "block";
-  }
 
   // Upload button - trigger file input
   uploadBtn.addEventListener("click", () => {
@@ -273,23 +269,51 @@
   imageUpload.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imageData = event.target.result;
-        profileImage.src = imageData;
-        localStorage.setItem("profileImage", imageData);
-        deleteBtn.style.display = "block";
-      };
-      reader.readAsDataURL(file);
+      // Create FormData and upload immediately
+      const formData = new FormData();
+      formData.append('profileImage', file);
+      
+      fetch('{{ url_for("update_profile") }}', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.ok) {
+          // Preview the image immediately
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            profileImage.src = event.target.result;
+            deleteBtn.style.display = "block";
+          };
+          reader.readAsDataURL(file);
+          location.reload(); // Reload to show updated image
+        }
+      })
+      .catch(error => console.error('Error uploading image:', error));
     }
   });
 
   // Delete button - restore default image
   deleteBtn.addEventListener("click", () => {
-    profileImage.src = defaultImage;
-    localStorage.removeItem("profileImage");
-    deleteBtn.style.display = "none";
-    imageUpload.value = ""; // Clear file input
+    if (confirm("Are you sure you want to remove your profile picture?")) {
+      // Send request to delete profile image
+      const formData = new FormData();
+      formData.append('deleteProfileImage', 'true');
+      
+      fetch('{{ url_for("update_profile") }}', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.ok) {
+          profileImage.src = defaultImage;
+          deleteBtn.style.display = "none";
+          imageUpload.value = "";
+          location.reload();
+        }
+      })
+      .catch(error => console.error('Error deleting image:', error));
+    }
   });
 </script>
 {% endblock %}

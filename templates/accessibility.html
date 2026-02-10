@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/accessibility.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="accessibility-container">
+    <!-- Header with back button -->
+    <div class="accessibility-header">
+        <a href="{{ url_for('profile') }}" class="back-button" aria-label="Go back to profile">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+        <div class="header-content">
+            <h1>Accessibility Settings</h1>
+            <p class="subtitle">Customise your viewing experience to suit your needs</p>
+        </div>
+    </div>
+
+    <!-- Text Size & Display Section -->
+    <section class="settings-section text-size-section">
+        <div class="section-header">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <text x="2" y="18" font-size="16" font-weight="bold" fill="currentColor">T↕</text>
+                </svg>
+            </div>
+            <h2>Text Size & Display</h2>
+        </div>
+        
+        <p class="section-description">Adjust the text size to make content easier to read. Changes apply immediately to the entire website.</p>
+        
+        <div class="font-size-controls">
+            <div class="font-size-label">
+                <h3>Font Size</h3>
+                <p>Choose your preferred text size (Large is recommended for most users)</p>
+            </div>
+            
+            <div class="size-buttons">
+                <button class="size-btn" data-size="small" aria-label="Small text size">
+                    <span>S</span>
+                </button>
+                <button class="size-btn" data-size="medium" aria-label="Medium text size">
+                    <span>M</span>
+                </button>
+                <button class="size-btn active" data-size="large" aria-label="Large text size">
+                    <span>L</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="preview-box">
+            <h3>Preview</h3>
+            <p class="preview-text">This is how the text will appear with your current settings. You can see the difference in font size here. The quick brown fox jumps over the lazy dog. This sentence contains all letters of the alphabet.</p>
+        </div>
+    </section>
+
+    <!-- Text-to-Speech Section -->
+    <section class="settings-section tts-section">
+        <div class="section-header">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15.54 8.46C16.4774 9.39764 17.0039 10.6692 17.0039 11.995C17.0039 13.3208 16.4774 14.5924 15.54 15.53" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.07 4.93C20.9447 6.80528 21.9979 9.34836 21.9979 12C21.9979 14.6516 20.9447 17.1947 19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>Text-to-Speech</h2>
+        </div>
+        
+        <p class="section-description">Enable text-to-speech to have content read aloud. You can select different voices and adjust the speaking rate.</p>
+        
+        <div class="toggle-control">
+            <div class="toggle-label">
+                <h3>Enable Text-to-Speech</h3>
+                <p>Turn on/off the text-to-speech functionality</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="ttsToggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        
+        <div class="tts-options" id="ttsOptions">
+            <div class="voice-rate-container">
+                <div class="voice-selector">
+                    <h4>Select Voice:</h4>
+                    <div class="select-box">
+                        <div class="select-option active" data-voice="male">
+                            <span>Male Voice</span>
+                            <span class="currently-selected">Currently selected</span>
+                        </div>
+                        <div class="select-option" data-voice="female">
+                            <span>Female Voice</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="rate-selector">
+                    <h4>Speaking Rate:</h4>
+                    <div class="select-box">
+                        <div class="select-option active" data-rate="normal">
+                            <span>Normal</span>
+                            <span class="currently-selected">Currently selected</span>
+                        </div>
+                        <div class="select-option" data-rate="slow">
+                            <span>Slow</span>
+                        </div>
+                        <div class="select-option" data-rate="fast">
+                            <span>Fast</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Settings Section -->
+    <section class="settings-section visual-section">
+        <div class="section-header">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>Visual Settings</h2>
+        </div>
+        
+        <p class="section-description">Adjust visual elements to improve readability and reduce eye strain.</p>
+        
+        <div class="toggle-control">
+            <div class="toggle-label">
+                <h3>High Contrast Mode</h3>
+                <p>Increase contrast between text and background for better visibility</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="contrastToggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        
+        <div class="toggle-control">
+            <div class="toggle-label">
+                <h3>Reduced Motion</h3>
+                <p>Minimize animations and transitions for reduced distraction</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="motionToggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        
+        <div class="status-indicator">
+            <div class="status-label">
+                <h3>Screen Reader Compatibility</h3>
+                <p>Optimize page structure for screen readers (always enabled)</p>
+            </div>
+            <div class="status-badge">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="10" cy="10" r="10" fill="#22C55E"/>
+                    <path d="M6 10L8.5 12.5L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Active</span>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Font Size Settings
+    const sizeBtns = document.querySelectorAll('.size-btn');
+    const previewText = document.querySelector('.preview-text');
+    const root = document.documentElement;
+
+    // Load saved font size
+    const savedFontSize = localStorage.getItem('fontSize') || 'large';
+    applyFontSize(savedFontSize);
+
+    sizeBtns.forEach(btn => {
+        if (btn.dataset.size === savedFontSize) {
+            btn.classList.add('active');
+        }
+        
+        btn.addEventListener('click', () => {
+            sizeBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const size = btn.dataset.size;
+            applyFontSize(size);
+            localStorage.setItem('fontSize', size);
+        });
+    });
+
+    function applyFontSize(size) {
+        const sizes = {
+            small: '14px',
+            medium: '16px',
+            large: '18px'
+        };
+        root.style.setProperty('--base-font-size', sizes[size]);
+    }
+
+    // Text-to-Speech Settings
+    const ttsToggle = document.getElementById('ttsToggle');
+    const ttsOptions = document.getElementById('ttsOptions');
+    const voiceOptions = document.querySelectorAll('.voice-selector .select-option');
+    const rateOptions = document.querySelectorAll('.rate-selector .select-option');
+
+    // Load saved TTS settings
+    const ttsEnabled = localStorage.getItem('ttsEnabled') === 'true';
+    const savedVoice = localStorage.getItem('ttsVoice') || 'male';
+    const savedRate = localStorage.getItem('ttsRate') || 'normal';
+
+    ttsToggle.checked = ttsEnabled;
+    ttsOptions.style.display = ttsEnabled ? 'block' : 'none';
+
+    ttsToggle.addEventListener('change', () => {
+        const enabled = ttsToggle.checked;
+        ttsOptions.style.display = enabled ? 'block' : 'none';
+        localStorage.setItem('ttsEnabled', enabled);
+    });
+
+    // Voice selection
+    voiceOptions.forEach(option => {
+        if (option.dataset.voice === savedVoice) {
+            option.classList.add('active');
+            option.querySelector('.currently-selected').style.display = 'inline';
+        }
+        
+        option.addEventListener('click', () => {
+            voiceOptions.forEach(opt => {
+                opt.classList.remove('active');
+                opt.querySelector('.currently-selected').style.display = 'none';
+            });
+            option.classList.add('active');
+            option.querySelector('.currently-selected').style.display = 'inline';
+            localStorage.setItem('ttsVoice', option.dataset.voice);
+        });
+    });
+
+    // Rate selection
+    rateOptions.forEach(option => {
+        if (option.dataset.rate === savedRate) {
+            option.classList.add('active');
+            option.querySelector('.currently-selected').style.display = 'inline';
+        }
+        
+        option.addEventListener('click', () => {
+            rateOptions.forEach(opt => {
+                opt.classList.remove('active');
+                opt.querySelector('.currently-selected').style.display = 'none';
+            });
+            option.classList.add('active');
+            option.querySelector('.currently-selected').style.display = 'inline';
+            localStorage.setItem('ttsRate', option.dataset.rate);
+        });
+    });
+
+    // High Contrast Mode
+    const contrastToggle = document.getElementById('contrastToggle');
+    const savedContrast = localStorage.getItem('highContrast') === 'true';
+    contrastToggle.checked = savedContrast;
+    if (savedContrast) {
+        document.body.classList.add('high-contrast');
+    }
+
+    contrastToggle.addEventListener('change', () => {
+        const enabled = contrastToggle.checked;
+        document.body.classList.toggle('high-contrast', enabled);
+        localStorage.setItem('highContrast', enabled);
+    });
+
+    // Reduced Motion
+    const motionToggle = document.getElementById('motionToggle');
+    const savedMotion = localStorage.getItem('reducedMotion') !== 'false';
+    motionToggle.checked = savedMotion;
+    if (savedMotion) {
+        document.body.classList.add('reduced-motion');
+    }
+
+    motionToggle.addEventListener('change', () => {
+        const enabled = motionToggle.checked;
+        document.body.classList.toggle('reduced-motion', enabled);
+        localStorage.setItem('reducedMotion', enabled);
+    });
+</script>
+{% endblock %}

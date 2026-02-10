@@ -7,17 +7,55 @@
 {% block content %}
 <div class="signup-container">
   <h1>Create Account</h1>
-    <form action="/" method="GET">
+  
+  <form action="{{ url_for('signup') }}" method="POST" enctype="multipart/form-data">
+    <input type="text" id="fullName" name="fullName" placeholder="Full Name" required>
+    
+    <input type="email" id="email" name="email" placeholder="Email Address" required>
+    
+    <!-- Mobile Number -->
+    <div class="input-group">
+      <input type="tel" id="mobile" name="mobile" placeholder="Mobile Number (e.g., 81234567)" pattern="[8-9][0-9]{7}" required>
+    </div>
+    
+    <!-- Date of Birth -->
+    <div class="input-group">
+      <label for="dob">Date of Birth</label>
+      <input type="date" id="dob" name="dob" required>
+    </div>
+    
+    <!-- Age Display -->
+    <div class="age-display" id="ageDisplay" style="display: none;">
+      <span class="age-label">Age: <strong id="ageValue"></strong></span>
+      <span class="category-tag" id="categoryTag"></span>
+    </div>
+    
+    <!-- CHANGED: Added minlength="6" -->
+    <input type="password" id="password" name="password" placeholder="Password (Must be at least 6 characters long)" minlength="6" required>
+    
+    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" minlength="6" required>
+    <span class="error-message" id="confirmPasswordError"></span>
+    
+    <textarea id="bio" name="bio" placeholder="Short Bio"></textarea>
+    
+    <!-- ID Card Upload -->
+    <div class="upload-section">
+      <label for="idCard" class="upload-label">
+        <i class="fas fa-id-card"></i> Upload Identification Card
+      </label>
+      <small class="upload-hint">
+        <strong>Important:</strong> Please blur or cover sensitive information (NRIC number, address, etc.) before uploading
+      </small>
+      <input type="file" id="idCard" name="idCard" accept="image/*" required>
+      <div class="file-preview" id="filePreview" style="display: none;">
+        <img id="previewImage" src="" alt="ID Card Preview">
+        <button type="button" class="remove-file" id="removeFile">
+          <i class="fas fa-times"></i> Remove
+        </button>
+      </div>
+    </div>
 
-  <form>
-    <input type="text" placeholder="Full Name" required>
-    <input type="email" placeholder="Email Address" required>
-    <input type="password" placeholder="Password" required>
-    <input type="password" placeholder="Confirm Password" required>
-
-    <textarea placeholder="Short Bio"></textarea>
-
-    <button type="submit">Create Account</button>
+    <button type="submit" id="signUpBtn" disabled>Create Account</button>
   </form>
 </div>
 {% endblock %}
@@ -28,18 +66,124 @@
   const confirmPassword = document.getElementById("confirmPassword");
   const signUpBtn = document.getElementById("signUpBtn");
   const confirmPasswordError = document.getElementById("confirmPasswordError");
+  const dobInput = document.getElementById("dob");
+  const ageDisplay = document.getElementById("ageDisplay");
+  const ageValue = document.getElementById("ageValue");
+  const categoryTag = document.getElementById("categoryTag");
+  const idCardInput = document.getElementById("idCard");
+  const filePreview = document.getElementById("filePreview");
+  const previewImage = document.getElementById("previewImage");
+  const removeFile = document.getElementById("removeFile");
+  const mobile = document.getElementById("mobile");
 
+  // UPDATED: Password validation with 6 character minimum
   function validatePasswords() {
+    // Check if password is at least 6 characters
+    if (password.value.length < 6) {
+      confirmPasswordError.textContent = "Password must be at least 6 characters long.";
+      return false;
+    }
+    // Check if passwords match
     if (confirmPassword.value !== password.value) {
       confirmPasswordError.textContent = "Passwords do not match.";
-      signUpBtn.disabled = true;
+      return false;
     } else {
       confirmPasswordError.textContent = "";
-      signUpBtn.disabled = false;
+      return true;
     }
   }
 
-  password.addEventListener("input", validatePasswords);
-  confirmPassword.addEventListener("input", validatePasswords);
+  // Calculate age and category
+  function calculateAge() {
+    const dob = new Date(dobInput.value);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    
+    return age;
+  }
+
+  function updateAgeCategory() {
+    if (dobInput.value) {
+      const age = calculateAge();
+      ageValue.textContent = age;
+      ageDisplay.style.display = "flex";
+      
+      let category = "";
+      let categoryClass = "";
+      
+      if (age >= 15 && age <= 35) {
+        category = "Youth";
+        categoryClass = "youth";
+      } else if (age > 60) {
+        category = "Seniors";
+        categoryClass = "seniors";
+      } else {
+        category = "Others";
+        categoryClass = "others";
+      }
+      
+      categoryTag.textContent = category;
+      categoryTag.className = "category-tag " + categoryClass;
+    } else {
+      ageDisplay.style.display = "none";
+    }
+    checkFormValidity();
+  }
+
+  // ID Card upload preview
+  idCardInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        previewImage.src = event.target.result;
+        filePreview.style.display = "block";
+        checkFormValidity();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Remove uploaded file
+  removeFile.addEventListener("click", () => {
+    idCardInput.value = "";
+    filePreview.style.display = "none";
+    previewImage.src = "";
+    checkFormValidity();
+  });
+
+  // Mobile number validation
+  mobile.addEventListener("input", () => {
+    checkFormValidity();
+  });
+
+  // Check overall form validity
+  function checkFormValidity() {
+    const isPasswordValid = validatePasswords();
+    const hasAge = dobInput.value !== "";
+    const hasIdCard = idCardInput.files.length > 0;
+    const isMobileValid = mobile.validity.valid;
+    const isPasswordLongEnough = password.value.length >= 6;
+    
+    signUpBtn.disabled = !(isPasswordValid && hasAge && hasIdCard && isMobileValid && isPasswordLongEnough);
+  }
+
+  // Event listeners
+  password.addEventListener("input", () => {
+    validatePasswords();
+    checkFormValidity();
+  });
+  
+  confirmPassword.addEventListener("input", () => {
+    validatePasswords();
+    checkFormValidity();
+  });
+  
+  dobInput.addEventListener("change", updateAgeCategory);
 </script>
 {% endblock %}
