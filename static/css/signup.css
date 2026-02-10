@@ -44,6 +44,33 @@
 
 .input-group input {
   margin-bottom: 4px;
+  /* ADDED: Ensure all input corners are rounded */
+  border-radius: 10px !important;
+  -webkit-appearance: none; /* Remove default browser styling */
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* ADDED: Specifically target date and tel inputs to ensure rounded corners */
+input[type="date"],
+input[type="tel"] {
+  border-radius: 10px !important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* ADDED: Style date input calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 2px;
+  opacity: 0.6;
+  filter: invert(0.4);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 .input-hint {
