@@ -2,6 +2,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/achievements.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
@@ -19,7 +20,7 @@
         </div>
     </div>
 
-    <!-- Stats Cards -->
+<!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon badge-icon">
@@ -32,7 +33,6 @@
                 <h2 class="stat-value">6/81</h2>
             </div>
         </div>
-
         <div class="stat-card">
             <div class="stat-icon activity-icon">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,12 +47,11 @@
                 <h2 class="stat-value">3 Activities</h2>
             </div>
         </div>
-
         <div class="stat-card streak-card">
             <div class="stat-icon streak-icon">
+                <!-- UPDATED: Fire icon (orange and white only) -->
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 5C20 5 12 15 12 22C12 26.4183 15.5817 30 20 30C24.4183 30 28 26.4183 28 22C28 15 20 5 20 5Z" fill="white"/>
-                    <path d="M20 35C20 35 16 30 16 26C16 23.7909 17.7909 22 20 22C22.2091 22 24 23.7909 24 26C24 30 20 35 20 35Z" fill="white"/>
+                    <path d="M20 8C20 8 14 16 14 22C14 26.4183 17.5817 30 22 30C26.4183 30 30 26.4183 30 22C30 16 22 8 22 8C22 8 24 14 24 18C24 20.2091 22.2091 22 20 22C17.7909 22 16 20.2091 16 18C16 14 20 8 20 8Z" fill="white"/>
                 </svg>
             </div>
             <div class="stat-info">
@@ -65,12 +64,8 @@
     <!-- Milestone Banner -->
     <div class="milestone-banner">
         <div class="milestone-icon">
-            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="30" cy="40" r="15" fill="#FDB022"/>
-                <path d="M20 25L30 15L40 25L30 35L20 25Z" fill="#FDB022"/>
-                <path d="M26 22L30 18L34 22L30 26L26 22Z" fill="white"/>
-                <rect x="28" y="35" width="4" height="15" fill="#FDB022"/>
-            </svg>
+            <!-- UPDATED: Trophy/Medal icon using Font Awesome -->
+            <i class="fas fa-trophy" style="font-size: 60px; color: #FDB022;"></i>
         </div>
         <div class="milestone-content">
             <h2>Monthly Milestone Achieved! 🎉</h2>

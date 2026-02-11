@@ -198,6 +198,18 @@
         <p id="education-text">{{ user.education or 'Click "Edit Profile" to add your education information' }}</p>
         <textarea id="education-edit" name="education" class="edit-textarea" style="display: none;">{{ user.education or '' }}</textarea>
       </div>
+
+      <div class="about-box">
+        <strong>Relationship</strong>
+        <p id="work-text">{{ user.relationship or 'Click "Edit Profile" to add your relationship status' }}</p>
+        <textarea id="work-edit" name="work" class="edit-textarea" style="display: none;">{{ user.relationship or '' }}</textarea>
+      </div>
+
+      <div class="about-box">
+        <strong>Interests</strong>
+        <p id="education-text">{{ user.interests or 'Click "Edit Profile" to add your interests and hobbies' }}</p>
+        <textarea id="education-edit" name="education" class="edit-textarea" style="display: none;">{{ user.interests or '' }}</textarea>
+      </div>
     </form>
   </section>
 
