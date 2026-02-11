@@ -47,7 +47,7 @@
     display: flex;
     align-self: flex-start;
     flex-direction: column;
-    height: 80vh;
+    height: 65vh;
   }
 
   .messages-area {
@@ -77,10 +77,11 @@
   }
 
   .input-area {
-    display: flex;
-    border-top: 1px solid #ddd;
-    padding: .5rem;
-  }
+  display: flex;
+  border-top: 1px solid #ddd;
+  padding: .5rem;
+  align-items: center; /* Ensure vertical alignment */
+}
 
   .message-input {
     flex: 1;
@@ -99,11 +100,11 @@
     cursor: pointer;
   }
 
-  /* Memory Pane  */
+/* Memory Pane  */
 .chat-wrapper {
   display: flex;
   width: 100%;
-  height: 80vh;
+  height: 65vh;
   margin: 0;  
 }
 
@@ -118,16 +119,42 @@
   flex: 0.7;
 }
 
+#togglePaneButton {
+  padding: .5rem 1rem;
+  border: none;
+  background: #dc3545; /* Red color for btn-danger */
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-left: .5rem; /* Match Send button spacing */
+}
+
+/* Ensure the pane has relative positioning for absolute children */
 .right-pane {
+  position: relative; /* Add this */
   margin-left: 1%;
-  flex: 0.1; 
-  overflow: hidden;
+  flex: 0.1;
+  overflow: visible; /* Change from hidden to visible */
   transition: flex 0.3s ease;
-  background-color: #FFF8DC;
+  background-color: #ffeddc;
   border-left: 1px solid #ccc;
   padding: 1rem;
 }
 
 .right-pane.open {
-  flex: 0.3; /* takes 30% of width when open */
+  flex: 0.3;
 }
+
+.right-pane .convo-starters {
+  display: none; /* Hide conversation starters by default */
+}
+
+.right-pane.open .convo-starters {
+  display: block; /* Show conversation starters when pane is open */
+}
+
+.convo-starters button{
+  font-size: 16px;
+}
+

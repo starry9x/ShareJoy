@@ -33,6 +33,7 @@
 
     <form method="POST" class="input-area">
       <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
+      <button type="button" id="togglePaneButton" class="btn btn-danger cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold" onclick="togglePane()">Open chat functions</button>
       <button type="submit" class="send-button">Send</button>
     </form>
   </div>
@@ -40,8 +41,13 @@
   <!-- Right pane -->
   <div class="right-pane" id="rightPane">
     <h5>Chat Functions</h5>
-    <p>Placeholder content goes here...</p>
-    <button type="button" class="btn btn-sm btn-outline-dark" onclick="togglePane()">Close</button>
+    <div class="convo-starters">
+      <p>Click on a conversation starter to begin a topic! </p>
+      <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('What was your favourite memory of us together?')">What was your favourite memory of us together?</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('Share your most memorable childhood experience.')">Share your most memorable childhood experience.</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('Do you remember when we used to [insert text here]?')">Do you remember when we used to...</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('What are your favourite hawker foods?')">What are your favourite hawker foods?</button>
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -51,8 +57,22 @@
 function togglePane() {
   const pane = document.getElementById("rightPane");
   const chat = document.getElementById("chatContainer");
+  const toggleButton = document.getElementById("togglePaneButton");
+
   pane.classList.toggle("open");
   chat.classList.toggle("shrunk");
+
+  if (pane.classList.contains("open")) {
+    toggleButton.textContent = "Close chat functions";
+  } else {
+    toggleButton.textContent = "Open chat functions";
+  }
+}
+
+function insertText(text) {
+  const inputField = document.querySelector(".message-input");
+  inputField.value = text; // Insert the text into the input field
+  inputField.focus(); // Focus the input field for user convenience
 }
 </script>
 {% endblock %}
