@@ -24,17 +24,31 @@
   <div class="chat-container" id="chatContainer">
     <div class="messages-area">
       {% for message in messages %}
-        <div class="message {% if message.username == 'me' %}sent{% else %}received{% endif %}">
-          <div>{{ message.content }}</div>
-          <small>{{ message.timestamp|sgtime }}</small>
+        <div class="message {% if message.username == user.full_name %}sent{% else %}received{% endif %}">
+          <p>{{ message.content }}</p>
+          <small>{{ message.timestamp }}</small>
+
+          <!-- Only show delete button if the message is YOURS -->
+          {% if message.username == user.full_name %}
+            <div class="message-actions">
+              <form method="post" action="{{ url_for('delete_text_message', message_id=message.id) }}">
+                <button type="submit" class="delete-btn">Delete</button>
+              </form>
+              <form method="get" action="{{ url_for('edit_message', message_id=message.id) }}" style="display:inline;">
+                <button type="submit" class="edit-btn">Edit</button>
+              </form>
+            </div>
+          {% endif %}
         </div>
       {% endfor %}
     </div>
 
     <form method="POST" class="input-area">
       <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
-      <button type="button" id="togglePaneButton" class="btn btn-danger cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold" onclick="togglePane()">Open chat functions</button>
-      <button type="submit" class="send-button">Send</button>
+      <button type="button" id="togglePaneButton" 
+              class="chat-tools-btn cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold" 
+              onclick="togglePane()">Open chat functions</button>
+      <button type="submit" class="send-btn cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">Send</button>
     </form>
   </div>
 

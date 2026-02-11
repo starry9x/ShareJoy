@@ -315,18 +315,81 @@ def messages():
 @login_required
 def textchat(contact_id):
     contact = Contact.query.get_or_404(contact_id)
-    user = get_current_user()
+    user = get_current_user()  # Ensure this returns the logged-in user
 
     if request.method == "POST":
         content = request.form.get("content")
         if content:
-            new_msg = Message(username=user.full_name, content=content, contact_id=contact.id)
+            # Correct: Use YOUR username (user.full_name), not the contact's name
+            new_msg = Message(
+                username=user.full_name,  # This should be YOUR name
+                content=content,
+                contact_id=contact.id
+            )
             db.session.add(new_msg)
             db.session.commit()
         return redirect(url_for("textchat", contact_id=contact.id))
 
-    all_messages = Message.query.filter_by(contact_id=contact.id).order_by(Message.timestamp.asc()).all()
-    return render_template("textchat.html", contact=contact, messages=all_messages, title="Chat Room")
+    messages = Message.query.filter_by(contact_id=contact.id).order_by(Message.timestamp.asc()).all()
+    return render_template("textchat.html", contact=contact, messages=messages, user=user)
+
+@app.route('/delete_text_message/<int:message_id>', methods=['POST'])
+@login_required
+def delete_text_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    user = get_current_user()
+
+    # Ensure the user is the sender of the message
+    if message.username != user.full_name:
+        abort(403)  # Forbidden if the user is not the sender
+
+    # Delete the message
+    db.session.delete(message)
+    db.session.commit()
+
+    flash('Message deleted successfully!', 'success')
+    return redirect(url_for('textchat', contact_id=message.contact_id))
+
+@app.route('/edit_message/<int:message_id>', methods=['GET'])
+@login_required
+def edit_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    user = get_current_user()
+    
+    # Debug prints
+    print(f"Message username: '{message.username}'")
+    print(f"User full_name: '{user.full_name}'")
+    print(f"Comparison result: {message.username == user.full_name}")
+    
+    if message.username != user.full_name:
+        abort(403)
+    
+    return render_template('edit_message.html', message=message, title="Edit Message")
+
+@app.route('/edit_message/<int:message_id>', methods=['POST'])
+@login_required
+def update_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    user = get_current_user()
+
+    # Ensure the user is the sender of the message
+    if message.username != user.full_name:
+        abort(403)  # Forbidden if the user is not the sender
+
+    # Get the updated content from the form
+    new_content = request.form.get('content', '').strip()
+
+    # Validate the new content
+    if not new_content:
+        flash('Message content cannot be empty.', 'error')
+        return redirect(url_for('edit_message', message_id=message_id))
+
+    # Update the message content
+    message.content = new_content
+    db.session.commit()
+
+    flash('Message updated successfully!', 'success')
+    return redirect(url_for('textchat', contact_id=message.contact_id))
 
 
 @app.route("/create_contact", methods=["GET", "POST"])

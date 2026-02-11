@@ -201,13 +201,15 @@ h2 {
 .redbtn:hover,
 .btn-danger:hover,
 .cta-btn:hover {
-    background: #d40b0b;
+    background: #d40b0b; 
     color: #FFF;
 }
 
 .cta-btn {
     font-size: 1.2rem;
     padding: 0.8rem 1.4rem;
+    min-width: 100px;  
+    border-radius: 10px;
 }
 
 .search-btn,

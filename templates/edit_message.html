@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Edit Message</h2>
+    <form method="POST" action="{{ url_for('update_message', message_id=message.id) }}">
+        <div class="form-group">
+            <textarea name="content" class="form-control" required>{{ message.content }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('textchat', contact_id=message.contact_id) }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
