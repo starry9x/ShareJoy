@@ -81,8 +81,8 @@
                 <p>Earn badges by completing activities, reaching milestones, and engaging with the community. Unlock all badges to become a champion!</p>
             </div>
         </div>
-
         <div class="badges-preview">
+            <!-- First Steps - White Star in Orange Circle -->
             <div class="badge-item unlocked">
                 <div class="badge-circle orange">
                     <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -92,31 +92,47 @@
                 <h3>First Steps</h3>
                 <p>Complete your first activity</p>
             </div>
-
+            <!-- Social Butterfly - White Butterfly in Blue Circle -->
             <div class="badge-item unlocked">
                 <div class="badge-circle blue">
                     <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M25 20C25 20 20 25 20 30C20 33.3137 22.6863 36 26 36C29.3137 36 32 33.3137 32 30C32 25 25 20 25 20Z" fill="white"/>
-                        <path d="M35 20C35 20 30 25 30 30C30 33.3137 32.6863 36 36 36C39.3137 36 42 33.3137 42 30C42 25 35 20 35 20Z" fill="white"/>
+                        <!-- Left wing -->
+                        <ellipse cx="22" cy="28" rx="10" ry="14" fill="white"/>
+                        <!-- Right wing -->
+                        <ellipse cx="38" cy="28" rx="10" ry="14" fill="white"/>
+                        <!-- Body -->
+                        <ellipse cx="30" cy="30" rx="3" ry="12" fill="white"/>
+                        <!-- Antennae -->
+                        <path d="M28 18C28 18 26 14 24 12M32 18C32 18 34 14 36 12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <!-- Wing details -->
+                        <circle cx="22" cy="24" r="2.5" fill="#60A5FA"/>
+                        <circle cx="38" cy="24" r="2.5" fill="#60A5FA"/>
                     </svg>
                 </div>
                 <h3>Social Butterfly</h3>
                 <p>Join 5 group discussions</p>
             </div>
-
+            <!-- Consistency King - White Calendar with Checks in Purple Circle -->
             <div class="badge-item unlocked">
                 <div class="badge-circle purple">
                     <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="20" y="15" width="20" height="25" rx="2" fill="white"/>
-                        <rect x="20" y="12" width="20" height="5" rx="1" fill="white"/>
-                        <line x1="25" y1="22" x2="35" y2="22" stroke="#A855F7" stroke-width="2"/>
-                        <line x1="25" y1="27" x2="35" y2="27" stroke="#A855F7" stroke-width="2"/>
+                        <!-- Calendar body -->
+                        <rect x="15" y="18" width="30" height="28" rx="2" fill="white"/>
+                        <!-- Calendar header -->
+                        <rect x="15" y="15" width="30" height="6" rx="1" fill="white"/>
+                        <!-- Check marks (7 days) -->
+                        <path d="M20 26L22 28L25 24" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M28 26L30 28L33 24" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M36 26L38 28L41 24" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 34L22 36L25 32" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M28 34L30 36L33 32" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M36 34L38 36L41 32" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 42L22 44L25 40" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
                 <h3>Consistency King</h3>
                 <p>7 day activity streak</p>
             </div>
-
             <a href="{{ url_for('badges') }}" class="view-all-btn">
                 View all
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
