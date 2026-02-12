@@ -19,6 +19,8 @@ class User(db.Model):
     # Profile fields (initially empty)
     work = db.Column(db.Text, nullable=True)
     education = db.Column(db.Text, nullable=True)
+    relationship = db.Column(db.Text, nullable=True)  
+    interests = db.Column(db.Text, nullable=True)  
     
     # Stats
     posts_count = db.Column(db.Integer, default=0)
@@ -37,3 +39,4 @@ class User(db.Model):
     
     def __repr__(self):
         return f'<User {self.full_name}>'
+    

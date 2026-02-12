@@ -89,7 +89,7 @@
     <!-- ACTIONS -->
     <div class="actions">
       <button id="editProfile">
-        <i class="fa-solid fa-pen-to-square"></i> <span id="edit-btn-text">Edit Profile</span>
+        <i class="fa-solid fa-pen-to-square"></i> Edit Profile
       </button>
       <button id="shareProfile">
         <i class="fa-solid fa-share-nodes"></i> Share Profile
@@ -180,76 +180,118 @@
     </h2>
     <hr class="about-divider">
 
-    <form id="profileForm" action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
-      <div class="about-box">
-        <strong>Bio</strong>
-        <p id="bio-text">{{ user.bio or 'Click "Edit Profile" to add your bio' }}</p>
-        <textarea id="bio-edit" name="bio" class="edit-textarea" style="display: none;">{{ user.bio or '' }}</textarea>
-      </div>
+    <div class="about-box">
+      <strong>Bio</strong>
+      <p>{{ user.bio or 'Click "Edit Profile" to add your bio' }}</p>
+    </div>
 
-      <div class="about-box">
-        <strong>Work</strong>
-        <p id="work-text">{{ user.work or 'Click "Edit Profile" to add your work information' }}</p>
-        <textarea id="work-edit" name="work" class="edit-textarea" style="display: none;">{{ user.work or '' }}</textarea>
-      </div>
+    <div class="about-box">
+      <strong>Work</strong>
+      <p>{{ user.work or 'Click "Edit Profile" to add your work information' }}</p>
+    </div>
 
-      <div class="about-box">
-        <strong>Education</strong>
-        <p id="education-text">{{ user.education or 'Click "Edit Profile" to add your education information' }}</p>
-        <textarea id="education-edit" name="education" class="edit-textarea" style="display: none;">{{ user.education or '' }}</textarea>
-      </div>
+    <div class="about-box">
+      <strong>Education</strong>
+      <p>{{ user.education or 'Click "Edit Profile" to add your education information' }}</p>
+    </div>
 
-      <div class="about-box">
-        <strong>Relationship</strong>
-        <p id="work-text">{{ user.relationship or 'Click "Edit Profile" to add your relationship status' }}</p>
-        <textarea id="work-edit" name="work" class="edit-textarea" style="display: none;">{{ user.relationship or '' }}</textarea>
-      </div>
+    <div class="about-box">
+      <strong>Relationship</strong>
+      <p>{{ user.relationship or 'Click "Edit Profile" to add your relationship status' }}</p>
+    </div>
 
-      <div class="about-box">
-        <strong>Interests</strong>
-        <p id="education-text">{{ user.interests or 'Click "Edit Profile" to add your interests and hobbies' }}</p>
-        <textarea id="education-edit" name="education" class="edit-textarea" style="display: none;">{{ user.interests or '' }}</textarea>
-      </div>
-    </form>
+    <div class="about-box">
+      <strong>Interests</strong>
+      <p>{{ user.interests or 'Click "Edit Profile" to add your interests and hobbies' }}</p>
+    </div>
   </section>
 
+</div>
+
+<!-- =====================
+     EDIT PROFILE MODAL
+====================== -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-pen-to-square"></i> Edit Profile</h2>
+      <button class="close-modal" id="closeModal">&times;</button>
+    </div>
+    
+    <form id="profileForm" action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
+      <div class="modal-body">
+        
+        <div class="form-group">
+          <label for="bio-edit"><strong>Bio</strong></label>
+          <textarea id="bio-edit" name="bio" class="edit-textarea" placeholder="Tell us about yourself...">{{ user.bio or '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="work-edit"><strong>Work</strong></label>
+          <textarea id="work-edit" name="work" class="edit-textarea" placeholder="Where do you work?">{{ user.work or '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="education-edit"><strong>Education</strong></label>
+          <textarea id="education-edit" name="education" class="edit-textarea" placeholder="Your education background...">{{ user.education or '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="relationship-edit"><strong>Relationship</strong></label>
+          <textarea id="relationship-edit" name="relationship" class="edit-textarea" placeholder="Your relationship status...">{{ user.relationship or '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="interests-edit"><strong>Interests</strong></label>
+          <textarea id="interests-edit" name="interests" class="edit-textarea" placeholder="Your hobbies and interests...">{{ user.interests or '' }}</textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
+        <button type="submit" class="save-btn">
+          <i class="fa-solid fa-check"></i> Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- =====================
      SCRIPT
 ====================== -->
 <script>
-  let isEditMode = false;
   const defaultImage = "https://static.vecteezy.com/system/resources/thumbnails/002/534/006/small/social-media-chatting-online-blank-profile-picture-head-and-body-icon-people-standing-icon-grey-background-free-vector.jpg";
-  const profileForm = document.getElementById("profileForm");
+  const modal = document.getElementById("editModal");
+  const editProfileBtn = document.getElementById("editProfile");
+  const closeModalBtn = document.getElementById("closeModal");
+  const cancelBtn = document.getElementById("cancelBtn");
 
-  // ===== EDIT PROFILE FUNCTIONALITY =====
-  document.getElementById("editProfile").addEventListener("click", () => {
-    isEditMode = !isEditMode;
-    
-    const editBtn = document.getElementById("edit-btn-text");
-    const bioText = document.getElementById("bio-text");
-    const bioEdit = document.getElementById("bio-edit");
-    const workText = document.getElementById("work-text");
-    const workEdit = document.getElementById("work-edit");
-    const educationText = document.getElementById("education-text");
-    const educationEdit = document.getElementById("education-edit");
-    
-    if (isEditMode) {
-      // Switch to edit mode
-      editBtn.textContent = "Save Profile";
-      
-      // Hide text, show textareas
-      bioText.style.display = "none";
-      bioEdit.style.display = "block";
-      workText.style.display = "none";
-      workEdit.style.display = "block";
-      educationText.style.display = "none";
-      educationEdit.style.display = "block";
-    } else {
-      // Save changes by submitting the form
-      editBtn.textContent = "Edit Profile";
-      profileForm.submit();
+  // ===== EDIT PROFILE MODAL =====
+  editProfileBtn.addEventListener("click", () => {
+    modal.style.display = "flex";
+  });
+
+  closeModalBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // Close modal when clicking outside
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+
+  // Close modal on Escape key
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.style.display === "flex") {
+      modal.style.display = "none";
     }
   });
   
@@ -272,16 +314,13 @@
   const deleteBtn = document.getElementById("deleteBtn");
   const imageUpload = document.getElementById("imageUpload");
 
-  // Upload button - trigger file input
   uploadBtn.addEventListener("click", () => {
     imageUpload.click();
   });
 
-  // Handle image upload
   imageUpload.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Create FormData and upload immediately
       const formData = new FormData();
       formData.append('profileImage', file);
       
@@ -291,24 +330,21 @@
       })
       .then(response => {
         if (response.ok) {
-          // Preview the image immediately
           const reader = new FileReader();
           reader.onload = (event) => {
             profileImage.src = event.target.result;
             deleteBtn.style.display = "block";
           };
           reader.readAsDataURL(file);
-          location.reload(); // Reload to show updated image
+          location.reload();
         }
       })
       .catch(error => console.error('Error uploading image:', error));
     }
   });
 
-  // Delete button - restore default image
   deleteBtn.addEventListener("click", () => {
     if (confirm("Are you sure you want to remove your profile picture?")) {
-      // Send request to delete profile image
       const formData = new FormData();
       formData.append('deleteProfileImage', 'true');
       

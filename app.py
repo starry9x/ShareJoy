@@ -186,17 +186,16 @@ def profile():
                          user=user, 
                          joined_date=joined_date)
 
-
 @app.route("/profile/update", methods=["POST"])
 @login_required
 def update_profile():
     user = get_current_user()
-    
     # Update profile fields
     user.bio = request.form.get("bio", user.bio)
     user.work = request.form.get("work", user.work)
     user.education = request.form.get("education", user.education)
-    
+    user.relationship = request.form.get("relationship", user.relationship)
+    user.interests = request.form.get("interests", user.interests)
     # Handle profile image upload
     if 'profileImage' in request.files:
         profile_image = request.files['profileImage']
@@ -207,14 +206,15 @@ def update_profile():
             profile_image_path = os.path.join(app.config['UPLOAD_FOLDER'], profile_image_filename)
             profile_image.save(profile_image_path)
             user.profile_image = profile_image_filename
-    
+    # Handle profile image deletion
+    if request.form.get('deleteProfileImage') == 'true':
+        user.profile_image = None
     try:
         db.session.commit()
         flash('Profile updated successfully!', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'Error updating profile: {str(e)}', 'error')
-    
     return redirect(url_for('profile'))
 
 
