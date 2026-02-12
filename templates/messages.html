@@ -106,7 +106,11 @@
                 Delete contact
               </button>
             </form>
-            <button class="menu-item text-danger">Delete chat history</button>
+            <!-- Update the button in the dropdown menu -->
+            <button class="menu-item text-danger" 
+                    onclick="openDeleteChatHistoryModal({{ contact.id }}); event.stopPropagation();">
+              Delete chat history
+            </button>
           </div>
         </div>
       </div>
@@ -159,8 +163,6 @@
   </div>
 </div>
 
-{% endblock %}
-
 <!-- Delete Contact Modal -->
 <div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -200,6 +202,31 @@
     </div>
   </div>
 </div>
+
+<!-- Delete Chat History Modal -->
+{% for contact in contacts %}
+<div class="modal fade" id="deleteChatHistoryModal{{ contact.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Delete Chat History</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <span class="fw-semibold text-danger"> all messages </span> with {{ contact.name }}?<br>
+        <span class="fw-semibold text-danger">This cannot be undone.</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" action="{{ url_for('delete_chat_history', contact_id=contact.id) }}">
+          <button type="submit" class="btn btn-danger fw-semibold">Delete all messages</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}
 
 {% block extra_js %}
 <script>
@@ -291,6 +318,11 @@
     const modalEl = document.getElementById('editContactModal');
     if (!modalEl || !window.bootstrap) return;
     new bootstrap.Modal(modalEl).show();
+  }
+
+  function openDeleteChatHistoryModal(contactId) {
+  const modal = new bootstrap.Modal(document.getElementById(`deleteChatHistoryModal${contactId}`));
+  modal.show();
   }
 </script>
 {% endblock %}

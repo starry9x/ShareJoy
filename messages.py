@@ -1,5 +1,6 @@
 from extensions import db
-from datetime import datetime, timedelta
+from datetime import datetime
+from sqlalchemy.sql import func
 import pytz
 class Contact(db.Model):
     __tablename__ = 'contact'
@@ -19,6 +20,6 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(pytz.utc) + timedelta(hours=1))
+    timestamp = db.Column(db.DateTime(timezone=True),default=lambda: datetime.now(pytz.utc))
     contact_id = db.Column(db.Integer, db.ForeignKey("contact.id"), nullable=True)
 

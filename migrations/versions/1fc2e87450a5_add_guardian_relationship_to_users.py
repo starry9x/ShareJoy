@@ -30,7 +30,7 @@ def upgrade():
 
     with op.batch_alter_table('user', schema=None) as batch_op:
         batch_op.add_column(sa.Column('guardian_id', sa.Integer(), nullable=True))
-        batch_op.create_foreign_key(None, 'user', ['guardian_id'], ['id'])
+        batch_op.create_foreign_key('fk_user_guardian_id', 'user', ['guardian_id'], ['id'])
 
     # ### end Alembic commands ###
 

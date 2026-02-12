@@ -267,8 +267,16 @@ def sgtime(dt):
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=pytz.utc)
     sg_tz = pytz.timezone("Asia/Singapore")
-    return dt.astimezone(sg_tz).strftime("%d %b %Y %H:%M")
+    return dt.astimezone(sg_tz).strftime("%d %b %Y, %I:%M %p")
 
+@app.template_filter("onlytime")
+def onlytime(dt):
+    if not dt:
+        return ""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=pytz.utc)
+    sg_tz = pytz.timezone("Asia/Singapore")
+    return dt.astimezone(sg_tz).strftime("%I:%M %p")
 
 @app.route("/messages")
 @login_required
@@ -299,7 +307,10 @@ def messages():
         )
         c.last_chat = last_msg.timestamp if last_msg else None
 
-    contacts.sort(key=lambda c: c.last_chat or 0, reverse=True)
+    contacts.sort(
+    key=lambda c: c.last_chat or datetime.min,
+    reverse=True
+    )
 
     messages = []
     if search:
@@ -371,6 +382,18 @@ def update_message(message_id):
     flash('Message updated successfully!', 'success')
     return redirect(url_for('textchat', contact_id=message.contact_id))
 
+@app.route('/delete_chat_history/<int:contact_id>', methods=['POST'])
+@login_required
+def delete_chat_history(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+    user = get_current_user()
+
+    # Delete all messages for this contact
+    Message.query.filter_by(contact_id=contact.id).delete()
+    db.session.commit()
+
+    flash('Chat history deleted successfully!', 'success')
+    return redirect(url_for('messages'))
 
 @app.route("/create_contact", methods=["GET", "POST"])
 @login_required
