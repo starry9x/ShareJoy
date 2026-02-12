@@ -23,32 +23,56 @@
 <div class="chat-wrapper">
   <div class="chat-container" id="chatContainer">
     <div class="messages-area">
-      {% for message in messages %}
-        <div class="message {% if message.username == user.full_name %}sent{% else %}received{% endif %}">
-          <p>{{ message.content }}</p>
-          <!-- Only show delete button if the message is YOURS -->
-          {% if message.username == user.full_name %}
-            <div class="message-actions">
-              <form method="post" action="{{ url_for('delete_text_message', message_id=message.id) }}">
-                <button type="submit" class="delete-btn">Delete</button>
-              </form>
-                <!-- Inline edit form (hidden by default) -->
-              <form method="post" action="{{ url_for('update_message', message_id=message.id) }}" class="edit-form" style="display:none;">
-                <input type="text" name="content" value="{{ message.content }}" class="edit-input">
-                <div class="update-buttons">
-                  <button type="submit" class="btn dobtn fw-semibold">Save</button>
-                  <button type="button" class="btn cancel-btn fw-semibold" onclick="cancelEdit(this)">Cancel</button>
-                </div>
-              </form>
+      <div class="p-3 mb-3 rounded shadow-sm box1">
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
+          <!-- Search form for messages -->
+          <form method="get" class="flex-grow-1 mb-2 mb-md-0 box2 rounded" id="message-search-form">
+            <input type="hidden" name="contact_id" value="{{ contact.id }}">
 
-              <!-- Edit button triggers inline editing -->
-              <button type="button" class="edit-btn" onclick="startEdit(this)">Edit</button>
+            <div class="input-group">
+              <input type="text" name="search" class="form-control shadow-sm searchbar"
+                placeholder="Search messages in this chat..." value="{{ request.args.get('search', '') }}">
+              <button class="btn search-btn" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+              {% if request.args.get('search') %}
+                {% if request.args.get('search') %}
+                  <a href="{{ url_for('textchat', contact_id=contact.id) }}" class="btn btn-secondary ms-2">
+                    Clear
+                  </a>
+                {% endif %}
+              {% endif %}
             </div>
-          {% endif %}
-          <small>{{ message.timestamp|onlytime }}</small>
+          </form>
         </div>
+      </div>
+      {% for day, day_messages in messages|groupby('date_only') %}
+        <div class="day-label">{{ day.strftime("%A, %d %b %Y") }}</div>
+        {% for message in day_messages %}
+          <div id="message-{{ message.id }}" class="message {% if message.username == user.full_name %}sent{% else %}received{% endif %}">
+            <p>{{ message.content }}</p>
+            <!-- Only show delete button if the message is YOURS -->
+            {% if message.username == user.full_name %}
+              <div class="message-actions">
+                <form method="post" action="{{ url_for('delete_text_message', message_id=message.id) }}">
+                  <button type="submit" class="delete-btn">Delete</button>
+                </form>
+                <form method="post" action="{{ url_for('update_message', message_id=message.id) }}" class="edit-form" style="display:none;">
+                  <input type="text" name="content" value="{{ message.content }}" class="edit-input">
+                  <div class="update-buttons">
+                    <button type="submit" class="btn dobtn fw-semibold">Save</button>
+                    <button type="button" class="btn cancel-btn fw-semibold" onclick="cancelEdit(this)">Cancel</button>
+                  </div>
+                </form>
+                <button type="button" class="edit-btn" onclick="startEdit(this)">Edit</button>
+              </div>
+            {% endif %}
+            <small>{{ message.timestamp|onlytime }}</small>
+          </div>
+        {% endfor %}
       {% endfor %}
     </div>
+
 
     <form method="POST" class="input-area">
       <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
@@ -100,9 +124,9 @@ function togglePane() {
   chat.classList.toggle("shrunk");
 
   if (pane.classList.contains("open")) {
-    toggleButton.textContent = "Close chat functions";
+    toggleButton.textContent = "Close chat starters";
   } else {
-    toggleButton.textContent = "Open chat functions";
+    toggleButton.textContent = "Open chat starters";
   }
 }
 
@@ -148,6 +172,18 @@ document.getElementById("attachMediaButton").addEventListener("click", function(
   menu.style.display = (menu.style.display === "block") ? "none" : "block";
 });
 
-
 </script>
+
+{% if highlight_id %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const target = document.getElementById("message-{{ highlight_id }}");
+  if (target) {
+    target.classList.add("highlight");
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+});
+</script>
+{% endif %}
+
 {% endblock %}

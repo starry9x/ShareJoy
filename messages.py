@@ -23,3 +23,8 @@ class Message(db.Model):
     timestamp = db.Column(db.DateTime(timezone=True),default=lambda: datetime.now(pytz.utc))
     contact_id = db.Column(db.Integer, db.ForeignKey("contact.id"), nullable=True)
 
+    @property
+    def date_only(self):
+        return self.timestamp.date() if self.timestamp else None
+
+

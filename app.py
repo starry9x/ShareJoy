@@ -331,9 +331,8 @@ def textchat(contact_id):
     if request.method == "POST":
         content = request.form.get("content")
         if content:
-            # Correct: Use YOUR username (user.full_name), not the contact's name
             new_msg = Message(
-                username=user.full_name,  # This should be YOUR name
+                username=user.full_name,
                 content=content,
                 contact_id=contact.id
             )
@@ -341,8 +340,35 @@ def textchat(contact_id):
             db.session.commit()
         return redirect(url_for("textchat", contact_id=contact.id))
 
-    messages = Message.query.filter_by(contact_id=contact.id).order_by(Message.timestamp.asc()).all()
-    return render_template("textchat.html", contact=contact, messages=messages, user=user)
+    # Always load all messages for the chat
+    messages = (
+        Message.query.filter_by(contact_id=contact.id)
+        .order_by(Message.timestamp.asc())
+        .all()
+    )
+
+    # --- Handle search query ---
+    search_term = request.args.get("search")
+    highlight_id = None
+    if search_term:
+        match = (
+            Message.query.filter(
+                Message.contact_id == contact.id,
+                Message.content.ilike(f"%{search_term}%")
+            )
+            .order_by(Message.timestamp.asc())
+            .first()
+        )
+        if match:
+            highlight_id = match.id
+
+    return render_template(
+        "textchat.html",
+        contact=contact,
+        messages=messages,
+        user=user,
+        highlight_id=highlight_id
+    )
 
 @app.route('/delete_text_message/<int:message_id>', methods=['POST'])
 @login_required
@@ -457,8 +483,9 @@ def edit_contact(contact_id):
         contact.short_desc = short_desc
         db.session.commit()
 
-        return redirect(url_for('messages', status='updated'))
-
+        flash('Contact updated successfully!', 'success')
+        return redirect(url_for('messages'))
+    
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
 
 

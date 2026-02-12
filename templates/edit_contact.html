@@ -47,10 +47,11 @@
           <input type="text" class="form-control" id="phone" name="phone"
               value="{{ contact.phone or '' }}" 
               placeholder="Enter phone number..."
-              pattern="^[0-9]{12}$" maxlength="12"
-              title="Phone number must be exactly 12 digits">
-        <div class="form-text text-danger d-none" id="phoneError">
-          Phone must be exactly 12 digits.
+              pattern="^\d{8}$" maxlength="8"
+              title="Phone number must be exactly 8 digits">
+          <div class="form-text text-danger d-none" id="phoneError">
+            Phone must be exactly 8 digits.
+          </div>
         </div>
 
 
@@ -120,19 +121,22 @@ function validateFields() {
   document.getElementById('phoneError').classList.add('d-none');
   document.getElementById('descError').classList.add('d-none');
 
+  // Validate name
   if (!nameInput.value.trim() || nameInput.value.length > 35) {
     document.getElementById('nameError').classList.remove('d-none');
     valid = false;
   }
 
+  // Validate phone
   if (phoneInput.value.trim()) {
-    const phonePattern = /^[0-9]{8,12}$/;
+    const phonePattern = /^\d{8}$/; // Exactly 8 digits
     if (!phonePattern.test(phoneInput.value.trim())) {
       document.getElementById('phoneError').classList.remove('d-none');
       valid = false;
     }
   }
 
+  // Validate description
   if (descInput.value.trim().length > 120) {
     document.getElementById('descError').classList.remove('d-none');
     valid = false;

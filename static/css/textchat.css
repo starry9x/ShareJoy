@@ -56,6 +56,17 @@
     padding: 1rem;
   }
 
+  .day-label {
+  display: block;              /* full width */
+  margin: 15px auto;           /* auto left/right centers it */
+  font-weight: bold;
+  color: #666;
+  background-color: #f2f2f2;
+  padding: 5px 10px;
+  border-radius: 8px;
+  width: fit-content;          /* shrink to text width */
+}
+
   .message {
     margin-bottom: 1rem;
     padding: .5rem .75rem;
@@ -63,6 +74,11 @@
     max-width: fit-content;
     align-self: flex-end;
   }
+
+  .message.highlight {
+  background-color: rgb(64, 99, 255) !important;
+  transition: background-color 2s ease;
+}
 
   .message.sent {
     background: #72C0FF;
