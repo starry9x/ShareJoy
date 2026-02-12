@@ -138,6 +138,45 @@
   margin-left: .1rem;
 }
 
+.media-btn{
+  background-color: rgb(246, 255, 0);
+}
+
+.media-btn:hover{
+  background-color: rgb(187, 194, 0) !important;
+}
+
+.media-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.media-menu {
+  display: none; /* hidden by default */
+  position: absolute;
+  bottom: 100%; /* show above the button */
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 100;
+}
+
+.media-option {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.media-option:hover {
+  background-color: #f0f0f0;
+}
+
 .send-btn, #togglePaneButton {
   padding: 0.5rem 1rem;
   border: none;
@@ -207,3 +246,24 @@
   font-size: 16px;
 }
 
+/* Edit Message Inline Form */
+
+.edit-form {
+  display: flex;
+  flex-direction: column; /* stack input and buttons vertically */
+  gap: 1rem; /* spacing between input and buttons */
+}
+
+.edit-input {
+  margin-bottom: 1rem; /* extra spacing below the input */
+}
+
+.update-buttons {
+  display: flex;
+  gap: 0.5rem; /* spacing between Save and Cancel */
+}
+
+.update-buttons button {
+  font-size: 19px !important;
+  padding: 0.4rem 1rem !important;
+}

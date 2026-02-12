@@ -26,37 +26,55 @@
       {% for message in messages %}
         <div class="message {% if message.username == user.full_name %}sent{% else %}received{% endif %}">
           <p>{{ message.content }}</p>
-          <small>{{ message.timestamp }}</small>
-
           <!-- Only show delete button if the message is YOURS -->
           {% if message.username == user.full_name %}
             <div class="message-actions">
               <form method="post" action="{{ url_for('delete_text_message', message_id=message.id) }}">
                 <button type="submit" class="delete-btn">Delete</button>
               </form>
-              <form method="get" action="{{ url_for('edit_message', message_id=message.id) }}" style="display:inline;">
-                <button type="submit" class="edit-btn">Edit</button>
+                <!-- Inline edit form (hidden by default) -->
+              <form method="post" action="{{ url_for('update_message', message_id=message.id) }}" class="edit-form" style="display:none;">
+                <input type="text" name="content" value="{{ message.content }}" class="edit-input">
+                <div class="update-buttons">
+                  <button type="submit" class="btn dobtn fw-semibold">Save</button>
+                  <button type="button" class="btn cancel-btn fw-semibold" onclick="cancelEdit(this)">Cancel</button>
+                </div>
               </form>
+
+              <!-- Edit button triggers inline editing -->
+              <button type="button" class="edit-btn" onclick="startEdit(this)">Edit</button>
             </div>
           {% endif %}
+          <small>{{ message.timestamp }}</small>
         </div>
       {% endfor %}
     </div>
 
     <form method="POST" class="input-area">
       <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
-      <button type="button" id="togglePaneButton" 
-              class="chat-tools-btn cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold" 
-              onclick="togglePane()">Open chat functions</button>
-      <button type="submit" class="send-btn cta-btn mt-2 mt-md-0 me-0 me-md-2 fw-semibold">Send</button>
+
+      <!-- Attach Media -->
+      <div class="media-dropdown">
+        <button type="button" id="attachMediaButton" class="media-btn cta-btn">Attach Media ▼</button>
+        <div id="mediaMenu" class="media-menu">
+          <button type="button" class="media-option">📷 Attach Image</button>
+          <button type="button" class="media-option">🎤 Record Voice</button>
+        </div>
+      </div>
+
+      <!-- Toggle Chat Functions -->
+      <button type="button" id="togglePaneButton" class="chat-tools-btn cta-btn" onclick="togglePane()">Open chat starters</button>
+
+      <!-- Send -->
+      <button type="submit" class="send-btn cta-btn">Send</button>
     </form>
   </div>
 
   <!-- Right pane -->
   <div class="right-pane" id="rightPane">
-    <h5>Chat Functions</h5>
+    <h5>Chat starters</h5>
     <div class="convo-starters">
-      <p>Click on a conversation starter to begin a topic! </p>
+      <p>Click on a chat starter template to start a conversation! </p>
       <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('What was your favourite memory of us together?')">What was your favourite memory of us together?</button>
       <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('Share your most memorable childhood experience.')">Share your most memorable childhood experience.</button>
       <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('Do you remember when we used to [insert text here]?')">Do you remember when we used to...</button>
@@ -88,5 +106,43 @@ function insertText(text) {
   inputField.value = text; // Insert the text into the input field
   inputField.focus(); // Focus the input field for user convenience
 }
+
+function startEdit(button) {
+  const messageDiv = button.closest(".message");
+  const textP = messageDiv.querySelector("p");
+  const editForm = messageDiv.querySelector(".edit-form");
+  const deleteBtn = messageDiv.querySelector(".delete-btn");
+
+  // Hide text, edit button, and delete button
+  textP.style.display = "none";
+  button.style.display = "none";
+  if (deleteBtn) deleteBtn.style.display = "none";
+
+  // Show edit form
+  editForm.style.display = "block";
+}
+
+function cancelEdit(button) {
+  const editForm = button.closest(".edit-form");
+  const messageDiv = editForm.closest(".message");
+  const textP = messageDiv.querySelector("p");
+  const editBtn = messageDiv.querySelector(".edit-btn");
+  const deleteBtn = messageDiv.querySelector(".delete-btn");
+
+  // Hide edit form
+  editForm.style.display = "none";
+
+  // Show text, edit button, and delete button again
+  textP.style.display = "block";
+  editBtn.style.display = "inline-block";
+  if (deleteBtn) deleteBtn.style.display = "inline-block";
+}
+
+document.getElementById("attachMediaButton").addEventListener("click", function() {
+  const menu = document.getElementById("mediaMenu");
+  menu.style.display = (menu.style.display === "block") ? "none" : "block";
+});
+
+
 </script>
 {% endblock %}
