@@ -12,12 +12,16 @@
 
     <div class="about-header">
         <div class="about-icon">
-            {% if 'board' in group.name.lower() %}
-                <i class="fa-solid fa-chess-board"></i>
-            {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
-                <i class="fa-solid fa-person-hiking"></i>
+            {% if group.image_url and group.image_url != 'default_group.jpg' %}
+                <img src="{{ url_for('static', filename='images/' + group.image_url) }}" alt="{{ group.name }}">
             {% else %}
-                <i class="fa-solid fa-users"></i>
+                {% if 'board' in group.name.lower() %}
+                    <i class="fa-solid fa-chess-board"></i>
+                {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
+                    <i class="fa-solid fa-person-hiking"></i>
+                {% else %}
+                    <i class="fa-solid fa-users"></i>
+                {% endif %}
             {% endif %}
         </div>
         <h1 class="about-title">{{ group.name }}</h1>

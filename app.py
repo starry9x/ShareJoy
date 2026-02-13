@@ -4,7 +4,7 @@ from messages import Message, Contact
 from activities import Activity
 from users import User
 from datetime import datetime, timedelta, date
-from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage
+from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage, BuddyQuizResponse
 from werkzeug.utils import secure_filename
 import os
 import pytz
@@ -806,31 +806,17 @@ def schedule():
 @app.route("/groups")
 @login_required
 def groups():
-    if Group.query.count() == 0:
-        group1 = Group(
-            name="Board Games Afternoon",
-            description="Join us for an afternoon of classic and modern tabletop games! Friendly competition and laughter guaranteed. All skill levels welcome.",
-            category="Social",
-            youth_percentage=70,
-            tags="cards,puzzles,boardgames",
-            current_participants=20,
-            max_participants=40
-        )
-        group2 = Group(
-            name="Walk & Talk Nature Club",
-            description="Gentle walks in neighbourhood parks with relaxed conversations and shared moments in nature.",
-            category="Wellness",
-            youth_percentage=50,
-            tags="Wellness,nature,Community",
-            current_participants=24,
-            max_participants=40
-        )
-        db.session.add(group1)
-        db.session.add(group2)
-        db.session.commit()
+    # Import and use the seed function to ensure demo groups exist
+    from seed_demo_data import check_and_seed_demo_groups
+    check_and_seed_demo_groups()
 
-    current_user = "Jonathan IV"
+    current_user = session.get('user_name', 'User')
     all_groups = Group.query.order_by(Group.created_at.asc()).all()
+
+    # Calculate and update youth percentage for each group based on actual members
+    for group in all_groups:
+        group.youth_percentage = group.calculate_youth_percentage()
+
     my_group_ids = [m.group_id for m in GroupMember.query.filter_by(user_name=current_user).all()]
     available_groups = [g for g in all_groups if g.id not in my_group_ids]
     my_groups = [g for g in all_groups if g.id in my_group_ids]
@@ -852,7 +838,7 @@ def create_group():
         category = request.form.get("category", "").strip()
         privacy = request.form.get("privacy", "Public")
         tags = request.form.get("tags", "")
-        current_user = "Jonathan IV"
+        current_user = session.get('user_name', 'User')
 
         errors = []
 
@@ -943,7 +929,63 @@ def create_group():
 @login_required
 def group_about(group_id):
     group = Group.query.get_or_404(group_id)
+    # Calculate actual youth percentage based on members
+    group.youth_percentage = group.calculate_youth_percentage()
     return render_template("group_about.html", group=group, title=group.name)
+
+
+def find_buddy_match(group_id, user_name, user_answer):
+    """
+    Find a compatible buddy based on quiz answers.
+    Matching logic:
+    - "new_skills" matches with "sharing" (learner matches with mentor)
+    - "sharing" matches with "new_skills" (mentor matches with learner)
+    - "conversations" matches with "conversations" (social matches with social)
+    - "explore" matches with anyone available
+
+    For demo groups (Board games afternoon & Walk and talk nature club), always return "Jacob V"
+    """
+    group = Group.query.get(group_id)
+
+    # For the 2 demo groups, always return Jacob V (case-insensitive check)
+    if group and group.is_demo:
+        return "Jacob V"
+
+    # Define complementary answer pairs
+    complementary_matches = {
+        "new_skills": "sharing",
+        "sharing": "new_skills",
+        "conversations": "conversations",
+        "explore": None  # Can match with anyone
+    }
+
+    # Get all members who have taken the quiz in this group
+    existing_responses = BuddyQuizResponse.query.filter_by(group_id=group_id).all()
+
+    # Filter out current user's previous responses
+    potential_matches = [r for r in existing_responses if r.user_name != user_name]
+
+    if not potential_matches:
+        return None  # No one to match with yet
+
+    # First, try to find complementary match
+    preferred_answer = complementary_matches.get(user_answer)
+    if preferred_answer:
+        for response in potential_matches:
+            # Check if they haven't been matched yet or their buddy is no longer in the group
+            if response.answer == preferred_answer and not response.matched_buddy_name:
+                return response.user_name
+
+    # If explore or no complementary match found, match with anyone who hasn't been matched
+    for response in potential_matches:
+        if not response.matched_buddy_name:
+            return response.user_name
+
+    # If everyone is matched, match with the most recent unmatched or return first available
+    if potential_matches:
+        return potential_matches[0].user_name
+
+    return None
 
 
 @app.route("/group/<int:group_id>/buddy-quiz", methods=["GET", "POST"])
@@ -952,7 +994,24 @@ def buddy_quiz(group_id):
     group = Group.query.get_or_404(group_id)
 
     if request.method == "POST":
-        session['buddy_answer'] = request.form.get("answer")
+        answer = request.form.get("answer")
+        current_user = session.get('user_name', 'User')
+        allowed_answers = {"new_skills", "sharing", "conversations", "explore"}
+
+        if answer not in allowed_answers:
+            flash("Please select a valid quiz answer.", "error")
+            return redirect(url_for("buddy_quiz", group_id=group_id))
+
+        # Store the quiz response
+        quiz_response = BuddyQuizResponse(
+            group_id=group_id,
+            user_name=current_user,
+            answer=answer
+        )
+        db.session.add(quiz_response)
+        db.session.commit()
+
+        session['buddy_answer'] = answer
         return redirect(url_for("buddy_found", group_id=group_id))
 
     return render_template("buddy_quiz.html", group=group, title="Find Your Buddy")
@@ -962,7 +1021,36 @@ def buddy_quiz(group_id):
 @login_required
 def buddy_found(group_id):
     group = Group.query.get_or_404(group_id)
-    current_user = "Jonathan IV"
+    # Get current logged-in user's name
+    current_user = session.get('user_name', 'User')
+
+    # Get user's quiz answer from session
+    user_answer = session.get('buddy_answer', 'explore')
+
+    # Find a buddy match
+    matched_buddy = find_buddy_match(group_id, current_user, user_answer)
+
+    # Update the quiz response with the matched buddy
+    quiz_response = BuddyQuizResponse.query.filter_by(
+        group_id=group_id,
+        user_name=current_user
+    ).order_by(BuddyQuizResponse.created_at.desc()).first()
+
+    if quiz_response and matched_buddy:
+        quiz_response.matched_buddy_name = matched_buddy
+
+        # Also update the matched user's response to create a two-way match
+        matched_response = BuddyQuizResponse.query.filter_by(
+            group_id=group_id,
+            user_name=matched_buddy
+        ).order_by(BuddyQuizResponse.created_at.desc()).first()
+
+        if matched_response and not matched_response.matched_buddy_name:
+            matched_response.matched_buddy_name = current_user
+
+        db.session.commit()
+
+    # Add user to group if not already a member
     existing_member = GroupMember.query.filter_by(group_id=group_id, user_name=current_user).first()
 
     if not existing_member:
@@ -973,9 +1061,16 @@ def buddy_found(group_id):
         )
         db.session.add(new_member)
         group.current_participants += 1
+
+        # If a buddy was matched, link them
+        if matched_buddy:
+            buddy_member = GroupMember.query.filter_by(group_id=group_id, user_name=matched_buddy).first()
+            if buddy_member:
+                new_member.buddy_id = buddy_member.id
+
         db.session.commit()
 
-    return render_template("buddy_found.html", group=group, title="Buddy Found!")
+    return render_template("buddy_found.html", group=group, buddy_name=matched_buddy, title="Buddy Found!")
 
 
 @app.route("/group/<int:group_id>/chat", methods=["GET", "POST"])
@@ -984,7 +1079,8 @@ def group_chat(group_id):
     group = Group.query.get_or_404(group_id)
 
     if request.method == "POST":
-        username = request.form.get("username", "User")
+        # Use logged-in user's actual name from session
+        username = session.get('user_name', 'User')
         content = request.form.get("content")
 
         if content:
@@ -999,13 +1095,45 @@ def group_chat(group_id):
         return redirect(url_for("group_chat", group_id=group_id))
 
     messages = GroupChatMessage.query.filter_by(group_id=group_id).order_by(GroupChatMessage.timestamp.asc()).all()
-    member = GroupMember.query.filter_by(group_id=group_id, user_name="Jonathan IV").first()
+    current_user_name = session.get('user_name', 'User')
+    member = GroupMember.query.filter_by(group_id=group_id, user_name=current_user_name).first()
     if not member:
-        member = GroupMember(group_id=group_id, user_name="Jonathan IV", mood_status="😊")
+        member = GroupMember(group_id=group_id, user_name=current_user_name, mood_status="😊")
         db.session.add(member)
         db.session.commit()
 
-    return render_template("group_chat.html", group=group, messages=messages, member=member, title=f"{group.name} - Chat")
+    # Get buddy information if exists
+    buddy = None
+    buddy_feeling_down = False
+
+    # For demo groups, always show a sample buddy feeling down notification
+    if group.is_demo:
+        # Create a fake buddy object for demo purposes
+        class DemoBuddy:
+            user_name = "Jacob V"
+            mood_status = "😢"
+        buddy = DemoBuddy()
+        buddy_feeling_down = True
+    elif member and member.buddy_id:
+        # For real groups, check actual buddy status
+        buddy = GroupMember.query.get(member.buddy_id)
+        if buddy and buddy.mood_status in ['😔', '😢']:
+            buddy_feeling_down = True
+
+    # Get total active members count
+    active_members_count = GroupMember.query.filter_by(group_id=group_id).count()
+
+    return render_template(
+        "group_chat.html",
+        group=group,
+        messages=messages,
+        member=member,
+        buddy=buddy,
+        buddy_feeling_down=buddy_feeling_down,
+        active_members_count=active_members_count,
+        current_user=current_user_name,
+        title=f"{group.name} - Chat"
+    )
 
 
 @app.route("/group/<int:group_id>/feed", methods=["GET", "POST"])
@@ -1014,7 +1142,8 @@ def group_feed(group_id):
     group = Group.query.get_or_404(group_id)
 
     if request.method == "POST":
-        author = request.form.get("author", "User")
+        # Use logged-in user's actual name from session
+        author = session.get('user_name', 'User')
         content = request.form.get("content")
 
         image_file = request.files.get('post_image')
@@ -1047,20 +1176,25 @@ def group_feed(group_id):
     for post in posts:
         post.comments = GroupComment.query.filter_by(post_id=post.id).order_by(GroupComment.created_at).all()
 
-    member = GroupMember.query.filter_by(group_id=group_id, user_name="Jonathan IV").first()
+    # Get current logged-in user's name
+    current_user_name = session.get('user_name', 'User')
+    member = GroupMember.query.filter_by(group_id=group_id, user_name=current_user_name).first()
     if not member:
-        member = GroupMember(group_id=group_id, user_name="Jonathan IV")
+        member = GroupMember(group_id=group_id, user_name=current_user_name)
         db.session.add(member)
         db.session.commit()
 
-    return render_template("group_feed.html", group=group, posts=posts, member=member, title=f"{group.name} - Feed")
+    # Get total active members count
+    active_members_count = GroupMember.query.filter_by(group_id=group_id).count()
+
+    return render_template("group_feed.html", group=group, posts=posts, member=member, active_members_count=active_members_count, current_user=current_user_name, title=f"{group.name} - Feed")
 
 
 @app.route("/group/<int:group_id>/settings")
 @login_required
 def group_settings(group_id):
     group = Group.query.get_or_404(group_id)
-    current_user = "Jonathan IV"
+    current_user = session.get('user_name', 'User')
     is_owner = (group.owner == current_user)
     return render_template("group_settings.html", group=group, is_owner=is_owner, title="Group Settings")
 
@@ -1069,8 +1203,35 @@ def group_settings(group_id):
 @login_required
 def group_edit(group_id):
     group = Group.query.get_or_404(group_id)
+    current_user = session.get('user_name', 'User')
+
+    if group.owner != current_user:
+        flash("Only the group owner can edit this group.", "error")
+        return redirect(url_for("group_settings", group_id=group_id))
+
+    # Prevent editing of demo groups
+    if group.is_demo:
+        flash(f'Cannot edit "{group.name}" - this is a protected demo group.', "error")
+        return redirect(url_for("group_settings", group_id=group_id))
 
     if request.method == "POST":
+        # Check if delete image button was clicked
+        if 'delete_image' in request.form:
+            # Delete the old image file from filesystem
+            old_image = group.image_url
+            if old_image and old_image != "default_group.jpg":
+                old_image_path = os.path.join(app.static_folder, 'images', old_image)
+                if os.path.exists(old_image_path):
+                    try:
+                        os.remove(old_image_path)
+                    except Exception as e:
+                        print(f"Error deleting image file: {e}")
+
+            group.image_url = "default_group.jpg"
+            db.session.commit()
+            flash("Group picture has been deleted.", "success")
+            return redirect(url_for("group_edit", group_id=group_id))
+
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
         category = request.form.get("category", "").strip()
@@ -1103,19 +1264,79 @@ def group_edit(group_id):
             errors.append("Invalid number for max participants.")
             max_participants = group.max_participants
 
+        # Validate image upload if provided
+        image_file = request.files.get('group_image')
+        new_image_filename = None
+        if image_file and image_file.filename:
+            allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+            filename = secure_filename(image_file.filename)
+            file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+
+            if file_ext not in allowed_extensions:
+                errors.append("Invalid image file type. Please upload PNG, JPG, or GIF.")
+            else:
+                image_file.seek(0, 2)
+                file_size = image_file.tell()
+                image_file.seek(0)
+
+                if file_size > 5 * 1024 * 1024:
+                    errors.append("Image file size cannot exceed 5MB.")
+                else:
+                    # Store for later - only save if validation passes
+                    new_image_filename = image_file
+
         if errors:
             for error in errors:
                 flash(error, "error")
             return render_template("group_edit.html", group=group, title="Edit Group")
 
+        # All validation passed - now update the group
         group.name = name
         group.description = description
         group.category = category
         group.max_participants = max_participants
         group.privacy = privacy
 
+        # Save the new image if provided
+        image_was_changed = False
+        if new_image_filename:
+            try:
+                # Save the new image FIRST
+                import uuid
+                filename = secure_filename(new_image_filename.filename)
+                unique_filename = f"{uuid.uuid4().hex}_{filename}"
+                upload_folder = os.path.join(app.static_folder, 'images')
+                os.makedirs(upload_folder, exist_ok=True)
+                image_path = os.path.join(upload_folder, unique_filename)
+
+                # Reset file pointer to beginning before saving
+                new_image_filename.seek(0)
+                new_image_filename.save(image_path)
+
+                # Only after successful save, delete the old image and update database
+                old_image = group.image_url
+                if old_image and old_image != "default_group.jpg":
+                    old_image_path = os.path.join(app.static_folder, 'images', old_image)
+                    if os.path.exists(old_image_path):
+                        try:
+                            os.remove(old_image_path)
+                        except Exception as e:
+                            print(f"Error deleting old image file: {e}")
+
+                group.image_url = unique_filename
+                image_was_changed = True
+            except Exception as e:
+                errors.append(f"Failed to save image: {str(e)}")
+                print(f"Error saving image: {e}")
+                flash(f"Error uploading image: {str(e)}", "error")
+
         db.session.commit()
-        flash(f'Group "{group.name}" has been updated.', "success")
+
+        if image_was_changed:
+            flash(f'Group picture has been updated successfully.', "success")
+        else:
+            flash(f'Group "{group.name}" has been updated.', "success")
+
         return redirect(url_for("group_settings", group_id=group_id))
 
     return render_template("group_edit.html", group=group, title="Edit Group")
@@ -1125,6 +1346,12 @@ def group_edit(group_id):
 @login_required
 def toggle_buddy_system(group_id):
     group = Group.query.get_or_404(group_id)
+    current_user = session.get('user_name', 'User')
+
+    if group.owner != current_user:
+        flash("Only the group owner can change buddy system settings.", "error")
+        return redirect(url_for("group_settings", group_id=group_id))
+
     group.buddy_system_enabled = not group.buddy_system_enabled
     db.session.commit()
     return redirect(url_for("group_settings", group_id=group_id))
@@ -1141,7 +1368,7 @@ def leave_group_confirm(group_id):
 @login_required
 def leave_group(group_id):
     group = Group.query.get_or_404(group_id)
-    current_user = "Jonathan IV"
+    current_user = session.get('user_name', 'User')
 
     member = GroupMember.query.filter_by(group_id=group_id, user_name=current_user).first()
     if member:
@@ -1157,7 +1384,8 @@ def leave_group(group_id):
 @login_required
 def update_mood(group_id):
     mood = request.form.get("mood", "😊")
-    member = GroupMember.query.filter_by(group_id=group_id, user_name="Jonathan IV").first()
+    current_user_name = session.get('user_name', 'User')
+    member = GroupMember.query.filter_by(group_id=group_id, user_name=current_user_name).first()
     if member:
         member.mood_status = mood
         db.session.commit()
@@ -1228,7 +1456,7 @@ def comment_post(post_id):
 @login_required
 def delete_message(message_id):
     message = GroupChatMessage.query.get_or_404(message_id)
-    current_user = "Jonathan IV"
+    current_user = session.get('user_name', 'User')
     if message.username == current_user:
         db.session.delete(message)
         db.session.commit()
@@ -1241,8 +1469,8 @@ def delete_message(message_id):
 @login_required
 def delete_post(post_id):
     post = GroupPost.query.get_or_404(post_id)
-    current_user = "Jonathan IV"
-    if post.author == current_user or post.author == "Jane_Tan":
+    current_user = session.get('user_name', 'User')
+    if post.author == current_user:
         GroupComment.query.filter_by(post_id=post.id).delete()
         db.session.delete(post)
         db.session.commit()
@@ -1255,7 +1483,7 @@ def delete_post(post_id):
 @login_required
 def delete_comment(comment_id):
     comment = GroupComment.query.get_or_404(comment_id)
-    current_user = "Jonathan IV"
+    current_user = session.get('user_name', 'User')
     if comment.author == current_user:
         db.session.delete(comment)
         db.session.commit()
@@ -1268,6 +1496,17 @@ def delete_comment(comment_id):
 @login_required
 def delete_group_confirm(group_id):
     group = Group.query.get_or_404(group_id)
+    current_user = session.get('user_name', 'User')
+
+    if group.owner != current_user:
+        flash("Only the group owner can delete this group.", "error")
+        return redirect(url_for("group_settings", group_id=group_id))
+
+    # Prevent deletion of demo groups
+    if group.is_demo:
+        flash(f'Cannot delete "{group.name}" - this is a protected demo group.', "error")
+        return redirect(url_for("group_settings", group_id=group_id))
+
     return render_template("group_delete_confirm.html", group=group, title="Delete Group")
 
 
@@ -1275,9 +1514,20 @@ def delete_group_confirm(group_id):
 @login_required
 def delete_group(group_id):
     group = Group.query.get_or_404(group_id)
+    current_user = session.get('user_name', 'User')
+
+    if group.owner != current_user:
+        flash("Only the group owner can delete this group.", "error")
+        return redirect(url_for("group_settings", group_id=group_id))
+
+    # Prevent deletion of demo groups
+    if group.is_demo:
+        flash(f'Cannot delete "{group.name}" - this is a protected demo group.', "error")
+        return redirect(url_for("group_settings", group_id=group_id))
 
     GroupMember.query.filter_by(group_id=group_id).delete()
     GroupChatMessage.query.filter_by(group_id=group_id).delete()
+    BuddyQuizResponse.query.filter_by(group_id=group_id).delete()
 
     posts = GroupPost.query.filter_by(group_id=group_id).all()
     for post in posts:

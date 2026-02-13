@@ -13,17 +13,35 @@
         <h1 class="edit-title">Group Details</h1>
     </div>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <!-- Avatar Section -->
         <div class="avatar-section">
-            <div class="avatar-preview">
-                {% if 'board' in group.name.lower() %}
-                    <i class="fa-solid fa-chess-board"></i>
-                {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
-                    <i class="fa-solid fa-person-hiking"></i>
+            <div class="avatar-preview" id="avatarPreview">
+                {% if group.image_url and group.image_url != 'default_group.jpg' %}
+                    <img src="{{ url_for('static', filename='images/' + group.image_url) }}" alt="{{ group.name }}">
                 {% else %}
-                    <i class="fa-solid fa-users"></i>
+                    {% if 'board' in group.name.lower() %}
+                        <i class="fa-solid fa-chess-board"></i>
+                    {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
+                        <i class="fa-solid fa-person-hiking"></i>
+                    {% else %}
+                        <i class="fa-solid fa-users"></i>
+                    {% endif %}
                 {% endif %}
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <label for="groupImage" class="upload-label">
+                    <i class="fa-solid fa-camera"></i> Change Group Picture
+                </label>
+                <input type="file" id="groupImage" name="group_image" accept="image/*" style="display: none;">
+
+                {% if group.image_url and group.image_url != 'default_group.jpg' %}
+                <button type="submit" name="delete_image" value="1" class="upload-label" style="background-color: #FFCDD2; color: #C62828; border: none; cursor: pointer;" onclick="return confirm('Are you sure you want to delete the group picture?');">
+                    <i class="fa-solid fa-trash"></i> Delete Group Picture
+                </button>
+                {% endif %}
+
+                <p style="font-size: 0.85rem; color: #757575; margin: 0;">Max 5MB. PNG, JPG, or GIF</p>
             </div>
         </div>
 
@@ -225,6 +243,21 @@
             document.querySelectorAll('.privacy-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
         });
+    });
+
+    // Image Upload Preview
+    const imageInput = document.getElementById('groupImage');
+    const avatarPreview = document.getElementById('avatarPreview');
+
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
     });
 
     // Form submission validation

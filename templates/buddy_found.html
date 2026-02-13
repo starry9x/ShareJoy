@@ -11,10 +11,10 @@
 
 {% block content %}
 <div class="found-container">
-    <div class="celebration-icon">🎉</div>
+    <div class="celebration-icon">{% if buddy_name %}🎉{% else %}👋{% endif %}</div>
 
-    <h1 class="found-title">Good News!</h1>
-    <p class="found-message">Your buddy has been found</p>
+    <h1 class="found-title">{% if buddy_name %}Good News!{% else %}Welcome!{% endif %}</h1>
+    <p class="found-message">{% if buddy_name %}Your buddy has been found{% else %}You're in! We'll match you with a buddy when more members join{% endif %}</p>
 
     <div class="buddy-match">
         <div class="buddy-person">
@@ -30,7 +30,7 @@
             <div class="buddy-avatar">
                 <i class="fa-solid fa-user-tie"></i>
             </div>
-            <p class="buddy-name">Jacob V</p>
+            <p class="buddy-name">{{ buddy_name if buddy_name else 'No match yet' }}</p>
         </div>
     </div>
 

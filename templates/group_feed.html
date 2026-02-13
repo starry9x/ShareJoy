@@ -14,17 +14,21 @@
             </a>
             <div class="group-info">
                 <div class="group-avatar">
-                    {% if 'board' in group.name.lower() %}
-                        <i class="fa-solid fa-chess-board"></i>
-                    {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
-                        <i class="fa-solid fa-person-hiking"></i>
+                    {% if group.image_url and group.image_url != 'default_group.jpg' %}
+                        <img src="{{ url_for('static', filename='images/' + group.image_url) }}" alt="{{ group.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                     {% else %}
-                        <i class="fa-solid fa-users"></i>
+                        {% if 'board' in group.name.lower() %}
+                            <i class="fa-solid fa-chess-board"></i>
+                        {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
+                            <i class="fa-solid fa-person-hiking"></i>
+                        {% else %}
+                            <i class="fa-solid fa-users"></i>
+                        {% endif %}
                     {% endif %}
                 </div>
                 <div class="group-details">
                     <h2>{{ group.name }}</h2>
-                    <p>7 Active</p>
+                    <p>{{ active_members_count }} Active</p>
                 </div>
             </div>
         </div>
@@ -44,7 +48,7 @@
         <!-- Create Post -->
         <div class="create-post-area">
             <form method="POST" enctype="multipart/form-data" id="createPostForm">
-                <input type="hidden" name="author" value="Jane_Tan">
+                <input type="hidden" name="author" value="{{ current_user }}">
                 <div class="create-post-header">
                     <div class="post-avatar">
                         <i class="fa-solid fa-user"></i>
@@ -79,7 +83,7 @@
                         <h3>{{ post.author }}</h3>
                         <p class="post-time">{{ post.created_at.strftime('%d %b %Y, %I:%M %p') if post.created_at else '2h ago' }}</p>
                     </div>
-                    {% if post.author == 'Jonathan IV' or post.author == 'Jane_Tan' %}
+                    {% if post.author == current_user %}
                     <button class="delete-post-btn" data-post-id="{{ post.id }}" title="Delete post">
                         <i class="fa-solid fa-trash"></i> Delete
                     </button>
@@ -99,7 +103,7 @@
                         <i class="fa-solid fa-heart"></i> <span class="like-count">{{ post.likes }}</span>
                     </button>
                     <button class="action-btn comment-toggle-btn" data-post-id="{{ post.id }}">
-                        <i class="fa-solid fa-comment"></i> <span>Comment</span>
+                        <i class="fa-solid fa-comment"></i> <span class="comment-count">{{ post.comments|length if post.comments else 0 }}</span>
                     </button>
                     <button class="action-btn bookmark-btn" data-post-id="{{ post.id }}">
                         <i class="fa-solid fa-bookmark"></i>
@@ -117,7 +121,7 @@
                             <div class="comment-content">
                                 <div class="comment-author">
                                     {{ comment.author }}
-                                    {% if comment.author == 'Jonathan IV' %}
+                                    {% if comment.author == current_user %}
                                     <button class="delete-comment-btn" data-comment-id="{{ comment.id }}" title="Delete comment">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
@@ -233,7 +237,7 @@
                     },
                     body: JSON.stringify({
                         content: commentText,
-                        author: 'Jonathan IV'
+                        author: '{{ current_user }}'
                     })
                 });
             }

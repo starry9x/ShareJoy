@@ -14,17 +14,21 @@
             </a>
             <div class="group-info">
                 <div class="group-avatar">
-                    {% if 'board' in group.name.lower() %}
-                        <i class="fa-solid fa-chess-board"></i>
-                    {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
-                        <i class="fa-solid fa-person-hiking"></i>
+                    {% if group.image_url and group.image_url != 'default_group.jpg' %}
+                        <img src="{{ url_for('static', filename='images/' + group.image_url) }}" alt="{{ group.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                     {% else %}
-                        <i class="fa-solid fa-users"></i>
+                        {% if 'board' in group.name.lower() %}
+                            <i class="fa-solid fa-chess-board"></i>
+                        {% elif 'walk' in group.name.lower() or 'nature' in group.name.lower() %}
+                            <i class="fa-solid fa-person-hiking"></i>
+                        {% else %}
+                            <i class="fa-solid fa-users"></i>
+                        {% endif %}
                     {% endif %}
                 </div>
                 <div class="group-details">
                     <h2>{{ group.name }}</h2>
-                    <p>7 Active</p>
+                    <p>{{ active_members_count }} Active</p>
                 </div>
             </div>
         </div>
@@ -39,10 +43,12 @@
         <a href="{{ url_for('group_feed', group_id=group.id) }}" class="tab-link">Community Feed</a>
     </div>
 
-    <!-- Mood Status -->
+    <!-- Mood Status - Only show if buddy is feeling down -->
+    {% if buddy_feeling_down and buddy %}
     <div class="mood-status-bar">
-        Your buddy is feeling down today 😔. Chat with him to make his day better?
+        Your buddy {{ buddy.user_name }} is feeling down today {{ buddy.mood_status }}. Chat with them to make their day better?
     </div>
+    {% endif %}
 
     <div class="mood-status-selector">
         <span class="mood-label">Mood Status: {{ member.mood_status }}</span>
@@ -60,7 +66,7 @@
     <!-- Messages -->
     <div class="messages-area">
         {% for message in messages %}
-        <div class="message {% if message.username == 'Jonathan IV' %}own{% endif %}">
+        <div class="message {% if message.username == current_user %}own{% endif %}">
             <div class="message-wrapper">
                 <div class="message-avatar">
                     <i class="fa-solid fa-user"></i>
@@ -69,7 +75,7 @@
                     <div class="message-author">{{ message.username }}</div>
                     <p class="message-text">{{ message.content }}</p>
                 </div>
-                {% if message.username == 'Jonathan IV' %}
+                {% if message.username == current_user %}
                 <button class="delete-message-btn" data-message-id="{{ message.id }}" title="Delete message">
                     <i class="fa-solid fa-trash"></i>
                 </button>
@@ -89,7 +95,7 @@
     <!-- Input -->
     <div class="message-input-area">
         <form method="POST" class="input-form">
-            <input type="hidden" name="username" value="Jonathan IV">
+            <input type="hidden" name="username" value="{{ current_user }}">
             <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
             <div class="input-icons">
                 <button type="button" class="icon-btn"><i class="fa-solid fa-microphone"></i></button>

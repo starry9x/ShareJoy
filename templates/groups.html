@@ -151,10 +151,6 @@
                     <span class="badge-participants">
                         <i class="fa-solid fa-user-group"></i> {{ group.current_participants }}/{{ group.max_participants }} participants
                     </span>
-
-                    {% if loop.index == 1 %}
-                    <span class="badge-recommended">🔥RECOMMENDED!🔥</span>
-                    {% endif %}
                 </div>
 
                 <a href="{{ url_for('group_chat', group_id=group.id) }}" class="btn-view-details">
