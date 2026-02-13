@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 import os
 import pytz
 from functools import wraps
+from posts import Post
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
@@ -181,10 +182,14 @@ def profile():
     # Format joined date
     joined_date = user.created_at.strftime("%B %Y")
     
+    # Get user's latest 3 posts
+    posts = Post.query.filter_by(user_id=user.id).order_by(Post.created_at.desc()).limit(3).all()
+    
     return render_template("profile.html", 
                          title="Profile", 
                          user=user, 
-                         joined_date=joined_date)
+                         joined_date=joined_date,
+                         posts=posts)
 
 @app.route("/profile/update", methods=["POST"])
 @login_required
@@ -1284,6 +1289,102 @@ def delete_group(group_id):
 
     flash(f'Group "{group.name}" has been deleted.', "success")
     return redirect(url_for("groups"))
+
+
+@app.route("/posts/create", methods=["POST"])
+@login_required
+def create_post():
+    user = get_current_user()
+    
+    # Handle image upload
+    post_image = request.files.get('postImage')
+    caption = request.form.get('caption', '')
+    
+    if not post_image or not post_image.filename:
+        flash('Please upload an image.', 'error')
+        return redirect(url_for('profile'))
+    
+    # Save image
+    filename = secure_filename(post_image.filename)
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    post_image_filename = f"post_{timestamp}_{filename}"
+    post_image_path = os.path.join(app.config['UPLOAD_FOLDER'], post_image_filename)
+    post_image.save(post_image_path)
+    
+    # Create post
+    new_post = Post(
+        user_id=user.id,
+        image_filename=post_image_filename,
+        caption=caption
+    )
+    
+    db.session.add(new_post)
+    
+    # Update user's posts count
+    user.posts_count += 1
+    
+    try:
+        db.session.commit()
+        flash('Post created successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error creating post: {str(e)}', 'error')
+    
+    return redirect(url_for('profile'))
+
+
+@app.route("/posts/all")
+@login_required
+def all_posts():
+    user = get_current_user()
+    
+    # Get all posts grouped by year and month
+    posts = Post.query.filter_by(user_id=user.id).order_by(Post.created_at.desc()).all()
+    
+    # Group posts by year and month
+    posts_by_year = {}
+    for post in posts:
+        year = post.created_at.year
+        if year not in posts_by_year:
+            posts_by_year[year] = {}
+        
+        month = post.created_at.strftime('%B')
+        if month not in posts_by_year[year]:
+            posts_by_year[year][month] = []
+        
+        posts_by_year[year][month].append(post)
+    
+    # Sort years descending (newest first)
+    posts_by_year = dict(sorted(posts_by_year.items(), reverse=True))
+    
+    return render_template("all_posts.html", 
+                         title="All Posts", 
+                         posts_by_year=posts_by_year,
+                         user=user)
+
+
+@app.route("/posts/delete/<int:post_id>", methods=["POST"])
+@login_required
+def delete_posts(post_id):
+    user = get_current_user()
+    post = Post.query.get_or_404(post_id)
+    # Check if post belongs to user
+    if post.user_id != user.id:
+        abort(403)
+    # Delete image file
+    image_path = os.path.join(app.config['UPLOAD_FOLDER'], post.image_filename)
+    if os.path.exists(image_path):
+        os.remove(image_path)
+    # Delete post from database
+    db.session.delete(post)
+    user.posts_count = max(0, user.posts_count - 1)
+    try:
+        db.session.commit()
+        flash('Post deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting post: {str(e)}', 'error')
+    return redirect(request.referrer or url_for('profile'))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,239 @@
+/* All Posts Container */
+.all-posts-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header */
+.all-posts-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #D1D5DB;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #5C4033;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #FFE5CC;
+}
+
+.all-posts-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+}
+
+/* Years Navigation */
+.years-nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.year-btn {
+    padding: 12px 24px;
+    background: #f9f9f9;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.year-btn:hover {
+    background: #ffb074;
+    border-color: #ffb074;
+    color: white;
+}
+
+.year-btn.active {
+    background: #ffa35c;
+    border-color: #ffa35c;
+    color: white;
+}
+
+/* Month Section */
+.month-section {
+    margin-bottom: 3rem;
+}
+
+.month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.month-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+}
+
+.month-filter {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: white;
+}
+
+.month-filter:focus {
+    outline: none;
+    border-color: #ffb074;
+}
+
+/* Posts Grid */
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.post-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+}
+
+.post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.post-card img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+}
+
+.post-info {
+    padding: 16px;
+}
+
+.post-caption {
+    font-size: 14px;
+    color: #333;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.post-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.delete-post-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 68, 68, 0.9);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s, background 0.3s;
+}
+
+.post-card:hover .delete-post-btn {
+    opacity: 1;
+}
+
+.delete-post-btn:hover {
+    background: rgba(204, 0, 0, 0.95);
+}
+
+/* No Posts State */
+.no-posts {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.no-posts svg {
+    margin-bottom: 24px;
+}
+
+.no-posts h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+    margin: 0 0 12px 0;
+}
+
+.no-posts p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 24px 0;
+}
+
+.back-link {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #ffb074;
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.back-link:hover {
+    background: #ffa35c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .all-posts-container {
+        padding: 1rem;
+    }
+
+    .posts-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+    }
+
+    .post-card img {
+        height: 200px;
+    }
+
+    .month-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .month-filter {
+        width: 100%;
+    }
+}

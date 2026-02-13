@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/all_posts.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="all-posts-container">
+    <!-- Header -->
+    <div class="all-posts-header">
+        <a href="{{ url_for('profile') }}" class="back-button">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+        <h1>All Posts</h1>
+    </div>
+
+    {% if posts_by_year %}
+        <!-- Years Navigation -->
+        <div class="years-nav">
+            {% for year in posts_by_year.keys() %}
+                <button class="year-btn {% if loop.first %}active{% endif %}" data-year="{{ year }}">{{ year }}</button>
+            {% endfor %}
+        </div>
+
+        <!-- Posts by Year -->
+        {% for year, months in posts_by_year.items() %}
+            <div class="year-section" id="year-{{ year }}" {% if not loop.first %}style="display: none;"{% endif %}>
+                
+                {% for month, posts in months.items() %}
+                    <div class="month-section">
+                        <div class="month-header">
+                            <h2>{{ month }} {{ year }}</h2>
+                            <select class="month-filter" data-month="{{ month }}" data-year="{{ year }}">
+                                <option value="all">All Months</option>
+                                {% for m in months.keys() %}
+                                    <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="posts-grid">
+                            {% for post in posts %}
+                                <div class="post-card" data-month="{{ month }}">
+                                    <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post">
+                                    <div class="post-info">
+                                        <p class="post-caption">{{ post.caption or 'No caption' }}</p>
+                                        <span class="post-date">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                                    </div>
+                                    <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                                        <button type="submit" class="delete-post-btn">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-posts">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="15" y="20" width="70" height="60" rx="4" stroke="#9CA3AF" stroke-width="3" fill="none"/>
+                <circle cx="35" cy="40" r="8" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+                <path d="M23 65L40 50L52 58L77 38" stroke="#9CA3AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h2>No posts yet</h2>
+            <p>Start sharing your moments!</p>
+            <a href="{{ url_for('profile') }}" class="back-link">← Back to Profile</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Year navigation
+    const yearButtons = document.querySelectorAll('.year-btn');
+    const yearSections = document.querySelectorAll('.year-section');
+
+    yearButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const year = btn.dataset.year;
+            
+            // Update active button
+            yearButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Show selected year section
+            yearSections.forEach(section => {
+                section.style.display = section.id === `year-${year}` ? 'block' : 'none';
+            });
+        });
+    });
+
+    // Month filter
+    const monthFilters = document.querySelectorAll('.month-filter');
+    
+    monthFilters.forEach(filter => {
+        filter.addEventListener('change', (e) => {
+            const selectedMonth = e.target.value;
+            const year = e.target.dataset.year;
+            const yearSection = document.getElementById(`year-${year}`);
+            const postCards = yearSection.querySelectorAll('.post-card');
+            
+            postCards.forEach(card => {
+                if (selectedMonth === 'all' || card.dataset.month === selectedMonth) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

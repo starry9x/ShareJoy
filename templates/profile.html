@@ -98,6 +98,48 @@
 
   </section>
 
+
+    <!-- HORIZONTAL LINE -->
+    <hr class="divider">
+    <!-- POSTS SECTION -->
+    <div class="posts-section">
+      <div class="posts-header">
+        <h2>Posts</h2>
+        {% if posts %}
+          <a href="{{ url_for('all_posts') }}" class="view-all-posts">View All</a>
+        {% endif %}
+      </div>
+      {% if posts %}
+        <!-- Has Posts: Show Latest 3 -->
+        <div class="posts-grid">
+          {% for post in posts %}
+            <div class="post-card">
+              <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post" class="post-image">
+              <div class="post-overlay">
+                <p class="post-caption">{{ post.caption or 'No caption' }}</p>
+                <span class="post-date">{{ post.created_at.strftime('%b %d, %Y') }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- No Posts: Empty State -->
+        <div class="no-posts-state">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="15" width="60" height="50" rx="4" stroke="#9CA3AF" stroke-width="3" fill="none"/>
+            <circle cx="28" cy="32" r="6" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+            <path d="M18 50L32 38L42 46L62 30" stroke="#9CA3AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h4>No posts yet</h4>
+          <p>Share your moments and memories</p>
+          <button class="add-post-btn" onclick="document.getElementById('addPostModal').style.display='flex'">
+            <i class="fa-solid fa-plus"></i> Add New Post
+          </button>
+        </div>
+      {% endif %}
+    </div>
+
+
   <!-- =====================
        SETTINGS SECTION
   ====================== -->
@@ -209,6 +251,52 @@
 </div>
 
 <!-- =====================
+     ADD POST MODAL
+====================== -->
+<div id="addPostModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-image"></i> Add New Post</h2>
+      <button class="close-modal" onclick="document.getElementById('addPostModal').style.display='none'">&times;</button>
+    </div>
+    
+    <form action="{{ url_for('create_post') }}" method="POST" enctype="multipart/form-data">
+      <div class="modal-body">
+        
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label for="post-image-input"><strong>Upload Image *</strong></label>
+          <div class="image-upload-area" id="imageUploadArea">
+            <input type="file" id="post-image-input" name="postImage" accept="image/*" required style="display: none;">
+            <div class="upload-placeholder" id="uploadPlaceholder">
+              <i class="fa-solid fa-cloud-arrow-up" style="font-size: 48px; color: #9CA3AF;"></i>
+              <p>Click to upload or drag and drop</p>
+              <span>PNG, JPG, JPEG (Max 16MB)</span>
+            </div>
+            <img id="imagePreview" src="" alt="Preview" style="display: none; max-width: 100%; border-radius: 8px;">
+          </div>
+        </div>
+
+        <!-- Caption -->
+        <div class="form-group">
+          <label for="post-caption"><strong>Caption</strong></label>
+          <textarea id="post-caption" name="caption" class="edit-textarea" placeholder="Write a caption..." rows="3"></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="cancel-btn" onclick="document.getElementById('addPostModal').style.display='none'; resetPostForm();">Cancel</button>
+        <button type="submit" class="save-btn">
+          <i class="fa-solid fa-paper-plane"></i> Post
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- =====================
      EDIT PROFILE MODAL
 ====================== -->
 <div id="editModal" class="modal">
@@ -286,14 +374,57 @@
     if (e.target === modal) {
       modal.style.display = "none";
     }
+    const addPostModal = document.getElementById('addPostModal');
+    if (e.target === addPostModal) {
+      addPostModal.style.display = "none";
+      resetPostForm();
+    }
   });
 
   // Close modal on Escape key
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.style.display === "flex") {
-      modal.style.display = "none";
+    if (e.key === "Escape") {
+      if (modal.style.display === "flex") {
+        modal.style.display = "none";
+      }
+      const addPostModal = document.getElementById('addPostModal');
+      if (addPostModal.style.display === "flex") {
+        addPostModal.style.display = "none";
+        resetPostForm();
+      }
     }
   });
+  
+  // ===== ADD POST MODAL =====
+  const imageUploadArea = document.getElementById('imageUploadArea');
+  const postImageInput = document.getElementById('post-image-input');
+  const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+  const imagePreview = document.getElementById('imagePreview');
+
+  imageUploadArea.addEventListener('click', () => {
+    postImageInput.click();
+  });
+
+  postImageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        imagePreview.src = event.target.result;
+        uploadPlaceholder.style.display = 'none';
+        imagePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function resetPostForm() {
+    postImageInput.value = '';
+    document.getElementById('post-caption').value = '';
+    uploadPlaceholder.style.display = 'flex';
+    imagePreview.style.display = 'none';
+    imagePreview.src = '';
+  }
   
   // ===== SHARE PROFILE FUNCTIONALITY =====
   document.getElementById("shareProfile").addEventListener("click", () => {
