@@ -627,19 +627,22 @@
 .posts-section {
   margin: 20px 0;
 }
+
 .posts-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
+
 .posts-header h2 {
   font-size: 32px;
   font-weight: 700;
-  margin-bottom: 24px;
   color: #000;
   margin: 0;
 }
+
+/* Updated View All Button */
 .view-all-posts {
   display: inline-flex;
   align-items: center;
@@ -654,40 +657,54 @@
   transition: all 0.3s;
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
 }
+
 .view-all-posts:hover {
   background: #0056b3;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
+
 .view-all-posts i {
   font-size: 12px;
   transition: transform 0.3s;
 }
+
 .view-all-posts:hover i {
   transform: translateX(4px);
 }
-/* Posts Grid */
+
+/* Posts Grid - Adjusted for 3 posts + 1 add button */
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  align-items: start;
 }
+
 .post-card {
   position: relative;
+  width: 100%;
   aspect-ratio: 1;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: white;
 }
+
 .post-card:hover {
   transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+
 }
+
 .post-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .post-overlay {
   position: absolute;
   bottom: 0;
@@ -698,23 +715,28 @@
   opacity: 0;
   transition: opacity 0.3s;
 }
+
 .post-card:hover .post-overlay {
   opacity: 1;
 }
+
 .post-caption {
   color: white;
-  font-size: 13px;
+  font-size: 12px;
   margin: 0 0 4px 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .post-date {
   color: #ccc;
-  font-size: 11px;
+  font-size: 10px;
 }
-/* Add Post Card */
+
+/* Add Post Card - Smaller than posts */
 .add-post-card {
+  width: 70%;
   aspect-ratio: 1;
   border-radius: 12px;
   background: #fff;
@@ -725,16 +747,19 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s;
-  gap: 8px;
+  gap: 6px;
+  margin: auto;
 }
+
 .add-post-card:hover {
   border-color: #ffb074;
   background: #fff7f0;
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
+
 .add-post-icon {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #ffb074;
   display: flex;
@@ -742,23 +767,28 @@
   justify-content: center;
   transition: all 0.3s;
 }
+
 .add-post-card:hover .add-post-icon {
   background: #ffa35c;
   transform: rotate(90deg);
 }
+
 .add-post-icon i {
-  font-size: 24px;
+  font-size: 20px;
   color: white;
 }
+
 .add-post-card p {
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #666;
 }
+
 .add-post-card:hover p {
   color: #ffb074;
 }
+
 /* No Posts State */
 .no-posts-state {
   text-align: center;
@@ -766,19 +796,23 @@
   background: #f9f9f9;
   border-radius: 16px;
 }
+
 .no-posts-state svg {
   margin-bottom: 20px;
 }
+
 .no-posts-state h4 {
   font-size: 22px;
   font-weight: 700;
   color: #000;
   margin: 0 0 8px 0;
 }
+
 .no-posts-state p {
   color: #666;
   margin: 0 0 24px 0;
 }
+
 .add-post-btn {
   background: #ffb074;
   border: none;
@@ -792,9 +826,11 @@
   gap: 8px;
   transition: background 0.3s;
 }
+
 .add-post-btn:hover {
   background: #ffa35c;
 }
+
 /* Image Upload Area */
 .image-upload-area {
   border: 3px dashed #d0d0d0;
@@ -805,34 +841,48 @@
   transition: all 0.3s;
   background: #f9f9f9;
 }
+
 .image-upload-area:hover {
   border-color: #ffb074;
   background: #fff;
 }
+
 .upload-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
 }
+
 .upload-placeholder p {
   font-size: 16px;
   font-weight: 600;
   color: #666;
   margin: 0;
 }
+
 .upload-placeholder span {
   font-size: 13px;
   color: #999;
 }
+
 /* Responsive */
 @media (max-width: 768px) {
   .posts-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  
+  .add-post-card {
+    width: 80%;
+  }
 }
+
 @media (max-width: 480px) {
   .posts-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .add-post-card {
+    width: 60%;
   }
 }
