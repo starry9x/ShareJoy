@@ -152,7 +152,7 @@
     color: #999;
 }
 
-.delete-post-btn {
+.delete-posts-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -170,11 +170,11 @@
     transition: opacity 0.3s, background 0.3s;
 }
 
-.post-card:hover .delete-post-btn {
+.post-card:hover .delete-posts-btn {
     opacity: 1;
 }
 
-.delete-post-btn:hover {
+.delete-posts-btn:hover {
     background: rgba(204, 0, 0, 0.95);
 }
 
