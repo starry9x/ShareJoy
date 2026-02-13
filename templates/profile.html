@@ -121,7 +121,17 @@
               </div>
             </div>
           {% endfor %}
+
+          <!-- Add New Post Button (only if less than 3 posts OR always show it) -->
+          <div class="add-post-card" onclick="document.getElementById('addPostModal').style.display='flex'">
+            <div class="add-post-icon">
+              <i class="fa-solid fa-plus"></i>
+            </div>
+            <p>Add Post</p>
+          </div>
         </div>
+
+
       {% else %}
         <!-- No Posts: Empty State -->
         <div class="no-posts-state">
