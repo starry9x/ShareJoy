@@ -502,3 +502,22 @@
         height: 100px;
     }
 }
+
+/* Locked/Greyed Out States */
+.milestone-banner.locked {
+    background: #E5E7EB;
+    color: #6B7280;
+}
+
+.badge-item.locked {
+    opacity: 0.5;
+}
+
+.badge-circle.grey {
+    background: #D1D5DB;
+}
+
+.badge-item.locked h3,
+.badge-item.locked p {
+    color: #9CA3AF;
+}

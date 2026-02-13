@@ -220,3 +220,69 @@
         padding: 2rem 1rem;
     }
 }
+
+/* Ready to Unlock Badge (First Steps) */
+.badge-card.ready-to-unlock {
+    border: 3px dashed var(--orange-badge);
+    background: #FFF7ED;
+    position: relative;
+    animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+    0%, 100% {
+        border-color: var(--orange-badge);
+        box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+    }
+    50% {
+        border-color: #FB923C;
+        box-shadow: 0 0 0 8px rgba(249, 115, 22, 0);
+    }
+}
+
+.badge-card.ready-to-unlock:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(249, 115, 22, 0.3);
+}
+
+.unlock-hint {
+    display: block;
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #EA580C;
+}
+
+/* When First Steps is unlocked (for later implementation) */
+.badge-card.first-steps-unlocked .badge-icon {
+    background: var(--orange-badge);
+    animation: badge-unlock 0.6s ease-out;
+}
+
+@keyframes badge-unlock {
+    0% {
+        transform: scale(0.8) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.badge-card.first-steps-unlocked {
+    border-color: var(--orange-badge);
+    background: var(--white);
+    animation: none;
+}
+
+/* Override locked styles for ready-to-unlock */
+.badge-card.ready-to-unlock.locked {
+    opacity: 1;
+}

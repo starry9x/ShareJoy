@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <!-- Guardian Oversight Section -->
+    <!-- Guardian Oversight Section - EMPTY STATE -->
     <section class="settings-section guardian-section">
         <div class="section-header">
             <div class="icon-wrapper">
@@ -30,57 +30,81 @@
             </div>
             <div class="section-title-group">
                 <h2>Guardian Oversight</h2>
-                <button class="add-guardian-btn">+ Add Guardian</button>
             </div>
         </div>
         
-        <p class="section-description">A guardian can help monitor your account for safety. They'll receive activity reports and can assist with security concerns. You can change or remove your guardian at any time.</p>
+        <p class="section-description">A guardian can help monitor your account for safety. They'll receive activity reports and can assist with security concerns. You can add or remove your guardian at any time.</p>
         
-        <div class="guardian-card">
-            <div class="guardian-info">
-                <div class="guardian-avatar">
-                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="30" cy="30" r="30" fill="#D1D5DB"/>
-                        <circle cx="30" cy="23" r="10" fill="#9CA3AF"/>
-                        <path d="M10 50C10 40 18 35 30 35C42 35 50 40 50 50" fill="#9CA3AF"/>
-                    </svg>
-                </div>
-                <div class="guardian-details">
-                    <h3>Ada Wong</h3>
-                    <p>Parent • Guardian since June 2023</p>
-                </div>
-            </div>
-            
-            <div class="guardian-stats">
-                <div class="stat-row">
-                    <span class="stat-label">Access Level:</span>
-                    <span class="stat-value">Limited</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Notifications</span>
-                    <span class="stat-value">Weekly Reports</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Last Active:</span>
-                    <span class="stat-value">2 days ago</span>
-                </div>
-            </div>
-            
-            <div class="guardian-actions">
-                <button class="change-guardian-btn">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14.166 2.5C14.3849 2.28113 14.6447 2.10752 14.9307 1.98906C15.2167 1.87061 15.5232 1.80965 15.8327 1.80965C16.1422 1.80965 16.4487 1.87061 16.7347 1.98906C17.0206 2.10752 17.2805 2.28113 17.4993 2.5C17.7182 2.71887 17.8918 2.97871 18.0103 3.26468C18.1287 3.55064 18.1897 3.85714 18.1897 4.16667C18.1897 4.47619 18.1287 4.78269 18.0103 5.06866C17.8918 5.35462 17.7182 5.61446 17.4993 5.83333L6.24935 17.0833L1.66602 18.3333L2.91602 13.75L14.166 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Change Guardian
-                </button>
-                <button class="remove-guardian-btn">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 5L10 10M10 10L5 15M10 10L15 15M10 10L5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Remove Guardian
-                </button>
-            </div>
+        <!-- Empty State -->
+        <div class="empty-guardian-state">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="40" fill="#F3F4F6"/>
+                <path d="M40 20L25 30V45C25 52.5 30 58 40 60C50 58 55 52.5 55 45V30L40 20Z" stroke="#9CA3AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M35 40L38 43L45 36" stroke="#9CA3AF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3>No Guardian Assigned</h3>
+            <p>You haven't added a guardian yet. A guardian can help monitor your account for safety and security.</p>
+            <button class="add-guardian-btn" onclick="alert('Add Guardian feature - Coming soon! This will allow you to select a guardian who is 30+ years old.')">
+                <i class="fas fa-user-plus"></i> Add Guardian
+            </button>
         </div>
+    </section>
+
+    <!-- Report User Section - NEW -->
+    <section class="settings-section report-section">
+        <div class="section-header">
+            <div class="icon-wrapper report-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.29 3.86L1.82 18C1.64537 18.3024 1.55296 18.6453 1.55199 18.9945C1.55101 19.3437 1.64151 19.6871 1.81445 19.9905C1.98738 20.2939 2.23675 20.5467 2.53773 20.7239C2.83871 20.901 3.18082 20.9962 3.53 21H20.47C20.8192 20.9962 21.1613 20.901 21.4623 20.7239C21.7633 20.5467 22.0126 20.2939 22.1856 19.9905C22.3585 19.6871 22.449 19.3437 22.448 18.9945C22.447 18.6453 22.3546 18.3024 22.18 18L13.71 3.86C13.5317 3.56611 13.2807 3.32312 12.9812 3.15448C12.6817 2.98585 12.3437 2.89725 12 2.89725C11.6563 2.89725 11.3183 2.98585 11.0188 3.15448C10.7193 3.32312 10.4683 3.56611 10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="17" r="1" fill="currentColor"/>
+                </svg>
+            </div>
+            <h2>Report User</h2>
+        </div>
+        
+        <p class="section-description">If you encounter inappropriate behavior or content, please report it here. Your report will be reviewed by our safety team.</p>
+        
+        <!-- Report Form -->
+        <form id="reportForm" class="report-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reporterName">Your Name *</label>
+                    <input type="text" id="reporterName" name="reporterName" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="reporterEmail">Your Email *</label>
+                    <input type="email" id="reporterEmail" name="reporterEmail" required placeholder="your.email@example.com">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reporterAge">Your Age *</label>
+                    <input type="number" id="reporterAge" name="reporterAge" required placeholder="Enter your age" min="1" max="120">
+                </div>
+                <div class="form-group">
+                    <label for="reportedUserName">User to Report *</label>
+                    <input type="text" id="reportedUserName" name="reportedUserName" required placeholder="Name of user to report">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="reportReason">Reason for Report *</label>
+                <textarea id="reportReason" name="reportReason" required placeholder="Please describe the issue in detail..." rows="5"></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('reportForm').reset()">Clear Form</button>
+                <button type="submit" class="btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2L7 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2L10 14L7 9L2 6L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Submit Report
+                </button>
+            </div>
+        </form>
     </section>
 
     <!-- Privacy Controls Section -->
@@ -182,8 +206,23 @@
     </section>
 </div>
 
+<!-- Success Modal -->
+<div id="successModal" class="modal">
+    <div class="modal-content success-modal">
+        <div class="success-icon">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="30" r="28" fill="#22C55E" stroke="#16A34A" stroke-width="4"/>
+                <path d="M18 30L26 38L42 22" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h2>Report Submitted Successfully!</h2>
+        <p>Thank you for helping keep our community safe. Our team will review your report and take appropriate action.</p>
+        <button class="close-success-btn" onclick="closeSuccessModal()">Close</button>
+    </div>
+</div>
+
 <script>
-    // Profile Visibility Dropdown
+    // Privacy Settings (localStorage)
     const profileVisibility = document.getElementById('profileVisibility');
     const savedVisibility = localStorage.getItem('profileVisibility') || 'friends';
     profileVisibility.value = savedVisibility;
@@ -192,7 +231,6 @@
         localStorage.setItem('profileVisibility', profileVisibility.value);
     });
 
-    // Data Sharing Toggle
     const dataSharing = document.getElementById('dataSharing');
     const savedDataSharing = localStorage.getItem('dataSharing') !== 'false';
     dataSharing.checked = savedDataSharing;
@@ -201,7 +239,6 @@
         localStorage.setItem('dataSharing', dataSharing.checked);
     });
 
-    // Search Visibility Toggle
     const searchVisibility = document.getElementById('searchVisibility');
     const savedSearchVisibility = localStorage.getItem('searchVisibility') !== 'false';
     searchVisibility.checked = savedSearchVisibility;
@@ -210,7 +247,6 @@
         localStorage.setItem('searchVisibility', searchVisibility.checked);
     });
 
-    // Two-Factor Authentication Toggle
     const twoFactor = document.getElementById('twoFactor');
     const savedTwoFactor = localStorage.getItem('twoFactor') === 'true';
     twoFactor.checked = savedTwoFactor;
@@ -222,7 +258,6 @@
         }
     });
 
-    // Login Notifications Toggle
     const loginNotifications = document.getElementById('loginNotifications');
     const savedLoginNotifications = localStorage.getItem('loginNotifications') !== 'false';
     loginNotifications.checked = savedLoginNotifications;
@@ -231,7 +266,6 @@
         localStorage.setItem('loginNotifications', loginNotifications.checked);
     });
 
-    // Location Services Toggle
     const locationServices = document.getElementById('locationServices');
     const savedLocationServices = localStorage.getItem('locationServices') === 'true';
     locationServices.checked = savedLocationServices;
@@ -239,7 +273,6 @@
     locationServices.addEventListener('change', () => {
         localStorage.setItem('locationServices', locationServices.checked);
         if (locationServices.checked) {
-            // Request location permission
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -255,23 +288,47 @@
         }
     });
 
-    // Guardian Actions
-    const changeGuardianBtn = document.querySelector('.change-guardian-btn');
-    const removeGuardianBtn = document.querySelector('.remove-guardian-btn');
-    const addGuardianBtn = document.querySelector('.add-guardian-btn');
+    // Report Form Submission
+    const reportForm = document.getElementById('reportForm');
+    const successModal = document.getElementById('successModal');
 
-    changeGuardianBtn.addEventListener('click', () => {
-        alert('Change Guardian functionality - This would open a form to select a new guardian.');
+    reportForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // TODO: Later, send this data to the database
+        // For now, just show success message
+        
+        const formData = {
+            reporterName: document.getElementById('reporterName').value,
+            reporterEmail: document.getElementById('reporterEmail').value,
+            reporterAge: document.getElementById('reporterAge').value,
+            reportedUserName: document.getElementById('reportedUserName').value,
+            reportReason: document.getElementById('reportReason').value,
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log('Report submitted:', formData);
+        
+        // Show success modal
+        successModal.style.display = 'flex';
     });
 
-    removeGuardianBtn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to remove Ada Wong as your guardian?')) {
-            alert('Guardian removed successfully.');
+    function closeSuccessModal() {
+        const successModal = document.getElementById('successModal');
+        const reportForm = document.getElementById('reportForm');
+        
+        // Close modal
+        successModal.style.display = 'none';
+        
+        // Reset form
+        reportForm.reset();
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === successModal) {
+            closeSuccessModal();
         }
-    });
-
-    addGuardianBtn.addEventListener('click', () => {
-        alert('Add Guardian functionality - This would open a form to add a new guardian.');
     });
 </script>
 {% endblock %}

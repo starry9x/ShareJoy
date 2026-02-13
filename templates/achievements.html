@@ -20,8 +20,9 @@
         </div>
     </div>
 
-<!-- Stats Cards -->
+    <!-- Stats Cards -->
     <div class="stats-grid">
+        <!-- Badges Earned: 0/81 -->
         <div class="stat-card">
             <div class="stat-icon badge-icon">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,9 +31,11 @@
             </div>
             <div class="stat-info">
                 <p class="stat-label">BADGES EARNED</p>
-                <h2 class="stat-value">6/81</h2>
+                <h2 class="stat-value">0/81</h2>
             </div>
         </div>
+
+        <!-- This Month: 0 Activities -->
         <div class="stat-card">
             <div class="stat-icon activity-icon">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -44,36 +47,36 @@
             </div>
             <div class="stat-info">
                 <p class="stat-label">THIS MONTH</p>
-                <h2 class="stat-value">3 Activities</h2>
+                <h2 class="stat-value">0 Activities</h2>
             </div>
         </div>
+
+        <!-- Current Streak: 1 Day -->
         <div class="stat-card streak-card">
             <div class="stat-icon streak-icon">
-                <!-- UPDATED: Fire icon (orange and white only) -->
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20 8C20 8 14 16 14 22C14 26.4183 17.5817 30 22 30C26.4183 30 30 26.4183 30 22C30 16 22 8 22 8C22 8 24 14 24 18C24 20.2091 22.2091 22 20 22C17.7909 22 16 20.2091 16 18C16 14 20 8 20 8Z" fill="white"/>
                 </svg>
             </div>
             <div class="stat-info">
                 <p class="stat-label">CURRENT STREAK</p>
-                <h2 class="stat-value">14 Days</h2>
+                <h2 class="stat-value">1 Day</h2>
             </div>
         </div>
     </div>
 
-    <!-- Milestone Banner -->
-    <div class="milestone-banner">
+    <!-- Milestone Banner - LOCKED -->
+    <div class="milestone-banner locked">
         <div class="milestone-icon">
-            <!-- UPDATED: Trophy/Medal icon using Font Awesome -->
-            <i class="fas fa-trophy" style="font-size: 60px; color: #FDB022;"></i>
+            <i class="fas fa-lock" style="font-size: 60px; color: #9CA3AF;"></i>
         </div>
         <div class="milestone-content">
-            <h2>Monthly Milestone Achieved! 🎉</h2>
-            <p>You've completed 3 shared activities this month. Keep up the great work!</p>
+            <h2>Monthly Milestone Locked 🔒</h2>
+            <p>Complete 3 activities this month to unlock this milestone!</p>
         </div>
     </div>
 
-    <!-- Trophies & Badges Section -->
+    <!-- Trophies & Badges Section - ALL GREYED OUT -->
     <section class="badges-section">
         <div class="section-header">
             <div class="section-title">
@@ -81,58 +84,45 @@
                 <p>Earn badges by completing activities, reaching milestones, and engaging with the community. Unlock all badges to become a champion!</p>
             </div>
         </div>
+
         <div class="badges-preview">
-            <!-- First Steps - White Star in Orange Circle -->
-            <div class="badge-item unlocked">
-                <div class="badge-circle orange">
+            <!-- First Steps - LOCKED (Grey) -->
+            <div class="badge-item locked">
+                <div class="badge-circle grey">
                     <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M30 10L35 25L50 28L38 38L42 53L30 45L18 53L22 38L10 28L25 25L30 10Z" fill="white"/>
+                        <path d="M30 10L35 25L50 28L38 38L42 53L30 45L18 53L22 38L10 28L25 25L30 10Z" fill="#9CA3AF"/>
                     </svg>
                 </div>
                 <h3>First Steps</h3>
                 <p>Complete your first activity</p>
             </div>
-            <!-- Social Butterfly - White Butterfly in Blue Circle -->
-            <div class="badge-item unlocked">
-                <div class="badge-circle blue">
+
+            <!-- Social Butterfly - LOCKED (Grey) -->
+            <div class="badge-item locked">
+                <div class="badge-circle grey">
                     <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Left wing -->
-                        <ellipse cx="22" cy="28" rx="10" ry="14" fill="white"/>
-                        <!-- Right wing -->
-                        <ellipse cx="38" cy="28" rx="10" ry="14" fill="white"/>
-                        <!-- Body -->
-                        <ellipse cx="30" cy="30" rx="3" ry="12" fill="white"/>
-                        <!-- Antennae -->
-                        <path d="M28 18C28 18 26 14 24 12M32 18C32 18 34 14 36 12" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                        <!-- Wing details -->
-                        <circle cx="22" cy="24" r="2.5" fill="#60A5FA"/>
-                        <circle cx="38" cy="24" r="2.5" fill="#60A5FA"/>
+                        <ellipse cx="22" cy="28" rx="10" ry="14" fill="#9CA3AF"/>
+                        <ellipse cx="38" cy="28" rx="10" ry="14" fill="#9CA3AF"/>
+                        <ellipse cx="30" cy="30" rx="3" ry="12" fill="#9CA3AF"/>
+                        <path d="M28 18C28 18 26 14 24 12M32 18C32 18 34 14 36 12" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                 </div>
                 <h3>Social Butterfly</h3>
                 <p>Join 5 group discussions</p>
             </div>
-            <!-- Consistency King - White Calendar with Checks in Purple Circle -->
-            <div class="badge-item unlocked">
-                <div class="badge-circle purple">
+
+            <!-- Consistency King - LOCKED (Grey) -->
+            <div class="badge-item locked">
+                <div class="badge-circle grey">
                     <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Calendar body -->
-                        <rect x="15" y="18" width="30" height="28" rx="2" fill="white"/>
-                        <!-- Calendar header -->
-                        <rect x="15" y="15" width="30" height="6" rx="1" fill="white"/>
-                        <!-- Check marks (7 days) -->
-                        <path d="M20 26L22 28L25 24" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M28 26L30 28L33 24" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M36 26L38 28L41 24" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M20 34L22 36L25 32" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M28 34L30 36L33 32" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M36 34L38 36L41 32" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M20 42L22 44L25 40" stroke="#A855F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="15" y="18" width="30" height="28" rx="2" fill="#9CA3AF"/>
+                        <rect x="15" y="15" width="30" height="6" rx="1" fill="#9CA3AF"/>
                     </svg>
                 </div>
                 <h3>Consistency King</h3>
                 <p>7 day activity streak</p>
             </div>
+
             <a href="{{ url_for('badges') }}" class="view-all-btn">
                 View all
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -149,19 +139,20 @@
             <p>Track your ongoing activities and progress toward your goals. Consistency is key to success!</p>
         </div>
 
-        <!-- Monthly Goal Progress -->
+        <!-- Monthly Goal Progress: 0% -->
         <div class="goal-progress">
             <div class="goal-header">
                 <h3>Monthly Goal Progress</h3>
-                <span class="progress-percentage">60%</span>
+                <span class="progress-percentage">0%</span>
             </div>
             <div class="progress-bar">
-                <div class="progress-fill" style="width: 60%"></div>
+                <div class="progress-fill" style="width: 0%"></div>
             </div>
         </div>
 
         <!-- Activity List -->
         <div class="activity-list">
+            <!-- Group Discussions: 0/5 -->
             <div class="activity-item">
                 <div class="activity-icon-wrapper blue-bg">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -175,24 +166,24 @@
                     <h4>Group Discussions</h4>
                     <p>Participate in community discussions</p>
                 </div>
-                <span class="activity-status">2/5 completed</span>
+                <span class="activity-status">0/5 completed</span>
             </div>
 
+            <!-- Community Friendly (was Learning Modules): 0/10 -->
             <div class="activity-item">
                 <div class="activity-icon-wrapper blue-bg">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="9" y="3" width="6" height="4" rx="1" stroke="white" stroke-width="2"/>
-                        <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.57831 8.50903 2.9987 7.05 2.9987C5.59096 2.9987 4.19169 3.57831 3.16 4.61C2.1283 5.64169 1.5487 7.04096 1.5487 8.5C1.5487 9.95903 2.1283 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7564 11.2728 22.0329 10.6054C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.0621 22.0329 6.39464C21.7564 5.72718 21.351 5.12084 20.84 4.61Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
                 <div class="activity-details">
-                    <h4>Learning Modules</h4>
-                    <p>Complete interactive learning modules</p>
+                    <h4>Community Friendly</h4>
+                    <p>Like posts</p>
                 </div>
-                <span class="activity-status">5/8 completed</span>
+                <span class="activity-status">0/10 completed</span>
             </div>
 
+            <!-- Devoted Member (was Shared Activities): 0/5 -->
             <div class="activity-item">
                 <div class="activity-icon-wrapper blue-bg">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -202,10 +193,10 @@
                     </svg>
                 </div>
                 <div class="activity-details">
-                    <h4>Shared Activities</h4>
-                    <p>Collaborate with other users</p>
+                    <h4>Devoted Member</h4>
+                    <p>Created activities</p>
                 </div>
-                <span class="activity-status">3/4 completed</span>
+                <span class="activity-status">0/5 completed</span>
             </div>
         </div>
 
@@ -300,20 +291,22 @@
     // Share Progress functionality
     const shareBtn = document.querySelector('.share-progress-btn');
     
-    shareBtn.addEventListener('click', () => {
-        if (navigator.share) {
-            navigator.share({
-                title: 'My Progress',
-                text: 'Check out my achievements! I\'ve earned 6 badges and maintained a 14-day streak! 🎉',
-                url: window.location.href
-            }).then(() => {
-                console.log('Shared successfully');
-            }).catch((error) => {
-                console.log('Error sharing:', error);
-            });
-        } else {
-            alert('Share feature: 6 badges earned, 14-day streak, 3 activities completed this month!');
-        }
-    });
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Progress',
+                    text: 'Check out my achievements! Just getting started on ShareJoy! 🎉',
+                    url: window.location.href
+                }).then(() => {
+                    console.log('Shared successfully');
+                }).catch((error) => {
+                    console.log('Error sharing:', error);
+                });
+            } else {
+                alert('Share feature: Just getting started! 0 badges earned, 1-day streak!');
+            }
+        });
+    }
 </script>
 {% endblock %}
