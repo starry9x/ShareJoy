@@ -68,9 +68,10 @@
 }
 
   .message {
-    margin-bottom: 1rem;
-    padding: .5rem .75rem;
-    border-radius: 6px;
+    min-width: 200px;   /* ensures a minimum width */
+    min-height: 50px;   /* ensures a minimum height */
+    padding: 10px 15px; /* adds breathing room */
+    border-radius: 8px; /* keeps rounded corners */
     max-width: fit-content;
     align-self: flex-end;
   }
@@ -145,17 +146,9 @@
   background-color: rgb(181, 0, 0);
 }
 
-.cta-btn {
-  padding: .5rem 1rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  white-space: nowrap;
-  margin-left: .1rem;
-}
-
 .media-btn{
-  background-color: rgb(246, 255, 0);
+  background: #1AC54A;
+  color: #FDF6F0;
 }
 
 .media-btn:hover{
@@ -193,8 +186,8 @@
   background-color: #f0f0f0;
 }
 
+
 .send-btn, #togglePaneButton {
-  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -204,15 +197,8 @@
 }
 
 .chat-tools-btn {
-  background-color: rgb(255, 106, 0) !important;
-}
-
-.send-btn.cta-btn:hover {
-  background-color: #005bbc !important;  
-}
-
-.chat-tools-btn.cta-btn:hover {
-  background-color: rgb(201, 84, 0) !important;
+    background-color: #FFB587 !important;
+    color: #582D00 !important;
 }
 
 /* Memory Pane  */
@@ -272,6 +258,11 @@
 
 .edit-input {
   margin-bottom: 1rem; /* extra spacing below the input */
+}
+
+.edit-label {
+  text-align: left;
+  display: block; /* ensures the alignment applies properly */
 }
 
 .update-buttons {

@@ -55,16 +55,19 @@
             {% if message.username == user.full_name %}
               <div class="message-actions">
                 <form method="post" action="{{ url_for('delete_text_message', message_id=message.id) }}">
-                  <button type="submit" class="delete-btn">Delete</button>
+                  <button type="submit" class="btn redbtn btn-sm fw-semibold shadow-sm">Delete</button>
                 </form>
                 <form method="post" action="{{ url_for('update_message', message_id=message.id) }}" class="edit-form" style="display:none;">
-                  <input type="text" name="content" value="{{ message.content }}" class="edit-input">
+                  <label for="editContent" class="form-label fw-semibold edit-label">
+                    Edit your message:
+                  </label>
+                  <input type="text" id="editContent" name="content" value="{{ message.content }}" class="edit-input form-control">
                   <div class="update-buttons">
-                    <button type="submit" class="btn dobtn fw-semibold">Save</button>
+                    <button type="submit" class="btn dobtn fw-semibold">Save Changes</button>
                     <button type="button" class="btn cancel-btn fw-semibold" onclick="cancelEdit(this)">Cancel</button>
                   </div>
                 </form>
-                <button type="button" class="edit-btn" onclick="startEdit(this)">Edit</button>
+                <button type="button" class="edit-btn btn edit" onclick="startEdit(this)">Edit</button>
               </div>
             {% endif %}
             <small>{{ message.timestamp|onlytime }}</small>
@@ -79,7 +82,7 @@
 
       <!-- Attach Media -->
       <div class="media-dropdown">
-        <button type="button" id="attachMediaButton" class="media-btn cta-btn">Attach Media ▼</button>
+        <button type="button" id="attachMediaButton" class="media-btn fw-semibold do-btn btn">Attach Media</button>
         <div id="mediaMenu" class="media-menu">
           <button type="button" class="media-option">📷 Attach Image</button>
           <button type="button" class="media-option">🎤 Record Voice</button>
@@ -87,10 +90,10 @@
       </div>
 
       <!-- Toggle Chat Functions -->
-      <button type="button" id="togglePaneButton" class="chat-tools-btn cta-btn" onclick="togglePane()">Open chat starters</button>
+      <button type="button" id="togglePaneButton" class="chat-tools-btn do-btn btn fw-semibold" onclick="togglePane()">Open chat starters</button>
 
       <!-- Send -->
-      <button type="submit" class="send-btn cta-btn">Send</button>
+      <button type="submit" class="send-btn do-btn btn fw-semibold">Send</button>
     </form>
   </div>
 
