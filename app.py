@@ -12,6 +12,7 @@ from functools import wraps
 from posts import Post
 from reports import Report
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
 app.secret_key = "some_random_secret"
@@ -260,7 +261,13 @@ def forgotpassword():
 # MAIN ROUTES
 # ============================================
 
-@app.route("/")
+# Root URL redirects to login
+@app.route('/')
+def index():
+    return redirect(url_for('loginpage'))
+
+# Homepage after login
+@app.route('/home')
 @login_required
 def home():
     return render_template("homepage.html", title="Home")
