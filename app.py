@@ -321,11 +321,11 @@ def messages():
             .order_by(Message.timestamp.desc())
             .first()
         )
-        c.last_chat = last_msg.timestamp if last_msg else None
+        c.last_chat = last_msg.timestamp if last_msg else None  # Set to None if no messages
 
     contacts.sort(
-    key=lambda c: c.last_chat or datetime.min,
-    reverse=True
+        key=lambda c: c.last_chat or datetime.min,
+        reverse=True
     )
 
     messages = []
@@ -386,23 +386,46 @@ def textchat(contact_id):
         highlight_id=highlight_id
     )
 
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    # ... (existing code)
+    contact = Contact.query.get(contact_id)
+    contact.last_chat = datetime.utcnow()  # Update last_chat
+    db.session.commit()
+
+
 @app.route('/delete_text_message/<int:message_id>', methods=['POST'])
 @login_required
 def delete_text_message(message_id):
-    message = Message.query.get_or_404(message_id)
-    user = get_current_user()
+    try:
+        message = Message.query.get_or_404(message_id)
+        user = get_current_user()
 
-    # Ensure the user is the sender of the message
-    if message.username != user.full_name:
-        abort(403)  # Forbidden if the user is not the sender
+        if message.username != user.full_name:
+            abort(403)
 
-    # Delete the message
-    db.session.delete(message)
-    db.session.commit()
+        contact = message.contact
+        contact_id = contact.id
 
-    flash('Message deleted successfully!', 'success')
-    return redirect(url_for('textchat', contact_id=message.contact_id))
+        # Delete the message
+        db.session.delete(message)
+        db.session.commit()
 
+        # Update last_chat
+        newest_message = Message.query.filter_by(
+            contact_id=contact_id
+        ).order_by(Message.timestamp.desc()).first()
+        
+        contact.last_chat = newest_message.timestamp if newest_message else None
+        db.session.commit()
+
+        flash('Message deleted successfully!', 'success')
+        return redirect(url_for('textchat', contact_id=contact_id))
+    
+    except Exception as e:
+        db.session.rollback()
+        flash('Error deleting message', 'error')
+        return redirect(url_for('messages'))
 
 @app.route('/update_message/<int:message_id>', methods=['POST'])
 @login_required
@@ -432,8 +455,11 @@ def delete_chat_history(contact_id):
 
     # Delete all messages for this contact
     Message.query.filter_by(contact_id=contact.id).delete()
-    db.session.commit()
+    
+    # Set last_chat to None since all messages are deleted
+    contact.last_chat = None
 
+    db.session.commit()
     flash('Chat history deleted successfully!', 'success')
     return redirect(url_for('messages'))
 
@@ -441,15 +467,62 @@ def delete_chat_history(contact_id):
 @login_required
 def create_contact():
     if request.method == "POST":
-        name = request.form.get("name")
-        phone = request.form.get("phone")
-        short_desc = request.form.get("short_desc")
+        name = request.form.get("name", "").strip()
+        phone = request.form.get("phone", "").strip()
+        short_desc = request.form.get("short_desc", "").strip()
 
+        # Validation errors
+        errors = {}
+
+        # Validate name
+        if not name:
+            errors["name"] = "Name is required."
+        elif len(name) > 35:
+            errors["name"] = "Name cannot exceed 35 characters."
+
+        # Validate phone
+        if not phone:
+            errors["phone"] = "Phone number is required."
+        elif len(phone) != 8 or not phone.isdigit():
+            errors["phone"] = "Phone number must be exactly 8 digits."
+        elif Contact.query.filter_by(phone=phone).first():
+            errors["phone"] = "This phone number is already registered."
+
+        # Validate short description
+        if short_desc and len(short_desc) > 120:
+            errors["short_desc"] = "Short description cannot exceed 120 characters."
+
+        # If errors exist, show them
+        if errors:
+            for field, message in errors.items():
+                flash(message, "error")
+            return render_template(
+                "create_contact.html",
+                name=name,
+                phone=phone,
+                short_desc=short_desc,
+                errors=errors,  # Pass errors to the template
+                title="Create Contact"
+            )
+
+        # Create new contact
         new_contact = Contact(name=name, phone=phone, short_desc=short_desc)
-        db.session.add(new_contact)
-        db.session.commit()
-
-        return redirect(url_for("messages"))
+        try:
+            db.session.add(new_contact)
+            db.session.commit()
+            flash("Contact created successfully!", "success")
+            return redirect(url_for("messages"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+            return render_template(
+                "create_contact.html",
+                name=name,
+                phone=phone,
+                short_desc=short_desc,
+                errors=errors,  # Pass errors to the template
+                title="Create Contact"
+            )
 
     return render_template("create_contact.html", title="Create Contact")
 
