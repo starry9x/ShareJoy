@@ -83,7 +83,11 @@
               {% if contact.last_chat %}
                 Last chatted on {{ contact.last_chat|sgtime }}
               {% else %}
-                No chats yet
+                {% if contact.messages.count() > 0 %}
+                  No messages sent recently
+                {% else %}
+                  No chats yet
+                {% endif %}
               {% endif %}
             </p>
           </div>
