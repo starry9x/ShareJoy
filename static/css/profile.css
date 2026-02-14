@@ -886,3 +886,44 @@
     width: 60%;
   }
 }
+
+/* =====================
+   USER ID DISPLAY
+===================== */
+.user-id-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #F3F4F6;
+  border-radius: 8px;
+  width: fit-content;
+}
+.user-id {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4B5563;
+  letter-spacing: 0.5px;
+}
+.copy-id-btn {
+  background: #ffb074;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+.copy-id-btn:hover {
+  background: #ffa35c;
+  transform: scale(1.1);
+}
+.copy-id-btn i {
+  font-size: 12px;
+}

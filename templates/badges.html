@@ -22,7 +22,19 @@
     <!-- Badges Grid Section -->
     <section class="badges-grid-section">
         <div class="badges-grid">
-            <!-- First Steps - LOCKED BUT READY TO UNLOCK (Grey Star) -->
+            <!-- First Steps - Dynamic (Unlocked or Ready to Unlock) -->
+            {% if user.first_activity_completed %}
+            <div class="badge-card unlocked first-steps-unlocked">
+                <div class="badge-icon orange-badge">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M40 15L47 35L67 38L51 51L56 71L40 60L24 71L29 51L13 38L33 35L40 15Z" fill="white"/>
+                    </svg>
+                </div>
+                <h3>First Steps</h3>
+                <p>Complete your first activity</p>
+                <span class="unlock-hint unlocked-badge">✅ Unlocked!</span>
+            </div>
+            {% else %}
             <div class="badge-card locked ready-to-unlock">
                 <div class="badge-icon gray-badge">
                     <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,6 +45,7 @@
                 <p>Complete your first activity</p>
                 <span class="unlock-hint">🔓 Almost there! Complete 1 activity</span>
             </div>
+            {% endif %}
 
             <!-- Social Butterfly - LOCKED (Grey) -->
             <div class="badge-card locked">

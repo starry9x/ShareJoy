@@ -35,7 +35,13 @@
 
         <div class="profile-info">
           <h1 class="profile-name">{{ user.full_name }}</h1>
-
+          <!-- USER UNIQUE ID -->
+          <div class="user-id-container">
+            <span class="user-id" id="userId">{{ user.user_unique_id }}</span>
+            <button class="copy-id-btn" onclick="copyUserId()" title="Copy User ID">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+          </div>
           <div class="info">
             <i class="fa-solid fa-envelope"></i>
             {{ user.email }}
@@ -504,5 +510,27 @@
       .catch(error => console.error('Error deleting image:', error));
     }
   });
+
+  // ===== COPY USER ID FUNCTIONALITY =====
+  function copyUserId() {
+    const userId = document.getElementById('userId').textContent;
+    
+    navigator.clipboard.writeText(userId).then(() => {
+      // Show success feedback
+      const copyBtn = document.querySelector('.copy-id-btn');
+      const originalHTML = copyBtn.innerHTML;
+      
+      copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      copyBtn.style.background = '#22C55E';
+      
+      setTimeout(() => {
+        copyBtn.innerHTML = originalHTML;
+        copyBtn.style.background = '';
+      }, 2000);
+    }).catch(err => {
+      alert('User ID copied: ' + userId);
+    });
+  }
+  
 </script>
 {% endblock %}

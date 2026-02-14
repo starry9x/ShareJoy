@@ -122,7 +122,8 @@ def signup():
             date_of_birth=dob,
             age_category=age_category,
             bio=bio,
-            id_card_filename=id_card_filename
+            id_card_filename=id_card_filename,
+            user_unique_id=User.generate_unique_id()  
         )
         new_user.set_password(password)
         
@@ -238,13 +239,15 @@ def safetynprivacy():
 @app.route("/achievements")
 @login_required
 def achievements():
-    return render_template("achievements.html", title="Achievements & Progress")
+    user = get_current_user()
+    return render_template("achievements.html", title="Achievements & Progress", user=user)
 
 
 @app.route("/badges")
 @login_required
 def badges():
-    return render_template("badges.html", title="Trophies & Badges")
+    user = get_current_user()
+    return render_template("badges.html", title="Trophies & Badges", user=user)
 
 
 @app.route("/forgotpassword")
@@ -1545,41 +1548,40 @@ def delete_group(group_id):
 @login_required
 def create_post():
     user = get_current_user()
-    
     # Handle image upload
     post_image = request.files.get('postImage')
     caption = request.form.get('caption', '')
-    
     if not post_image or not post_image.filename:
         flash('Please upload an image.', 'error')
         return redirect(url_for('profile'))
-    
     # Save image
     filename = secure_filename(post_image.filename)
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     post_image_filename = f"post_{timestamp}_{filename}"
     post_image_path = os.path.join(app.config['UPLOAD_FOLDER'], post_image_filename)
     post_image.save(post_image_path)
-    
     # Create post
     new_post = Post(
         user_id=user.id,
         image_filename=post_image_filename,
         caption=caption
     )
-    
     db.session.add(new_post)
-    
     # Update user's posts count
     user.posts_count += 1
-    
+    # FIRST ACTIVITY COMPLETION TRIGGER (Using Posts Instead)
+    if not user.first_activity_completed:
+        user.first_activity_completed = True
+        user.activities_created_count = 1
+        flash('🎉 Congratulations! You completed your first activity! "First Steps" badge unlocked!', 'success')
+    else:
+        user.activities_created_count += 1
     try:
         db.session.commit()
         flash('Post created successfully!', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'Error creating post: {str(e)}', 'error')
-    
     return redirect(url_for('profile'))
 
 

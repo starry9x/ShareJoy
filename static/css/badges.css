@@ -286,3 +286,12 @@
 .badge-card.ready-to-unlock.locked {
     opacity: 1;
 }
+/* Unlocked badge hint */
+.unlock-hint.unlocked-badge {
+    background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+    color: #16A34A;
+}
+/* Orange badge for unlocked First Steps */
+.orange-badge {
+    background: var(--orange-badge);
+}
