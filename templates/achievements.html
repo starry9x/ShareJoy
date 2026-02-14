@@ -22,7 +22,7 @@
 
     <!-- Stats Cards -->
     <div class="stats-grid">
-        <!-- Badges Earned: 0/81 -->
+        <!-- Badges Earned -->
         <div class="stat-card">
             <div class="stat-icon badge-icon">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -31,11 +31,10 @@
             </div>
             <div class="stat-info">
                 <p class="stat-label">BADGES EARNED</p>
-                <h2 class="stat-value">0/81</h2>
+                <h2 class="stat-value">{% if user.first_activity_completed %}1{% else %}0{% endif %}/81</h2>
             </div>
         </div>
-
-        <!-- This Month: 0 Activities -->
+        <!-- This Month -->
         <div class="stat-card">
             <div class="stat-icon activity-icon">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,11 +46,10 @@
             </div>
             <div class="stat-info">
                 <p class="stat-label">THIS MONTH</p>
-                <h2 class="stat-value">0 Activities</h2>
+                <h2 class="stat-value">{{ user.activities_created_count }} Activities</h2>
             </div>
         </div>
-
-        <!-- Current Streak: 1 Day -->
+        <!-- Current Streak -->
         <div class="stat-card streak-card">
             <div class="stat-icon streak-icon">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,8 +62,18 @@
             </div>
         </div>
     </div>
-
-    <!-- Milestone Banner - LOCKED -->
+    <!-- Milestone Banner -->
+    {% if user.activities_created_count >= 3 %}
+    <div class="milestone-banner unlocked">
+        <div class="milestone-icon">
+            <i class="fas fa-trophy" style="font-size: 60px; color: #FDB022;"></i>
+        </div>
+        <div class="milestone-content">
+            <h2>Monthly Milestone Unlocked! 🏆</h2>
+            <p>Congratulations! You've completed 3 activities this month!</p>
+        </div>
+    </div>
+    {% else %}
     <div class="milestone-banner locked">
         <div class="milestone-icon">
             <i class="fas fa-lock" style="font-size: 60px; color: #9CA3AF;"></i>
@@ -75,6 +83,7 @@
             <p>Complete 3 activities this month to unlock this milestone!</p>
         </div>
     </div>
+    {% endif %}
 
     <!-- Trophies & Badges Section - ALL GREYED OUT -->
     <section class="badges-section">
@@ -84,9 +93,19 @@
                 <p>Earn badges by completing activities, reaching milestones, and engaging with the community. Unlock all badges to become a champion!</p>
             </div>
         </div>
-
         <div class="badges-preview">
-            <!-- First Steps - LOCKED (Grey) -->
+            <!-- First Steps - Dynamic (Unlocked or Locked) -->
+            {% if user.first_activity_completed %}
+            <div class="badge-item unlocked">
+                <div class="badge-circle orange">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30 10L35 25L50 28L38 38L42 53L30 45L18 53L22 38L10 28L25 25L30 10Z" fill="white"/>
+                    </svg>
+                </div>
+                <h3>First Steps</h3>
+                <p>Complete your first activity</p>
+            </div>
+            {% else %}
             <div class="badge-item locked">
                 <div class="badge-circle grey">
                     <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -96,7 +115,7 @@
                 <h3>First Steps</h3>
                 <p>Complete your first activity</p>
             </div>
-
+            {% endif %}
             <!-- Social Butterfly - LOCKED (Grey) -->
             <div class="badge-item locked">
                 <div class="badge-circle grey">
@@ -110,7 +129,6 @@
                 <h3>Social Butterfly</h3>
                 <p>Join 5 group discussions</p>
             </div>
-
             <!-- Consistency King - LOCKED (Grey) -->
             <div class="badge-item locked">
                 <div class="badge-circle grey">
@@ -122,7 +140,6 @@
                 <h3>Consistency King</h3>
                 <p>7 day activity streak</p>
             </div>
-
             <a href="{{ url_for('badges') }}" class="view-all-btn">
                 View all
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -139,14 +156,14 @@
             <p>Track your ongoing activities and progress toward your goals. Consistency is key to success!</p>
         </div>
 
-        <!-- Monthly Goal Progress: 0% -->
+        <!-- Monthly Goal Progress -->
         <div class="goal-progress">
             <div class="goal-header">
                 <h3>Monthly Goal Progress</h3>
-                <span class="progress-percentage">0%</span>
+                <span class="progress-percentage">{% if user.first_activity_completed %}{{ ((user.activities_created_count / 5) * 100)|int }}%{% else %}0%{% endif %}</span>
             </div>
             <div class="progress-bar">
-                <div class="progress-fill" style="width: 0%"></div>
+                <div class="progress-fill" style="width: {% if user.first_activity_completed %}{{ ((user.activities_created_count / 5) * 100)|int }}%{% else %}0%{% endif %}"></div>
             </div>
         </div>
 
@@ -183,7 +200,7 @@
                 <span class="activity-status">0/10 completed</span>
             </div>
 
-            <!-- Devoted Member (was Shared Activities): 0/5 -->
+            <!-- Devoted Member (was Shared Activities): Dynamic Count -->
             <div class="activity-item">
                 <div class="activity-icon-wrapper blue-bg">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -196,7 +213,7 @@
                     <h4>Devoted Member</h4>
                     <p>Created activities</p>
                 </div>
-                <span class="activity-status">0/5 completed</span>
+                <span class="activity-status">{{ user.activities_created_count }}/5 completed</span>
             </div>
         </div>
 

@@ -10,6 +10,7 @@ import os
 import pytz
 from functools import wraps
 from posts import Post
+from reports import Report
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
@@ -122,7 +123,8 @@ def signup():
             date_of_birth=dob,
             age_category=age_category,
             bio=bio,
-            id_card_filename=id_card_filename
+            id_card_filename=id_card_filename,
+            user_unique_id=User.generate_unique_id()  
         )
         new_user.set_password(password)
         
@@ -238,13 +240,15 @@ def safetynprivacy():
 @app.route("/achievements")
 @login_required
 def achievements():
-    return render_template("achievements.html", title="Achievements & Progress")
+    user = get_current_user()
+    return render_template("achievements.html", title="Achievements & Progress", user=user)
 
 
 @app.route("/badges")
 @login_required
 def badges():
-    return render_template("badges.html", title="Trophies & Badges")
+    user = get_current_user()
+    return render_template("badges.html", title="Trophies & Badges", user=user)
 
 
 @app.route("/forgotpassword")
@@ -1618,41 +1622,40 @@ def delete_group(group_id):
 @login_required
 def create_post():
     user = get_current_user()
-    
     # Handle image upload
     post_image = request.files.get('postImage')
     caption = request.form.get('caption', '')
-    
     if not post_image or not post_image.filename:
         flash('Please upload an image.', 'error')
         return redirect(url_for('profile'))
-    
     # Save image
     filename = secure_filename(post_image.filename)
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     post_image_filename = f"post_{timestamp}_{filename}"
     post_image_path = os.path.join(app.config['UPLOAD_FOLDER'], post_image_filename)
     post_image.save(post_image_path)
-    
     # Create post
     new_post = Post(
         user_id=user.id,
         image_filename=post_image_filename,
         caption=caption
     )
-    
     db.session.add(new_post)
-    
     # Update user's posts count
     user.posts_count += 1
-    
+    # FIRST ACTIVITY COMPLETION TRIGGER (Using Posts Instead)
+    if not user.first_activity_completed:
+        user.first_activity_completed = True
+        user.activities_created_count = 1
+        flash('🎉 Congratulations! You completed your first activity! "First Steps" badge unlocked!', 'success')
+    else:
+        user.activities_created_count += 1
     try:
         db.session.commit()
         flash('Post created successfully!', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'Error creating post: {str(e)}', 'error')
-    
     return redirect(url_for('profile'))
 
 
@@ -1708,6 +1711,39 @@ def delete_posts(post_id):
         db.session.rollback()
         flash(f'Error deleting post: {str(e)}', 'error')
     return redirect(request.referrer or url_for('profile'))
+
+
+@app.route("/submit_report", methods=["POST"])
+@login_required
+def submit_report():
+    data = request.get_json()
+    # Validate User ID format
+    reported_user_id = data.get('reportedUserId', '').strip().upper()
+    if not reported_user_id.startswith('USR-') or len(reported_user_id) != 10:
+        return jsonify({'success': False, 'error': 'Invalid User ID format'}), 400
+    # Check if reported user exists
+    reported_user = User.query.filter_by(user_unique_id=reported_user_id).first()
+    if not reported_user:
+        return jsonify({'success': False, 'error': 'User ID not found'}), 404
+    # Create new report
+    new_report = Report(
+        reporter_name=data.get('reporterName'),
+        reporter_email=data.get('reporterEmail'),
+        reporter_age=int(data.get('reporterAge')),
+        reported_user_id=reported_user_id,
+        report_reason=data.get('reportReason')
+    )
+    try:
+        db.session.add(new_report)
+        db.session.commit()
+        return jsonify({
+            'success': True, 
+            'message': 'Report submitted successfully',
+            'report_id': new_report.id
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 if __name__ == '__main__':

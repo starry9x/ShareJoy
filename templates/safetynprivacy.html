@@ -84,8 +84,9 @@
                     <input type="number" id="reporterAge" name="reporterAge" required placeholder="Enter your age" min="1" max="120">
                 </div>
                 <div class="form-group">
-                    <label for="reportedUserName">User to Report *</label>
-                    <input type="text" id="reportedUserName" name="reportedUserName" required placeholder="Name of user to report">
+                    <label for="reportedUserId">User ID to Report *</label>
+                    <input type="text" id="reportedUserId" name="reportedUserId" required placeholder="Enter user ID (e.g., USR-A1B2C3)" pattern="USR-[A-Z0-9]{6}" title="Please enter a valid User ID in format: USR-XXXXXX">
+                    <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">Enter the unique User ID of the person you want to report</small>
                 </div>
             </div>
 
@@ -291,39 +292,44 @@
     // Report Form Submission
     const reportForm = document.getElementById('reportForm');
     const successModal = document.getElementById('successModal');
-
-    reportForm.addEventListener('submit', (e) => {
+    reportForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        // TODO: Later, send this data to the database
-        // For now, just show success message
-        
         const formData = {
             reporterName: document.getElementById('reporterName').value,
             reporterEmail: document.getElementById('reporterEmail').value,
             reporterAge: document.getElementById('reporterAge').value,
-            reportedUserName: document.getElementById('reportedUserName').value,
+            reportedUserId: document.getElementById('reportedUserId').value.trim().toUpperCase(),
             reportReason: document.getElementById('reportReason').value,
-            timestamp: new Date().toISOString()
         };
-        
-        console.log('Report submitted:', formData);
-        
-        // Show success modal
-        successModal.style.display = 'flex';
+        try {
+            const response = await fetch('{{ url_for("submit_report") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            const result = await response.json();
+            if (result.success) {
+                // Show success modal
+                successModal.style.display = 'flex';
+            } else {
+                // Show error message
+                alert('Error: ' + (result.error || 'Failed to submit report. Please try again.'));
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            alert('Network error. Please check your connection and try again.');
+        }
     });
-
     function closeSuccessModal() {
         const successModal = document.getElementById('successModal');
         const reportForm = document.getElementById('reportForm');
-        
         // Close modal
         successModal.style.display = 'none';
-        
         // Reset form
         reportForm.reset();
     }
-
     // Close modal when clicking outside
     window.addEventListener('click', (e) => {
         if (e.target === successModal) {
