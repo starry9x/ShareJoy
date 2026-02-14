@@ -10,6 +10,7 @@ import os
 import pytz
 from functools import wraps
 from posts import Post
+from reports import Report
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
@@ -1637,6 +1638,39 @@ def delete_posts(post_id):
         db.session.rollback()
         flash(f'Error deleting post: {str(e)}', 'error')
     return redirect(request.referrer or url_for('profile'))
+
+
+@app.route("/submit_report", methods=["POST"])
+@login_required
+def submit_report():
+    data = request.get_json()
+    # Validate User ID format
+    reported_user_id = data.get('reportedUserId', '').strip().upper()
+    if not reported_user_id.startswith('USR-') or len(reported_user_id) != 10:
+        return jsonify({'success': False, 'error': 'Invalid User ID format'}), 400
+    # Check if reported user exists
+    reported_user = User.query.filter_by(user_unique_id=reported_user_id).first()
+    if not reported_user:
+        return jsonify({'success': False, 'error': 'User ID not found'}), 404
+    # Create new report
+    new_report = Report(
+        reporter_name=data.get('reporterName'),
+        reporter_email=data.get('reporterEmail'),
+        reporter_age=int(data.get('reporterAge')),
+        reported_user_id=reported_user_id,
+        report_reason=data.get('reportReason')
+    )
+    try:
+        db.session.add(new_report)
+        db.session.commit()
+        return jsonify({
+            'success': True, 
+            'message': 'Report submitted successfully',
+            'report_id': new_report.id
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 if __name__ == '__main__':
