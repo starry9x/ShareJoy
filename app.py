@@ -785,7 +785,15 @@ def explore():
 
         # Parse and format date
         parsed_date = parse_activity_date(a.date)
-        a.display_date = parsed_date.strftime("%d %b %Y") if parsed_date else a.date
+        if parsed_date:
+            a.display_date = parsed_date.strftime("%d %b %Y")
+        else:
+            a.display_date = a.date  # fallback
+        try:
+            parsed_time = datetime.strptime(a.time, "%H:%M")
+        except ValueError:
+            parsed_time = datetime.strptime(a.time, "%I:%M %p")
+        a.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
         # Determine join status for current user
         if a.creator_id == user.id:
@@ -887,16 +895,21 @@ def schedule():
             continue
 
         activity.display_tags = activity.tags.split(",") if activity.tags else []
-
         parsed_date = parse_activity_date(activity.date)
         if parsed_date:
             activity.display_date = parsed_date.strftime("%d %b %Y")
             activity.display_date_obj = parsed_date.date()
             activity.days_until = (activity.display_date_obj - today).days
         else:
-            activity.display_date = activity.date
+            activity.display_date = activity.date  # fallback
             activity.display_date_obj = today
             activity.days_until = 0
+
+        try:
+            parsed_time = datetime.strptime(activity.time, "%H:%M")
+        except ValueError:
+            parsed_time = datetime.strptime(activity.time, "%I:%M %p")
+        activity.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
         if is_creator:
             activity.join_activity = "created"
