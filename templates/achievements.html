@@ -94,7 +94,18 @@
             </div>
         </div>
         <div class="badges-preview">
-            <!-- First Steps - LOCKED (Grey) -->
+            <!-- First Steps - Dynamic (Unlocked or Locked) -->
+            {% if user.first_activity_completed %}
+            <div class="badge-item unlocked">
+                <div class="badge-circle orange">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M30 10L35 25L50 28L38 38L42 53L30 45L18 53L22 38L10 28L25 25L30 10Z" fill="white"/>
+                    </svg>
+                </div>
+                <h3>First Steps</h3>
+                <p>Complete your first activity</p>
+            </div>
+            {% else %}
             <div class="badge-item locked">
                 <div class="badge-circle grey">
                     <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -104,6 +115,7 @@
                 <h3>First Steps</h3>
                 <p>Complete your first activity</p>
             </div>
+            {% endif %}
             <!-- Social Butterfly - LOCKED (Grey) -->
             <div class="badge-item locked">
                 <div class="badge-circle grey">
