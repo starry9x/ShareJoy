@@ -351,16 +351,16 @@ def create_contact():
     user = get_current_user()
     
     if request.method == "POST":
-        contact_user_id = request.form.get("contact_user_id")
+        unique_id = request.form.get("contact_user_unique_id", "").strip()
         display_name = request.form.get("display_name", "").strip()
         short_desc = request.form.get("short_desc", "").strip()
 
         errors = {}
 
         # Validate contact user exists
-        contact_user = User.query.get(contact_user_id)
+        contact_user = User.query.filter_by(user_unique_id=unique_id).first()
         if not contact_user:
-            errors["contact"] = "Selected user not found"
+            errors["contact"] = "No user found with that unique ID"
         elif contact_user.id == user.id:
             errors["contact"] = "You cannot add yourself as a contact"
 
@@ -381,14 +381,15 @@ def create_contact():
                 "create_contact.html",
                 display_name=display_name,
                 short_desc=short_desc,
+                contact_user_unique_id=unique_id,
                 errors=errors,
                 title="Create Contact"
             )
 
-        # Create new contact
+        # Create new contact (store internal id)
         new_contact = Contact(
             owner_user_id=user.id,
-            contact_user_id=contact_user.id,
+            contact_user_id=contact_user.id,   # <-- use primary key here
             display_name=display_name,
             short_desc=short_desc,
             message_status="Unread"
@@ -406,12 +407,14 @@ def create_contact():
                 "create_contact.html",
                 display_name=display_name,
                 short_desc=short_desc,
+                contact_user_unique_id=unique_id,
                 errors=errors,
                 title="Create Contact"
             )
 
     # For GET request, show user search form
     return render_template("create_contact.html", title="Create Contact")
+
 
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 @login_required
@@ -551,6 +554,48 @@ def delete_chat_history(contact_id):
     
     flash('Chat history deleted successfully!', 'success')
     return redirect(url_for('messages'))
+
+@app.route('/update_message/<int:message_id>', methods=['POST'])
+@login_required
+def update_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    user = get_current_user()  # Use your custom function
+
+    # Verify the current user is the sender of the message
+    if message.sender_id != user.id:
+        abort(403)
+
+    # Update the message content
+    new_content = request.form.get('content')
+    if new_content:
+        message.content = new_content
+        db.session.commit()
+        flash('Message updated successfully!', 'success')
+
+    # Redirect back to the chat with the contact_id
+    contact_id = request.form.get('contact_id')  # Get contact_id from the form
+    if not contact_id:
+        flash('Contact ID is missing.', 'error')
+        return redirect(url_for('messages'))  # Fallback redirect if contact_id is missing
+
+    return redirect(url_for('textchat', contact_id=contact_id))
+
+@app.route('/delete_text_message/<int:message_id>', methods=['POST'])
+@login_required
+def delete_text_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    user = get_current_user()  # Use your custom function
+
+    # Verify the current user is the sender of the message
+    if message.sender_id != user.id:
+        abort(403)  # Forbidden if not the sender
+
+    # Delete the message
+    db.session.delete(message)
+    db.session.commit()
+
+    flash('Message deleted successfully!', 'success')
+    return redirect(url_for('textchat', contact_id=request.form.get('contact_id')))
 
 # ============================================
 # ACTIVITIES ROUTES
