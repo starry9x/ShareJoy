@@ -325,6 +325,7 @@ def onlytime(dt):
 def messages():
     user = get_current_user()
     search = request.args.get("search", "")
+    status_filter = request.args.get("status")  # ✅ grab status from query string
 
     # -------------------------
     # 1️⃣ Saved contacts
@@ -332,7 +333,14 @@ def messages():
     contacts_query = db.session.query(
         Contact,
         db.func.count(Message.id).label('message_count'),
-        db.func.max(Message.timestamp).label('last_message_time')
+        db.func.max(Message.timestamp).label('last_message_time'),
+        db.func.sum(
+            db.case(
+                (Message.receiver_id == Contact.owner_user_id, 
+                 db.case((Message.status != "Read", 1), else_=0)),
+                else_=0
+            )
+        ).label('unread_count')
     ).outerjoin(
         Message,
         db.or_(
@@ -347,6 +355,10 @@ def messages():
         )
     ).filter(Contact.owner_user_id == user.id
     ).group_by(Contact.id)
+
+    # ✅ Apply status filter if provided
+    if status_filter in ["Unread", "Read"]:
+        contacts_query = contacts_query.filter(Message.status == status_filter)
 
     contacts = contacts_query.all()
 
@@ -371,7 +383,14 @@ def messages():
     unknown_users_query = db.session.query(
         User,
         db.func.count(Message.id).label('message_count'),
-        db.func.max(Message.timestamp).label('last_message_time')
+        db.func.max(Message.timestamp).label('last_message_time'),
+        db.func.sum(
+            db.case(
+                (Message.receiver_id == user.id, 
+                 db.case((Message.status != "Read", 1), else_=0)),
+                else_=0
+            )
+        ).label('unread_count')
     ).join(
         Message, Message.sender_id == User.id
     ).filter(
@@ -379,6 +398,10 @@ def messages():
         ~User.id.in_(contact_ids_subquery),
         User.id != user.id
     ).group_by(User.id)
+
+    # ✅ Apply status filter here too
+    if status_filter in ["Unread", "Read"]:
+        unknown_users_query = unknown_users_query.filter(Message.status == status_filter)
 
     unknown_users = unknown_users_query.all()
 
@@ -399,10 +422,14 @@ def messages():
         "messages.html",
         contacts=[c[0] for c in contacts],
         contact_message_counts={c[0].id: c.message_count for c in contacts},
+        contact_unread_counts={c[0].id: c.unread_count for c in contacts},
         unknown_users=[u[0] for u in unknown_users],
         unknown_message_counts={u[0].id: u.message_count for u in unknown_users},
+        unknown_unread_counts={u[0].id: u.unread_count for u in unknown_users},
         title="Messages"
     )
+
+
 
 @app.route("/create_contact", methods=["GET", "POST"])
 @login_required
@@ -554,10 +581,6 @@ def delete_contact(contact_id):
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
-
-    # ---------------------------------
-    # 1️⃣ Ensure user is logged in
-    # ---------------------------------
     if "user_id" not in session:
         return redirect(url_for("login"))
 
@@ -566,7 +589,6 @@ def textchat(contact_id):
         session.clear()
         return redirect(url_for("login"))
 
-    # 2️⃣ Try loading as saved Contact
     contact = Contact.query.filter_by(
         id=contact_id,
         owner_user_id=user.id
@@ -576,7 +598,6 @@ def textchat(contact_id):
     if contact:
         chat_user = User.query.get(contact.contact_user_id)
 
-    # 3️⃣ If not a contact, treat as User ID
     if not contact:
         possible_user = User.query.get(contact_id)
         if not possible_user:
@@ -593,15 +614,12 @@ def textchat(contact_id):
 
         chat_user = possible_user
 
-    # 🚨 Guard clause
     if not chat_user:
         abort(404)
 
-    # ---------------------------------
-    # 4️⃣ Handle sending message
-    # ---------------------------------
+    # ✅ Handle sending message
     if request.method == "POST":
-        content = request.form.get("content")  # match the input name
+        content = request.form.get("content")
         if content and chat_user:
             new_message = Message(
                 sender_id=user.id,
@@ -613,22 +631,29 @@ def textchat(contact_id):
             db.session.add(new_message)
             if contact:
                 contact.last_chat = datetime.utcnow()
+                # no need to reset chat_cleared_at; new messages will naturally appear
             db.session.commit()
             return redirect(url_for("textchat", contact_id=contact_id))
 
-    # ---------------------------------
-    # 5️⃣ Load conversation
-    # ---------------------------------
-    messages = Message.query.filter(
-        or_(
-            and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
-            and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
-        )
-    ).order_by(Message.timestamp.asc()).all()
+    # ✅ Load conversation
+    if contact and contact.chat_cleared_at:
+        # Only show messages newer than the cleared timestamp
+        messages = Message.query.filter(
+            or_(
+                and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
+                and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
+            ),
+            Message.timestamp > contact.chat_cleared_at
+        ).order_by(Message.timestamp.asc()).all()
+    else:
+        messages = Message.query.filter(
+            or_(
+                and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
+                and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
+            )
+        ).order_by(Message.timestamp.asc()).all()
 
-    # ---------------------------------
-    # 6️⃣ Mark received messages as read
-    # ---------------------------------
+    # Mark received messages as read
     Message.query.filter(
         Message.sender_id == chat_user.id,
         Message.receiver_id == user.id,
@@ -642,9 +667,8 @@ def textchat(contact_id):
         contact=contact,
         chat_user=chat_user,
         messages=messages,
-        user=user   # <-- pass current user to template
+        user=user
     )
-
 
 @app.route('/delete_chat_history/<int:contact_id>', methods=['POST'])
 @login_required
@@ -655,14 +679,16 @@ def delete_chat_history(contact_id):
     if contact.owner_user_id != user.id:
         abort(403)
 
-    # Mark chat as deleted for this user only
+    # Mark chat as cleared for this user only
     contact.last_chat = None
-    contact.deleted_history = True
+    contact.chat_cleared_at = datetime.utcnow()   # ✅ set timestamp
 
     db.session.commit()
     
     flash('Chat history cleared on your side!', 'success')
     return redirect(url_for('messages'))
+
+
 
 @app.route('/update_message/<int:message_id>', methods=['POST'])
 @login_required

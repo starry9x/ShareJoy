@@ -58,6 +58,11 @@ class Contact(db.Model):
         lazy='dynamic'
     )
 
+    deleted_history = db.Column(db.Boolean, default=False)
+
+    chat_cleared_at = db.Column(db.DateTime, nullable=True)
+
+
     def __repr__(self):
         return f"<Contact owner={self.owner_user_id} contact={self.contact_user_id} display_name={self.display_name}>"
     
@@ -68,6 +73,14 @@ class Contact(db.Model):
              (Message.receiver_id == self.contact_user_id)) |
             ((Message.sender_id == self.contact_user_id) & 
              (Message.receiver_id == self.owner_user_id))
+        ).count()
+    
+    def get_unread_count(self):
+        """Count unread messages received by the owner from this contact"""
+        return Message.query.filter(
+            (Message.sender_id == self.contact_user_id) &
+            (Message.receiver_id == self.owner_user_id) &
+            (Message.status != "Read")
         ).count()
 
 

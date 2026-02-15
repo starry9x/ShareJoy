@@ -57,8 +57,6 @@
               data-status="Unread">📩 Unread</button>
             <button type="button" class="filter-option {% if request.args.get('status') == 'Read' %}active{% endif %}"
               data-status="Read">✅ Read</button>
-            <button type="button" class="filter-option {% if request.args.get('status') == 'Archived' %}active{% endif %}"
-              data-status="Archived">🗄️ Archived</button>
           </div>
         </div>
         <div id="clear-filters" class="mt-3 text-start d-none">
@@ -87,6 +85,10 @@
                     {% endif %}
                   {% endif %}
                 </p>
+                {% set unread = contact_unread_counts.get(contact.id, 0) %}
+                {% if unread > 0 %}
+                  <span class="unread-bubble">{{ unread }} unread message{% if unread > 1 %}s{% endif %}</span>
+                {% endif %}
               </div>
             </div>
             <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
@@ -116,9 +118,9 @@
         <div class="alert alert-info text-center fw-semibold">No contacts found.</div>
       </div>
     {% endif %}
-  </div>
+    </div>
 
-<!-- Unknown Users Tab -->
+    <!-- Unknown Users Tab -->
 <div class="tab-pane fade" id="unknown" role="tabpanel" aria-labelledby="unknown-tab">
   {% if unknown_users %}
     {% for user in unknown_users %}
@@ -135,6 +137,13 @@
                   No chats yet
                 {% endif %}
               </p>
+
+              {% set unread = unknown_unread_counts.get(user.id, 0) %}
+              {% if unread > 0 %}
+                <span class="unread-bubble">
+                  {{ unread }} unread message{% if unread > 1 %}s{% endif %}
+                </span>
+              {% endif %}
             </div>
           </div>
 
@@ -144,28 +153,38 @@
               <span class="fs-6 fw-semibold">More actions</span>
               <i class="me-4 fa-solid fa-chevron-down chevron-icon"></i>
             </button>
+
             <div class="more-actions-menu d-none">
               <!-- Save as Contact -->
-            <form method="get" action="{{ url_for('create_contact') }}" style="display:inline;" onsubmit="event.stopPropagation();">
-              <input type="hidden" name="user_id" value="{{ user.id }}">
-              <button type="submit" class="menu-item">Save as Contact</button>
-            </form>
+              <form method="get"
+                    action="{{ url_for('create_contact') }}"
+                    style="display:inline;"
+                    onsubmit="event.stopPropagation();">
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <button type="submit" class="menu-item">
+                  Save as Contact
+                </button>
+              </form>
+
               <!-- Delete chat history -->
-              <button class="menu-item text-danger" onclick="openDeleteChatHistoryModal({{ user.id }}); event.stopPropagation();">
+              <button class="menu-item text-danger"
+                      onclick="openDeleteChatHistoryModal({{ user.id }}); event.stopPropagation();">
                 Delete chat history
               </button>
             </div>
           </div>
           <!-- End dropdown -->
+
         </div>
       </div>
     {% endfor %}
   {% else %}
     <div class="col-12">
-      <div class="alert alert-info text-center fw-semibold">No unknown users found.</div>
+      <div class="alert alert-info text-center fw-semibold">
+        No unknown users found.
+      </div>
     </div>
   {% endif %}
-</div>
 </div>
 
 
