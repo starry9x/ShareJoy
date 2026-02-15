@@ -82,7 +82,12 @@ class Contact(db.Model):
             (Message.receiver_id == self.owner_user_id) &
             (Message.status != "Read")
         ).count()
-
+    
+    @property
+    def messages(self):
+        sent = list(self.messages_sent)
+        received = list(self.messages_received)
+        return sorted(sent + received, key=lambda m: m.timestamp, reverse=True)
 
 class Message(db.Model):
     __tablename__ = 'message'

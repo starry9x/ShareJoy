@@ -326,8 +326,10 @@ def messages():
     user = get_current_user()
     search = request.args.get("search", "")
     status_filter = request.args.get("status")
-    contact_updated = request.args.get("contact_updated", False)  # ✅ flag for update modal
-    contact_created = request.args.get("contact_created", False)  # ✅ flag for create modal
+    contact_updated = request.args.get("contact_updated", False)   # ✅ flag for update modal
+    contact_created = request.args.get("contact_created", False)   # ✅ flag for create modal
+    contact_deleted = request.args.get("contact_deleted", False)   # ✅ flag for delete modal
+    chat_history_deleted = request.args.get("chat_history_deleted", False)  # ✅ flag for chat history modal
 
     # -------------------------
     # 1️⃣ Saved contacts
@@ -424,7 +426,17 @@ def messages():
     unknown_users.sort(key=lambda u: u.last_message_time or datetime.min, reverse=True)
 
     # -------------------------
-    # 3️⃣ Render
+    # 3️⃣ Messages search results (NEW)
+    # -------------------------
+    search_results = []
+    if search:
+        search_results = db.session.query(Message).filter(
+            (Message.sender_id == user.id) | (Message.receiver_id == user.id),
+            Message.content.ilike(f"%{search}%")
+        ).order_by(Message.timestamp.desc()).all()
+
+    # -------------------------
+    # 4️⃣ Render
     # -------------------------
     return render_template(
         "messages.html",
@@ -434,9 +446,12 @@ def messages():
         unknown_users=[u[0] for u in unknown_users],
         unknown_message_counts={u[0].id: u.message_count for u in unknown_users},
         unknown_unread_counts={u[0].id: u.unread_count for u in unknown_users},
+        search_results=search_results,   # ✅ pass messages search results
         title="Messages",
         contact_updated=contact_updated,
-        contact_created=contact_created   # ✅ pass flag for create modal
+        contact_created=contact_created,
+        contact_deleted=contact_deleted,
+        chat_history_deleted=chat_history_deleted
     )
 
 @app.route("/create_contact", methods=["GET", "POST"])
@@ -585,9 +600,9 @@ def delete_contact(contact_id):
 
     db.session.delete(contact)
     db.session.commit()
-    
-    flash("Contact deleted successfully!", "success")
-    return redirect(url_for('messages'))
+
+    # ✅ redirect with flag so messages.html shows "Contact Deleted" modal
+    return redirect(url_for('messages', contact_deleted=True))
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
@@ -694,10 +709,9 @@ def delete_chat_history(contact_id):
     contact.chat_cleared_at = datetime.utcnow()   # ✅ set timestamp
 
     db.session.commit()
-    
-    flash('Chat history cleared on your side!', 'success')
-    return redirect(url_for('messages'))
 
+    # ✅ redirect with flag so messages.html shows "Chat History Deleted" modal
+    return redirect(url_for('messages', chat_history_deleted=True))
 
 
 @app.route('/update_message/<int:message_id>', methods=['POST'])

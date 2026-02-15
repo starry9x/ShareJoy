@@ -51,35 +51,51 @@
       <div id="message-{{ message.id }}" class="message {% if message.sender_id == user.id %}sent{% else %}received{% endif %}">
         <div class="message-content">
           <p>{{ message.content }}</p>
-          <small>Sent at {{ message.timestamp|onlytime }}</small>
+
+          {% if message.sender_id != user.id %}
+            <small>Sent at {{ message.timestamp|onlytime }}</small>
+            {% if message.delivered_at %}
+              <br><small>Delivered at {{ message.delivered_at|onlytime }}</small>
+            {% endif %}
+            {% if message.read_at %}
+              <br><small>Read at {{ message.read_at|onlytime }}</small>
+            {% endif %}
+          {% else %}
+            {# For your own messages, combine status + sent time #}
+            {% if message.read_at %}
+              <small>Read • Sent at {{ message.timestamp|onlytime }}</small>
+            {% elif message.delivered_at %}
+              <small>Delivered • Sent at {{ message.timestamp|onlytime }}</small>
+            {% else %}
+              <small>{{ message.status }} • Sent at {{ message.timestamp|onlytime }}</small>
+            {% endif %}
+          {% endif %}
+
           {% if message.sender_id == user.id %}
-  <div class="message-actions">
-    <button type="button" class="btn redbtn btn-sm fw-semibold shadow-sm delete-btn"
-            data-bs-toggle="modal" data-bs-target="#deleteModal{{ message.id }}">
-      Delete
-    </button>
+            <div class="message-actions">
+              <button type="button" class="btn redbtn btn-sm fw-semibold shadow-sm delete-btn"
+                      data-bs-toggle="modal" data-bs-target="#deleteModal{{ message.id }}">
+                Delete
+              </button>
+              <button type="button" class="edit-btn btn edit" onclick="startEdit(this)">
+                Edit
+              </button>
+            </div>
 
-    <!-- Edit button triggers inline form -->
-    <button type="button" class="edit-btn btn edit" onclick="startEdit(this)">
-      Edit
-    </button>
-  </div>
-
-    <!-- Inline Edit Form (hidden by default) -->
-    <form method="post" action="{{ url_for('update_message', message_id=message.id) }}"
-          class="edit-form" style="display:none;">
-      <input type="hidden" name="contact_id" value="{{ contact.id }}">
-      <label for="editContent{{ message.id }}" class="form-label fw-semibold edit-label">Edit your message:</label>
-      <textarea id="editContent{{ message.id }}" name="content" class="edit-input form-control">{{ message.content }}</textarea>
-      <div class="update-buttons">
-        <!-- Save opens confirmation modal -->
-        <button type="button" class="btn dobtn fw-semibold" onclick="confirmEdit({{ message.id }})">Save Changes</button>
-        <button type="button" class="btn cancel-btn fw-semibold" onclick="cancelEdit(this)">Cancel</button>
-      </div>
-    </form>
-  {% endif %}
+            <form method="post" action="{{ url_for('update_message', message_id=message.id) }}"
+                  class="edit-form" style="display:none;">
+              <input type="hidden" name="contact_id" value="{{ contact.id }}">
+              <label for="editContent{{ message.id }}" class="form-label fw-semibold edit-label">Edit your message:</label>
+              <textarea id="editContent{{ message.id }}" name="content" class="edit-input form-control">{{ message.content }}</textarea>
+              <div class="update-buttons">
+                <button type="button" class="btn dobtn fw-semibold" onclick="confirmEdit({{ message.id }})">Save Changes</button>
+                <button type="button" class="btn cancel-btn fw-semibold" onclick="cancelEdit(this)">Cancel</button>
+              </div>
+            </form>
+          {% endif %}
         </div>
       </div>
+
 
       <!-- Delete Message Modal -->
       <div class="modal fade" id="deleteModal{{ message.id }}" tabindex="-1"
