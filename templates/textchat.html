@@ -13,9 +13,9 @@
 
   <!-- Centered group -->
   <div class="text-pfp-container">
-    <img src="{{ url_for('static', filename=(contact.image_url if contact.image_url else 'images/default_pfp.jpg')) }}"
-         alt="{{ contact.name }} picture" class="pfp">
-    <span class="contact-name fw-semibold">{{ contact.name }}</span>
+    <img src="{{ url_for('static', filename='images/default_pfp.jpg') }}"
+         alt="{{ contact.display_name }} picture" class="pfp">
+    <span class="contact-name fw-semibold">{{ contact.display_name }}</span>
   </div>
 </div>
 
@@ -47,9 +47,9 @@
       {% for day, day_messages in messages|groupby('date_only') %}
         <div class="day-label">{{ day.strftime("%A, %d %b %Y") }}</div>
         {% for message in day_messages %}
-          <div id="message-{{ message.id }}" class="message {% if message.username == user.full_name %}sent{% else %}received{% endif %}">
+          <div id="message-{{ message.id }}" class="message {% if message.sender_id == user.id %}sent{% else %}received{% endif %}">
             <p>{{ message.content }}</p>
-            {% if message.username == user.full_name %}
+            {% if message.sender_id == user.id %}
               <div class="message-actions">
                 <!-- Delete Button (Hidden when edit form is active) -->
                 <button type="button" class="btn redbtn btn-sm fw-semibold shadow-sm delete-btn" onclick="confirmDelete({{ message.id }})">Delete</button>

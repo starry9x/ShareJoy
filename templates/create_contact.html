@@ -37,43 +37,46 @@
   <div class="card shadow-sm sectionbox2 mx-auto">
     <div class="card-body">
       <form method="POST" action="{{ url_for('create_contact') }}" id="createContactForm">
-        <!-- Name -->
-        <div class="mb-3">
-          <label for="name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="name" name="name" 
-                placeholder="Enter contact name..." 
-                value="{{ name if name }}" 
-                required maxlength="35">
-          <div class="error-message" id="nameError">Name is required and must be under 35 characters.</div>
-          {% if errors and "name" in errors %}
-            <div class="text-danger">{{ errors["name"] }}</div>
-          {% endif %}
-        </div>
+        <!-- Display Name -->
+<div class="mb-3">
+  <label for="display_name" class="form-label fw-semibold">Display Name <span class="text-danger">*</span></label>
+  <input type="text" class="form-control" id="display_name" name="display_name"
+         placeholder="Enter display name..."
+         value="{{ display_name if display_name }}"
+         required maxlength="35">
+  <div class="error-message" id="displayNameError">Display name is required and must be under 35 characters.</div>
+  {% if errors and "display_name" in errors %}
+    <div class="text-danger">{{ errors["display_name"] }}</div>
+  {% endif %}
+</div>
 
-        <!-- Phone -->
-        <div class="mb-3">
-          <label for="phone" class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="phone" name="phone" 
-                placeholder="Enter phone number..." 
-                value="{{ phone if phone }}" 
-                required maxlength="8" pattern="\d{8}">
-          <div class="error-message" id="phoneError">Phone must be exactly 8 digits.</div>
-          {% if errors and "phone" in errors %}
-            <div class="text-danger">{{ errors["phone"] }}</div>
-          {% endif %}
-        </div>
+      <!-- Contact User (select from existing users) -->
+      <div class="mb-3">
+        <label for="contact_user_id" class="form-label fw-semibold">Select User <span class="text-danger">*</span></label>
+        <select class="form-select" id="contact_user_id" name="contact_user_id" required>
+          <option value="">-- Choose a user --</option>
+          {% for u in users %}
+            <option value="{{ u.id }}" {% if contact_user_id == u.id %}selected{% endif %}>
+              {{ u.full_name }}
+            </option>
+          {% endfor %}
+        </select>
+        {% if errors and "contact" in errors %}
+          <div class="text-danger">{{ errors["contact"] }}</div>
+        {% endif %}
+      </div>
 
-        <!-- Short Description -->
-        <div class="mb-3">
-          <label for="short_desc" class="form-label fw-semibold">Short Description (optional)</label>
-          <input type="text" class="form-control" id="short_desc" name="short_desc"
-                placeholder="Workshop partner, Grandma, etc." 
-                value="{{ short_desc if short_desc }}" maxlength="120">
-          <div class="error-message" id="descError">Description must be under 120 characters.</div>
-          {% if errors and "short_desc" in errors %}
-            <div class="text-danger">{{ errors["short_desc"] }}</div>
-          {% endif %}
-        </div>
+      <!-- Short Description -->
+      <div class="mb-3">
+        <label for="short_desc" class="form-label fw-semibold">Short Description (optional)</label>
+        <input type="text" class="form-control" id="short_desc" name="short_desc"
+              placeholder="Workshop partner, Grandma, etc."
+              value="{{ short_desc if short_desc }}" maxlength="120">
+        <div class="error-message" id="descError">Description must be under 120 characters.</div>
+        {% if errors and "short_desc" in errors %}
+          <div class="text-danger">{{ errors["short_desc"] }}</div>
+        {% endif %}
+      </div>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-end gap-2">
@@ -91,27 +94,19 @@
 {% block extra_js %}
 <script>
 function validateFields(showErrors = true) {
-  const nameInput = document.getElementById('name');
-  const phoneInput = document.getElementById('phone');
+  const displayNameInput = document.getElementById('display_name');
   const descInput = document.getElementById('short_desc');
   const submitBtn = document.getElementById('submitBtn');
 
   let isValid = true;
 
   // Reset error displays
-  document.getElementById('nameError').style.display = 'none';
-  document.getElementById('phoneError').style.display = 'none';
+  document.getElementById('displayNameError').style.display = 'none';
   document.getElementById('descError').style.display = 'none';
 
-  // Validate name
-  if (!nameInput.value.trim() || nameInput.value.length > 35) {
-    if (showErrors) document.getElementById('nameError').style.display = 'block';
-    isValid = false;
-  }
-
-  // Validate phone
-  if (!/^\d{8}$/.test(phoneInput.value.trim())) {
-    if (showErrors) document.getElementById('phoneError').style.display = 'block';
+  // Validate display name
+  if (!displayNameInput.value.trim() || displayNameInput.value.length > 35) {
+    if (showErrors) document.getElementById('displayNameError').style.display = 'block';
     isValid = false;
   }
 
@@ -127,18 +122,15 @@ function validateFields(showErrors = true) {
 
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('createContactForm');
-  const nameInput = document.getElementById('name');
-  const phoneInput = document.getElementById('phone');
+  const displayNameInput = document.getElementById('display_name');
   const descInput = document.getElementById('short_desc');
 
   // Show errors only when leaving the field
-  nameInput.addEventListener('blur', () => validateFields(true));
-  phoneInput.addEventListener('blur', () => validateFields(true));
+  displayNameInput.addEventListener('blur', () => validateFields(true));
   descInput.addEventListener('blur', () => validateFields(true));
 
-  // Silent validation while typing (no errors shown yet)
-  nameInput.addEventListener('input', () => validateFields(false));
-  phoneInput.addEventListener('input', () => validateFields(false));
+  // Silent validation while typing
+  displayNameInput.addEventListener('input', () => validateFields(false));
   descInput.addEventListener('input', () => validateFields(false));
 
   // Final validation on submit
@@ -153,3 +145,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+

@@ -316,17 +316,18 @@ def onlytime(dt):
 @app.route("/messages")
 @login_required
 def messages():
+    user = get_current_user()
     search = request.args.get("search", "")
     status_filter = request.args.get("status")
 
-    query = Contact.query
+    # Get all contacts where current user is the owner
+    query = Contact.query.filter_by(owner_user_id=user.id)
 
     if search:
-        query = query.filter(
-            (Contact.name.ilike(f"%{search}%")) |
-            (Contact.phone.ilike(f"%{search}%")) |
-            (Contact.short_desc.ilike(f"%{search}%")) |
-            (Contact.messages.any(Message.content.ilike(f"%{search}%")))
+        query = query.join(User, Contact.contact_user_id == User.id).filter(
+            (Contact.display_name.ilike(f"%{search}%")) |
+            (User.full_name.ilike(f"%{search}%")) |
+            (Contact.short_desc.ilike(f"%{search}%"))
         )
 
     if status_filter:
@@ -334,198 +335,65 @@ def messages():
 
     contacts = query.all()
 
-    for c in contacts:
-        last_msg = (
-            Message.query.filter_by(contact_id=c.id)
-            .order_by(Message.timestamp.desc())
-            .first()
-        )
-        c.last_chat = last_msg.timestamp if last_msg else None  # Set to None if no messages
-
+    # Sort by last chat time (newest first)
     contacts.sort(
         key=lambda c: c.last_chat or datetime.min,
         reverse=True
     )
 
-    messages = []
-    if search:
-        messages_query = Message.query.filter(Message.content.ilike(f"%{search}%"))
-        if status_filter:
-            messages_query = messages_query.filter(Message.status == status_filter)
-        messages = messages_query.order_by(Message.timestamp.desc()).all()
-
-    return render_template("messages.html", contacts=contacts, messages=messages, title="Messages")
-
-
-@app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
-@login_required
-def textchat(contact_id):
-    contact = Contact.query.get_or_404(contact_id)
-    user = get_current_user()  # Ensure this returns the logged-in user
-
-    if request.method == "POST":
-        content = request.form.get("content")
-        if content:
-            new_msg = Message(
-                username=user.full_name,
-                content=content,
-                contact_id=contact.id
-            )
-            db.session.add(new_msg)
-            db.session.commit()
-        return redirect(url_for("textchat", contact_id=contact.id))
-
-    # Always load all messages for the chat
-    messages = (
-        Message.query.filter_by(contact_id=contact.id)
-        .order_by(Message.timestamp.asc())
-        .all()
-    )
-
-    # --- Handle search query ---
-    search_term = request.args.get("search")
-    highlight_id = None
-    if search_term:
-        match = (
-            Message.query.filter(
-                Message.contact_id == contact.id,
-                Message.content.ilike(f"%{search_term}%")
-            )
-            .order_by(Message.timestamp.asc())
-            .first()
-        )
-        if match:
-            highlight_id = match.id
-
-    return render_template(
-        "textchat.html",
-        contact=contact,
-        messages=messages,
-        user=user,
-        highlight_id=highlight_id
-    )
-
-@app.route('/send_message', methods=['POST'])
-def send_message():
-    # ... (existing code)
-    contact = Contact.query.get(contact_id)
-    contact.last_chat = datetime.utcnow()  # Update last_chat
-    db.session.commit()
-
-
-@app.route('/delete_text_message/<int:message_id>', methods=['POST'])
-@login_required
-def delete_text_message(message_id):
-    try:
-        message = Message.query.get_or_404(message_id)
-        user = get_current_user()
-
-        if message.username != user.full_name:
-            abort(403)
-
-        contact = message.contact
-        contact_id = contact.id
-
-        # Delete the message
-        db.session.delete(message)
-        db.session.commit()
-
-        # Update last_chat
-        newest_message = Message.query.filter_by(
-            contact_id=contact_id
-        ).order_by(Message.timestamp.desc()).first()
-        
-        contact.last_chat = newest_message.timestamp if newest_message else None
-        db.session.commit()
-
-        flash('Message deleted successfully!', 'success')
-        return redirect(url_for('textchat', contact_id=contact_id))
-    
-    except Exception as e:
-        db.session.rollback()
-        flash('Error deleting message', 'error')
-        return redirect(url_for('messages'))
-
-@app.route('/update_message/<int:message_id>', methods=['POST'])
-@login_required
-def update_message(message_id):
-    message = Message.query.get_or_404(message_id)
-    user = get_current_user()
-
-    if message.username != user.full_name:
-        abort(403)
-
-    new_content = request.form.get('content', '').strip()
-    if not new_content:
-        flash('Message content cannot be empty.', 'error')
-        return redirect(url_for('textchat', contact_id=message.contact_id))
-
-    message.content = new_content
-    db.session.commit()
-
-    flash('Message updated successfully!', 'success')
-    return redirect(url_for('textchat', contact_id=message.contact_id))
-
-@app.route('/delete_chat_history/<int:contact_id>', methods=['POST'])
-@login_required
-def delete_chat_history(contact_id):
-    contact = Contact.query.get_or_404(contact_id)
-    user = get_current_user()
-
-    # Delete all messages for this contact
-    Message.query.filter_by(contact_id=contact.id).delete()
-    
-    # Set last_chat to None since all messages are deleted
-    contact.last_chat = None
-
-    db.session.commit()
-    flash('Chat history deleted successfully!', 'success')
-    return redirect(url_for('messages'))
+    return render_template("messages.html", 
+                         contacts=contacts, 
+                         title="Messages")
 
 @app.route("/create_contact", methods=["GET", "POST"])
 @login_required
 def create_contact():
+    user = get_current_user()
+    
     if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        phone = request.form.get("phone", "").strip()
+        contact_user_id = request.form.get("contact_user_id")
+        display_name = request.form.get("display_name", "").strip()
         short_desc = request.form.get("short_desc", "").strip()
 
-        # Validation errors
         errors = {}
 
-        # Validate name
-        if not name:
-            errors["name"] = "Name is required."
-        elif len(name) > 35:
-            errors["name"] = "Name cannot exceed 35 characters."
+        # Validate contact user exists
+        contact_user = User.query.get(contact_user_id)
+        if not contact_user:
+            errors["contact"] = "Selected user not found"
+        elif contact_user.id == user.id:
+            errors["contact"] = "You cannot add yourself as a contact"
 
-        # Validate phone
-        if not phone:
-            errors["phone"] = "Phone number is required."
-        elif len(phone) != 8 or not phone.isdigit():
-            errors["phone"] = "Phone number must be exactly 8 digits."
-        elif Contact.query.filter_by(phone=phone).first():
-            errors["phone"] = "This phone number is already registered."
+        # Validate display name
+        if not display_name:
+            errors["display_name"] = "Display name is required"
+        elif len(display_name) > 35:
+            errors["display_name"] = "Display name cannot exceed 35 characters"
 
-        # Validate short description
+        # Validate description
         if short_desc and len(short_desc) > 120:
-            errors["short_desc"] = "Short description cannot exceed 120 characters."
+            errors["short_desc"] = "Description cannot exceed 120 characters"
 
-        # If errors exist, show them
         if errors:
             for field, message in errors.items():
                 flash(message, "error")
             return render_template(
                 "create_contact.html",
-                name=name,
-                phone=phone,
+                display_name=display_name,
                 short_desc=short_desc,
-                errors=errors,  # Pass errors to the template
+                errors=errors,
                 title="Create Contact"
             )
 
         # Create new contact
-        new_contact = Contact(name=name, phone=phone, short_desc=short_desc)
+        new_contact = Contact(
+            owner_user_id=user.id,
+            contact_user_id=contact_user.id,
+            display_name=display_name,
+            short_desc=short_desc,
+            message_status="Unread"
+        )
+        
         try:
             db.session.add(new_contact)
             db.session.commit()
@@ -536,44 +404,36 @@ def create_contact():
             flash(f"An error occurred: {str(e)}", "error")
             return render_template(
                 "create_contact.html",
-                name=name,
-                phone=phone,
+                display_name=display_name,
                 short_desc=short_desc,
-                errors=errors,  # Pass errors to the template
+                errors=errors,
                 title="Create Contact"
             )
 
+    # For GET request, show user search form
     return render_template("create_contact.html", title="Create Contact")
-
-
-@app.route('/delete_contact/<int:contact_id>', methods=['POST'])
-@login_required
-def delete_contact(contact_id):
-    contact = Contact.query.get_or_404(contact_id)
-    db.session.delete(contact)
-    db.session.commit()
-    flash("Contact deleted successfully!", "contact_deleted")
-    return redirect(url_for('messages'))
-
 
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 @login_required
 def edit_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
+    user = get_current_user()
+
+    # Verify current user owns this contact
+    if contact.owner_user_id != user.id:
+        abort(403)
 
     if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        phone = request.form.get('phone', '').strip()
+        display_name = request.form.get('display_name', '').strip()
         short_desc = request.form.get('short_desc', '').strip()
+        message_status = request.form.get('message_status', 'Unread')
 
         errors = []
-        if not name:
-            errors.append("Name is required.")
-        elif len(name) > 100:
-            errors.append("Name cannot exceed 100 characters.")
-
-        if phone and (len(phone) > 20 or not phone.isdigit()):
-            errors.append("Phone must be digits only and max 20 characters.")
+        
+        if not display_name:
+            errors.append("Display name is required.")
+        elif len(display_name) > 35:
+            errors.append("Display name cannot exceed 35 characters.")
 
         if short_desc and len(short_desc) > 120:
             errors.append("Short description cannot exceed 120 characters.")
@@ -586,9 +446,9 @@ def edit_contact(contact_id):
                 title="Edit Contact"
             )
 
-        contact.name = name
-        contact.phone = phone
+        contact.display_name = display_name
         contact.short_desc = short_desc
+        contact.message_status = message_status
         db.session.commit()
 
         flash('Contact updated successfully!', 'success')
@@ -596,6 +456,101 @@ def edit_contact(contact_id):
     
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
 
+@app.route('/delete_contact/<int:contact_id>', methods=['POST'])
+@login_required
+def delete_contact(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+    user = get_current_user()
+
+    # Verify current user owns this contact
+    if contact.owner_user_id != user.id:
+        abort(403)
+
+    # Delete all messages between these users
+    Message.query.filter(
+        ((Message.sender_id == user.id) & (Message.receiver_id == contact.contact_user_id)) |
+        ((Message.sender_id == contact.contact_user_id) & (Message.receiver_id == user.id))
+    ).delete()
+
+    db.session.delete(contact)
+    db.session.commit()
+    
+    flash("Contact deleted successfully!", "success")
+    return redirect(url_for('messages'))
+
+@app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
+@login_required
+def textchat(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+    user = get_current_user()
+
+    # Verify current user owns this contact
+    if contact.owner_user_id != user.id:
+        abort(403)
+
+    if request.method == "POST":
+        content = request.form.get("content")
+        if content:
+            new_msg = Message(
+                sender_id=user.id,
+                receiver_id=contact.contact_user_id,
+                content=content,
+                status="Delivered"
+            )
+            db.session.add(new_msg)
+            
+            # Update last_chat timestamp
+            contact.last_chat = datetime.utcnow()
+            contact.message_status = "Read"  # Mark as read when sending new message
+            
+            db.session.commit()
+        return redirect(url_for("textchat", contact_id=contact.id))
+
+    # Get messages between these two users
+    messages = Message.query.filter(
+        ((Message.sender_id == user.id) & (Message.receiver_id == contact.contact_user_id)) |
+        ((Message.sender_id == contact.contact_user_id) & (Message.receiver_id == user.id))
+    ).order_by(Message.timestamp.asc()).all()
+
+    # Mark messages as read when viewing chat
+    Message.query.filter_by(
+        sender_id=contact.contact_user_id,
+        receiver_id=user.id,
+        status="Delivered"
+    ).update({"status": "Read"})
+    
+    contact.message_status = "Read"
+    db.session.commit()
+
+    return render_template(
+        "textchat.html",
+        contact=contact,
+        messages=messages,
+        user=user,
+        title=f"Chat with {contact.display_name}"
+    )
+
+@app.route('/delete_chat_history/<int:contact_id>', methods=['POST'])
+@login_required
+def delete_chat_history(contact_id):
+    contact = Contact.query.get_or_404(contact_id)
+    user = get_current_user()
+
+    if contact.owner_user_id != user.id:
+        abort(403)
+
+    # Delete all messages between these users
+    Message.query.filter(
+        ((Message.sender_id == user.id) & (Message.receiver_id == contact.contact_user_id)) |
+        ((Message.sender_id == contact.contact_user_id) & (Message.receiver_id == user.id))
+    ).delete()
+
+    # Reset last_chat
+    contact.last_chat = None
+    db.session.commit()
+    
+    flash('Chat history deleted successfully!', 'success')
+    return redirect(url_for('messages'))
 
 # ============================================
 # ACTIVITIES ROUTES

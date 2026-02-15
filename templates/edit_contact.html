@@ -25,26 +25,13 @@
       <form method="POST" id="saveChangesForm" action="{{ url_for('edit_contact', contact_id=contact.id) }}">
         <!-- Name -->
         <div class="mb-3">
-          <label for="name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="name" name="name"
-              value="{{ contact.name }}" 
-              required maxlength="35"
-              placeholder="Enter full name">
+          <label for="display_name" class="form-label fw-semibold">Display Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="display_name" name="display_name"
+                value="{{ contact.display_name }}" 
+                required maxlength="35"
+                placeholder="Enter display name">
           <div class="form-text text-danger d-none" id="nameError">
             Name is required and must be under 35 characters.
-          </div>
-        </div>
-
-        <!-- Phone -->
-        <div class="mb-3">
-          <label for="phone" class="form-label fw-semibold">Phone</label>
-          <input type="text" class="form-control" id="phone" name="phone"
-              value="{{ contact.phone or '' }}" 
-              placeholder="Enter phone number..."
-              pattern="^\d{8}$" maxlength="8"
-              title="Phone number must be exactly 8 digits">
-          <div class="form-text text-danger d-none" id="phoneError">
-            Phone must be exactly 8 digits.
           </div>
         </div>
 
@@ -98,30 +85,20 @@
 {% block extra_js %}
 <script>
 function validateFields() {
-  const nameInput = document.getElementById('name');
-  const phoneInput = document.getElementById('phone');
+  const nameInput = document.getElementById('display_name');
   const descInput = document.getElementById('short_desc');
   const saveButton = document.querySelector('.dobtn');
 
   let valid = true;
 
+  // Hide errors initially
   document.getElementById('nameError').classList.add('d-none');
-  document.getElementById('phoneError').classList.add('d-none');
   document.getElementById('descError').classList.add('d-none');
 
-  // Validate name
+  // Validate display name
   if (!nameInput.value.trim() || nameInput.value.length > 35) {
     document.getElementById('nameError').classList.remove('d-none');
     valid = false;
-  }
-
-  // Validate phone
-  if (phoneInput.value.trim()) {
-    const phonePattern = /^\d{8}$/; // Exactly 8 digits
-    if (!phonePattern.test(phoneInput.value.trim())) {
-      document.getElementById('phoneError').classList.remove('d-none');
-      valid = false;
-    }
   }
 
   // Validate description
@@ -144,16 +121,15 @@ function openSaveModal() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  const nameInput = document.getElementById('name');
-  const phoneInput = document.getElementById('phone');
+  const nameInput = document.getElementById('display_name');
   const descInput = document.getElementById('short_desc');
 
   nameInput.addEventListener('input', validateFields);
-  phoneInput.addEventListener('input', validateFields);
   descInput.addEventListener('input', validateFields);
 
   // Initial validation on page load
   validateFields();
 });
+
 </script>
 {% endblock %}

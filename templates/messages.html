@@ -54,7 +54,6 @@
       </div>
     </div>
 
-
     <div id="clear-filters" class="mt-3 text-start d-none">
       <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold">
         Clear filter
@@ -75,19 +74,15 @@
       <div class="d-flex align-items-center justify-content-between w-100">
         <!-- Left side -->
         <div class="d-flex align-items-center">
-          <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" 
+          <img src="{{ url_for('static', filename='images/default_pfp.jpg') }}" 
                alt="Profile Image" class="circle-image">
           <div>
-            <h1 class="mb-1 me-5 brown">{{ contact.name }}</h1>
+            <h1 class="mb-1 me-5 brown">{{ contact.display_name }}</h1>
             <p class="mb-0 brown">
               {% if contact.last_chat %}
                 Last chatted on {{ contact.last_chat|sgtime }}
               {% else %}
-                {% if contact.messages.count() > 0 %}
-                  No messages sent recently
-                {% else %}
-                  No chats yet
-                {% endif %}
+                No chats yet
               {% endif %}
             </p>
           </div>
@@ -133,7 +128,7 @@
   {% if messages %}
     {% for m in messages %}
       <div>
-        <strong>{{ m.contact.name }}</strong>: {{ m.content }}
+        <strong>{{ m.contact.display_name }}</strong>: {{ m.content }}
         <span class="text-muted">{{ m.timestamp }}</span>
       </div>
     {% endfor %}
@@ -195,7 +190,7 @@
         <h4 class="modal-title fw-bold">Delete Chat History</h4>
       </div>
       <div class="modal-body">
-        Are you sure you want to delete <span class="fw-semibold text-danger"> all messages </span> with {{ contact.name }}?<br>
+        Are you sure you want to delete <span class="fw-semibold text-danger"> all messages </span> with {{ contact.display_name }}?<br>
         <span class="fw-semibold text-danger">This cannot be undone.</span>
       </div>
       <div class="modal-footer">
