@@ -356,9 +356,15 @@ def messages():
     ).filter(Contact.owner_user_id == user.id
     ).group_by(Contact.id)
 
-    # ✅ Apply status filter if provided
-    if status_filter in ["Unread", "Read"]:
-        contacts_query = contacts_query.filter(Message.status == status_filter)
+    # ✅ Replace your old filter with HAVING
+    if status_filter == "Unread":
+        contacts_query = contacts_query.having(
+            db.func.sum(db.case((Message.status != "Read", 1), else_=0)) > 0
+        )
+    elif status_filter == "Read":
+        contacts_query = contacts_query.having(
+            db.func.sum(db.case((Message.status == "Read", 1), else_=0)) > 0
+        )
 
     contacts = contacts_query.all()
 
@@ -370,7 +376,6 @@ def messages():
                (search.lower() in (c[0].contact_user.full_name or '').lower())
         ]
 
-    # Sort contacts by last message timestamp
     contacts.sort(key=lambda c: c.last_message_time or datetime.min, reverse=True)
 
     # -------------------------
@@ -399,9 +404,15 @@ def messages():
         User.id != user.id
     ).group_by(User.id)
 
-    # ✅ Apply status filter here too
-    if status_filter in ["Unread", "Read"]:
-        unknown_users_query = unknown_users_query.filter(Message.status == status_filter)
+    # ✅ Apply HAVING here too
+    if status_filter == "Unread":
+        unknown_users_query = unknown_users_query.having(
+            db.func.sum(db.case((Message.status != "Read", 1), else_=0)) > 0
+        )
+    elif status_filter == "Read":
+        unknown_users_query = unknown_users_query.having(
+            db.func.sum(db.case((Message.status == "Read", 1), else_=0)) > 0
+        )
 
     unknown_users = unknown_users_query.all()
 
@@ -412,7 +423,6 @@ def messages():
             if search.lower() in (u[0].full_name or '').lower()
         ]
 
-    # Sort unknown users by last message timestamp
     unknown_users.sort(key=lambda u: u.last_message_time or datetime.min, reverse=True)
 
     # -------------------------
@@ -428,7 +438,6 @@ def messages():
         unknown_unread_counts={u[0].id: u.unread_count for u in unknown_users},
         title="Messages"
     )
-
 
 
 @app.route("/create_contact", methods=["GET", "POST"])
