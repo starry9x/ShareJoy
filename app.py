@@ -649,17 +649,13 @@ def delete_chat_history(contact_id):
     if contact.owner_user_id != user.id:
         abort(403)
 
-    # Delete all messages between these users
-    Message.query.filter(
-        ((Message.sender_id == user.id) & (Message.receiver_id == contact.contact_user_id)) |
-        ((Message.sender_id == contact.contact_user_id) & (Message.receiver_id == user.id))
-    ).delete()
-
-    # Reset last_chat
+    # Mark chat as deleted for this user only
     contact.last_chat = None
+    contact.deleted_history = True
+
     db.session.commit()
     
-    flash('Chat history deleted successfully!', 'success')
+    flash('Chat history cleared on your side!', 'success')
     return redirect(url_for('messages'))
 
 @app.route('/update_message/<int:message_id>', methods=['POST'])
