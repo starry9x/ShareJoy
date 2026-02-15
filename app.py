@@ -60,6 +60,25 @@ def calculate_age_category(date_of_birth):
     else:
         return 'Others'
 
+
+def is_recommended_demo_group_for_user(group, user_age_category):
+    """Return True when this demo group should be recommended for the current user."""
+    if not group.is_demo:
+        return False
+
+    demo_group_key = group.get_demo_group_key()
+    normalized_age = (user_age_category or "").strip().lower()
+
+    # Senior users: recommend 25% senior group (Board games afternoon)
+    if normalized_age.startswith("senior"):
+        return demo_group_key == "board_games_afternoon"
+
+    # Youth users: recommend 75% senior group (Walk and talk nature club)
+    if normalized_age.startswith("youth"):
+        return demo_group_key == "walk_talk_nature_club"
+
+    return False
+
 # ============================================
 # AUTHENTICATION ROUTES
 # ============================================
@@ -953,6 +972,8 @@ def groups():
     check_and_seed_demo_groups()
 
     current_user = session.get('user_name', 'User')
+    current_user_obj = User.query.filter_by(full_name=current_user).first()
+    current_user_age_category = current_user_obj.age_category if current_user_obj else ""
     all_groups = Group.query.order_by(Group.created_at.asc()).all()
 
     # Calculate and update youth percentage for each group based on actual members
@@ -963,11 +984,25 @@ def groups():
     available_groups = [g for g in all_groups if g.id not in my_group_ids]
     my_groups = [g for g in all_groups if g.id in my_group_ids]
 
+    # Put the recommended demo group first for the current user.
+    recommended_group_id = next(
+        (group.id for group in available_groups if is_recommended_demo_group_for_user(group, current_user_age_category)),
+        None
+    )
+    if recommended_group_id is not None:
+        available_groups.sort(
+            key=lambda group: (
+                0 if group.id == recommended_group_id else 1,
+                group.created_at
+            )
+        )
+
     return render_template(
         "groups.html",
         title="Community Groups",
         available_groups=available_groups,
-        my_groups=my_groups
+        my_groups=my_groups,
+        recommended_group_id=recommended_group_id
     )
 
 

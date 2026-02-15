@@ -78,8 +78,8 @@
                         <i class="fa-solid fa-user-group"></i> {{ group.current_participants }}/{{ group.max_participants }} participants
                     </span>
 
-                    {% if loop.index == 1 %}
-                    <span class="badge-recommended">🔥RECOMMENDED!🔥</span>
+                    {% if recommended_group_id and group.id == recommended_group_id %}
+                    <span class="badge-recommended">&#128293; RECOMMENDED! &#128293;</span>
                     {% endif %}
                 </div>
 
