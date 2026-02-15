@@ -10,6 +10,10 @@
     border-radius: 15px;
 }
 
+body {
+    padding-bottom: 2rem;
+}
+
 /* Search bar input */
 .searchbar {
   background-color: transparent !important;

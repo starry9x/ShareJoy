@@ -376,14 +376,29 @@
         leaveConfirmBtn.addEventListener('click', () => {
             if (!leaveActivityId) return;
 
+            // Hide confirmation modal and show loading
             leaveOverlay.classList.add('hidden');
             loadingOverlay.classList.remove('hidden');
 
-            fetch(`/leave-activity/${leaveActivityId}`, { method: 'POST' })
-                .then(() => {
+            // Send leave request to update-join route
+            fetch(`/update-join`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    activity_id: leaveActivityId,
+                    join_activity: false
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    // Always keep loading for 2 seconds for UX
                     setTimeout(() => {
                         loadingOverlay.classList.add('hidden');
-                        leaveSuccessOverlay.classList.remove('hidden');
+                        if (data.success) {
+                            leaveSuccessOverlay.classList.remove('hidden');
+                        } else {
+                            alert(data.message || "Something went wrong. Please try again.");
+                        }
                     }, 2000);
                 })
                 .catch(() => {
@@ -391,7 +406,6 @@
                     alert("Something went wrong. Please try again.");
                 });
         });
-
         leaveSuccessOverlay.querySelector('#success-ok-btn').addEventListener('click', () => {
             window.location.reload();
         });
