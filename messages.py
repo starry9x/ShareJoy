@@ -8,10 +8,19 @@ class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # Who owns this contact list entry
-    owner_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    owner_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id", name="fk_contact_owner_user_id"),
+        nullable=False
+    )
 
     # The registered user being added as a contact
-    contact_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    
+    contact_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id", name="fk_contact_contact_user_id"),
+        nullable=False
+    )
 
     # Custom display name (defaults to registered_name but can be changed)
     display_name = db.Column(db.String(35), nullable=False)
@@ -37,9 +46,19 @@ class Message(db.Model):
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
 
-    # Who sent and received the message (linked to users table)
-    sender_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    # Who sent and received the message (linked to user table)
+    sender_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id", name="fk_message_sender_id"),
+        nullable=False
+    )
+
+    receiver_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id", name="fk_message_receiver_id"),
+        nullable=False
+    )
+
 
     # Message content
     content = db.Column(db.Text, nullable=False)
