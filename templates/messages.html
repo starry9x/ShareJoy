@@ -118,35 +118,56 @@
     {% endif %}
   </div>
 
-  <!-- Unknown Users Tab -->
-  <div class="tab-pane fade" id="unknown" role="tabpanel" aria-labelledby="unknown-tab">
-    {% if unknown_users %}
-      {% for user in unknown_users %}
-        <div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=user.id) }}'">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <div class="d-flex align-items-center">
-              <img src="{{ url_for('static', filename='images/default_pfp.jpg') }}" alt="Profile Image" class="circle-image">
-              <div>
-                <h1 class="mb-1 me-5 brown">{{ user.user_unique_id }}</h1>
-                <p class="mb-0 brown">
-                  {% if user.last_chat %}
-                    Last chatted on {{ user.last_chat|sgtime }}
-                  {% else %}
-                    No chats yet
-                  {% endif %}
-                </p>
-              </div>
+<!-- Unknown Users Tab -->
+<div class="tab-pane fade" id="unknown" role="tabpanel" aria-labelledby="unknown-tab">
+  {% if unknown_users %}
+    {% for user in unknown_users %}
+      <div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=user.id) }}'">
+        <div class="d-flex align-items-center justify-content-between w-100">
+          <div class="d-flex align-items-center">
+            <img src="{{ url_for('static', filename='images/default_pfp.jpg') }}" alt="Profile Image" class="circle-image">
+            <div>
+              <h1 class="mb-1 me-5 brown">{{ user.user_unique_id }}</h1>
+              <p class="mb-0 brown">
+                {% if user.last_chat %}
+                  Last chatted on {{ user.last_chat|sgtime }}
+                {% else %}
+                  No chats yet
+                {% endif %}
+              </p>
             </div>
           </div>
+
+          <!-- More actions dropdown -->
+          <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
+            <button class="more-actions-toggle d-flex align-items-center justify-content-center" onclick="toggleDropdown(this)">
+              <span class="fs-6 fw-semibold">More actions</span>
+              <i class="me-4 fa-solid fa-chevron-down chevron-icon"></i>
+            </button>
+            <div class="more-actions-menu d-none">
+              <!-- Save as Contact -->
+              <form method="get" action="{{ url_for('create_contact', user_id=user.id) }}" style="display:inline;">
+                <button type="submit" class="menu-item">Save as Contact</button>
+              </form>
+
+              <!-- Delete chat history -->
+              <button class="menu-item text-danger" onclick="openDeleteChatHistoryModal({{ user.id }}); event.stopPropagation();">
+                Delete chat history
+              </button>
+            </div>
+          </div>
+          <!-- End dropdown -->
         </div>
-      {% endfor %}
-    {% else %}
-      <div class="col-12">
-        <div class="alert alert-info text-center fw-semibold">No unknown users found.</div>
       </div>
-    {% endif %}
-  </div>
+    {% endfor %}
+  {% else %}
+    <div class="col-12">
+      <div class="alert alert-info text-center fw-semibold">No unknown users found.</div>
+    </div>
+  {% endif %}
 </div>
+</div>
+
 
 <!-- Modals -->
 <div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactLabel" aria-hidden="true">

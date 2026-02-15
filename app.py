@@ -442,7 +442,7 @@ def create_contact():
         # Create new contact (store internal id)
         new_contact = Contact(
             owner_user_id=user.id,
-            contact_user_id=contact_user.id,   # <-- use primary key here
+            contact_user_id=contact_user.id,
             display_name=display_name,
             short_desc=short_desc,
             message_status="Unread"
@@ -465,9 +465,21 @@ def create_contact():
                 title="Create Contact"
             )
 
-    # For GET request, show user search form
-    return render_template("create_contact.html", title="Create Contact")
+    # ✅ For GET request, check if a user_id was passed (from Save as Contact dropdown)
+    user_id = request.args.get("user_id")
+    contact_user_unique_id = ""
+    if user_id:
+        contact_user = User.query.get(user_id)
+        if contact_user:
+            contact_user_unique_id = contact_user.user_unique_id
 
+    return render_template(
+        "create_contact.html",
+        contact_user_unique_id=contact_user_unique_id,  # prefilled unique ID
+        display_name="",
+        short_desc="",
+        title="Create Contact"
+    )
 
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 @login_required
@@ -578,7 +590,6 @@ def textchat(contact_id):
     # 🚨 Guard clause
     if not chat_user:
         abort(404)
-
 
     # ---------------------------------
     # 4️⃣ Handle sending message
