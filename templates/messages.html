@@ -146,10 +146,10 @@
             </button>
             <div class="more-actions-menu d-none">
               <!-- Save as Contact -->
-              <form method="get" action="{{ url_for('create_contact', user_id=user.id) }}" style="display:inline;">
-                <button type="submit" class="menu-item">Save as Contact</button>
-              </form>
-
+            <form method="get" action="{{ url_for('create_contact') }}" style="display:inline;" onsubmit="event.stopPropagation();">
+              <input type="hidden" name="user_id" value="{{ user.id }}">
+              <button type="submit" class="menu-item">Save as Contact</button>
+            </form>
               <!-- Delete chat history -->
               <button class="menu-item text-danger" onclick="openDeleteChatHistoryModal({{ user.id }}); event.stopPropagation();">
                 Delete chat history
