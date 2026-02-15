@@ -15,133 +15,140 @@
     <i class="fa-solid fa-plus"></i> Create Contact
   </a>
 </div>
-<div class="p-3 mb-3 rounded shadow-sm box1">
-  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
-    <!-- Search form -->
-    <form method="get" class="flex-grow-1 mb-2 mb-md-0 box2 rounded" id="search-form">
-      <!-- hidden inputs to hold filter selections -->
-      <input type="hidden" name="filter_type" id="filter-type" value="{{ request.args.get('filter_type','') }}">
-      <input type="hidden" name="status" id="status-filter" value="{{ request.args.get('status','') }}">
 
-      <div class="input-group">
-        <input type="text" name="search" class="form-control shadow-sm searchbar"
-          placeholder="Search contacts by name, phone or message..." value="{{ request.args.get('search', '') }}">
-        <button class="btn search-btn" type="submit">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
-      </div>
-    </form>
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-3" id="chatTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="contacts-tab" data-bs-toggle="tab" data-bs-target="#contacts" type="button" role="tab" aria-controls="contacts" aria-selected="true">Contacts</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="unknown-tab" data-bs-toggle="tab" data-bs-target="#unknown" type="button" role="tab" aria-controls="unknown" aria-selected="false">Unknown Users</button>
+  </li>
+</ul>
 
-    <!-- Filters toggle button -->
-    <button id="toggle-filters" class="btn btn-lg fw-semibold mt-2 mt-md-0 ms-md-2">
-      <i class="fa-solid fa-filter"></i> Filter
-    </button>
-  </div>
-
-  <!-- Filters panel -->
-  <div id="filters-container" class="mt-3 d-none">
-
-    <!-- Status filter -->
-    <div class="mb-2 d-flex flex-column">
-      <span class="fw-semibold mb-2">Message Status</span>
-      <div class="d-flex flex-wrap gap-1">
-        <button type="button" class="filter-option {% if request.args.get('status') == 'Unread' %}active{% endif %}"
-          data-status="Unread">📩 Unread</button>
-        <button type="button" class="filter-option {% if request.args.get('status') == 'Read' %}active{% endif %}"
-          data-status="Read">✅ Read</button>
-        <button type="button" class="filter-option {% if request.args.get('status') == 'Archived' %}active{% endif %}"
-          data-status="Archived">🗄️ Archived</button>
-      </div>
-    </div>
-
-    <div id="clear-filters" class="mt-3 text-start d-none">
-      <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold">
-        Clear filter
-      </a>
-    </div>
-
-  </div>
-
-</div>
-
-{% if request.args.get('search') %}
-  <h3>Chat Results</h3>
-{% endif %}
-
-{% if contacts %}
-  {% for contact in contacts %}
-    <div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
-      <div class="d-flex align-items-center justify-content-between w-100">
-        <!-- Left side -->
-        <div class="d-flex align-items-center">
-          <img src="{{ url_for('static', filename='images/default_pfp.jpg') }}" 
-               alt="Profile Image" class="circle-image">
-          <div>
-            <h1 class="mb-1 me-5 brown">{{ contact.display_name }}</h1>
-            <p class="mb-0 brown">
-              {% if contact.last_chat %}
-                Last chatted on {{ contact.last_chat|sgtime }}
-              {% else %}
-                No chats yet
-              {% endif %}
-            </p>
-          </div>
-        </div>
-
-        <!-- Right side: dropdown -->
-        <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
-          <button class="more-actions-toggle d-flex align-items-center justify-content-center"
-                  onclick="toggleDropdown(this)">
-            <span class="fs-6 fw-semibold">More actions</span>
-            <i class="me-4 fa-solid fa-chevron-down chevron-icon"></i>
-          </button>
-          <div class="more-actions-menu d-none">
-            <form method="get" action="{{ url_for('edit_contact', contact_id=contact.id) }}" style="display:inline;">
-              <button type="submit" class="menu-item">Edit Contact</button>
-            </form>
-            <form method="post" action="{{ url_for('delete_contact', contact_id=contact.id) }}" style="display:inline;">
-              <button type="button" class="menu-item text-danger"
-                      onclick="openDeleteModal({{ contact.id }}); event.stopPropagation();">
-                Delete contact
-              </button>
-            </form>
-            <!-- Update the button in the dropdown menu -->
-            <button class="menu-item text-danger" 
-                    onclick="openDeleteChatHistoryModal({{ contact.id }}); event.stopPropagation();">
-              Delete chat history
+<!-- Tab Content -->
+<div class="tab-content" id="chatTabsContent">
+  <!-- Contacts Tab -->
+  <div class="tab-pane fade show active" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">
+    <div class="p-3 mb-3 rounded shadow-sm box1">
+      <!-- Search and Filters -->
+      <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
+        <form method="get" class="flex-grow-1 mb-2 mb-md-0 box2 rounded" id="search-form">
+          <input type="hidden" name="filter_type" id="filter-type" value="{{ request.args.get('filter_type','') }}">
+          <input type="hidden" name="status" id="status-filter" value="{{ request.args.get('status','') }}">
+          <div class="input-group">
+            <input type="text" name="search" class="form-control shadow-sm searchbar"
+              placeholder="Search contacts by name, phone or message..." value="{{ request.args.get('search', '') }}">
+            <button class="btn search-btn" type="submit">
+              <i class="fa-solid fa-magnifying-glass"></i>
             </button>
           </div>
+        </form>
+        <button id="toggle-filters" class="btn btn-lg fw-semibold mt-2 mt-md-0 ms-md-2">
+          <i class="fa-solid fa-filter"></i> Filter
+        </button>
+      </div>
+      <!-- Filters Panel -->
+      <div id="filters-container" class="mt-3 d-none">
+        <div class="mb-2 d-flex flex-column">
+          <span class="fw-semibold mb-2">Message Status</span>
+          <div class="d-flex flex-wrap gap-1">
+            <button type="button" class="filter-option {% if request.args.get('status') == 'Unread' %}active{% endif %}"
+              data-status="Unread">📩 Unread</button>
+            <button type="button" class="filter-option {% if request.args.get('status') == 'Read' %}active{% endif %}"
+              data-status="Read">✅ Read</button>
+            <button type="button" class="filter-option {% if request.args.get('status') == 'Archived' %}active{% endif %}"
+              data-status="Archived">🗄️ Archived</button>
+          </div>
+        </div>
+        <div id="clear-filters" class="mt-3 text-start d-none">
+          <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold">Clear filter</a>
         </div>
       </div>
     </div>
-  {% endfor %}
-{% else %}
-  <div class="col-12">
-        <div class="alert alert-info text-center fw-semibold">
-            No chats found.
-        </div>
-    </div>
-{% endif %}
 
-{% if request.args.get('search') %}
-  <h3>Messages Results</h3>
-  {% if messages %}
-    {% for m in messages %}
-      <div>
-        <strong>{{ m.contact.display_name }}</strong>: {{ m.content }}
-        <span class="text-muted">{{ m.timestamp }}</span>
+    <!-- Contacts List -->
+    {% if contacts %}
+      {% for contact in contacts %}
+        <div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=contact.id) }}'">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <img src="{{ url_for('static', filename=contact.image_url or 'images/default_pfp.jpg') }}" alt="Profile Image" class="circle-image">
+              <div>
+                <h1 class="mb-1 me-5 brown">{{ contact.display_name }}</h1>
+                <p class="mb-0 brown">
+                  {% if contact.last_chat %}
+                    Last chatted on {{ contact.last_chat|sgtime }}
+                  {% else %}
+                    {% if contact_message_counts.get(contact.id, 0) > 0 %}
+                      No messages sent recently
+                    {% else %}
+                      No chats yet
+                    {% endif %}
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+            <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
+              <button class="more-actions-toggle d-flex align-items-center justify-content-center" onclick="toggleDropdown(this)">
+                <span class="fs-6 fw-semibold">More actions</span>
+                <i class="me-4 fa-solid fa-chevron-down chevron-icon"></i>
+              </button>
+              <div class="more-actions-menu d-none">
+                <form method="get" action="{{ url_for('edit_contact', contact_id=contact.id) }}" style="display:inline;">
+                  <button type="submit" class="menu-item">Edit Contact</button>
+                </form>
+                <form method="post" action="{{ url_for('delete_contact', contact_id=contact.id) }}" style="display:inline;">
+                  <button type="button" class="menu-item text-danger" onclick="openDeleteModal({{ contact.id }}); event.stopPropagation();">
+                    Delete contact
+                  </button>
+                </form>
+                <button class="menu-item text-danger" onclick="openDeleteChatHistoryModal({{ contact.id }}); event.stopPropagation();">
+                  Delete chat history
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12">
+        <div class="alert alert-info text-center fw-semibold">No contacts found.</div>
       </div>
-    {% endfor %}
-  {% else %}
-  <div class="col-12">
-        <div class="alert alert-info text-center fw-semibold">
-            No messages found.
-        </div>
-    </div>
-  {% endif %}
-{% endif %}
+    {% endif %}
+  </div>
 
-<!-- Delete Contact Modal -->
+  <!-- Unknown Users Tab -->
+  <div class="tab-pane fade" id="unknown" role="tabpanel" aria-labelledby="unknown-tab">
+    {% if unknown_users %}
+      {% for user in unknown_users %}
+        <div class="contact-box p-4" onclick="window.location.href='{{ url_for('textchat', contact_id=user.id) }}'">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <img src="{{ url_for('static', filename='images/default_pfp.jpg') }}" alt="Profile Image" class="circle-image">
+              <div>
+                <h1 class="mb-1 me-5 brown">{{ user.user_unique_id }}</h1>
+                <p class="mb-0 brown">
+                  {% if user.last_chat %}
+                    Last chatted on {{ user.last_chat|sgtime }}
+                  {% else %}
+                    No chats yet
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12">
+        <div class="alert alert-info text-center fw-semibold">No unknown users found.</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modals -->
 <div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-2">
@@ -162,7 +169,6 @@
   </div>
 </div>
 
-<!-- Edit Contact Saved Modal -->
 <div class="modal fade" id="editContactModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-2">
@@ -173,15 +179,12 @@
         Contact details have been saved successfully.
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">
-          OK
-        </button>
+        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">OK</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Delete Chat History Modal -->
 {% for contact in contacts %}
 <div class="modal fade" id="deleteChatHistoryModal{{ contact.id }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -190,7 +193,7 @@
         <h4 class="modal-title fw-bold">Delete Chat History</h4>
       </div>
       <div class="modal-body">
-        Are you sure you want to delete <span class="fw-semibold text-danger"> all messages </span> with {{ contact.display_name }}?<br>
+        Are you sure you want to delete <span class="fw-semibold text-danger"> all messages </span> with {{ contact.name }}?<br>
         <span class="fw-semibold text-danger">This cannot be undone.</span>
       </div>
       <div class="modal-footer">

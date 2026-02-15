@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 
 class Contact(db.Model):
-    __tablename__ = 'contact'  
+    __tablename__ = 'contact'
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -15,7 +15,6 @@ class Contact(db.Model):
     )
 
     # The registered user being added as a contact
-    
     contact_user_id = db.Column(
         db.Integer,
         db.ForeignKey("user.id", name="fk_contact_contact_user_id"),
@@ -37,12 +36,44 @@ class Contact(db.Model):
     # Timestamp of the most recent message exchanged
     last_chat = db.Column(db.DateTime)
 
+    # Relationships
+    owner = db.relationship('User', foreign_keys=[owner_user_id], backref='contacts')
+    contact_user = db.relationship('User', foreign_keys=[contact_user_id])
+
+    # Messages sent by the owner to the contact
+    messages_sent = db.relationship(
+        'Message',
+        foreign_keys='Message.sender_id',
+        primaryjoin='Contact.owner_user_id == Message.sender_id',
+        backref='sender_contact',
+        lazy='dynamic'
+    )
+
+    # Messages received by the owner from the contact
+    messages_received = db.relationship(
+        'Message',
+        foreign_keys='Message.receiver_id',
+        primaryjoin='Contact.owner_user_id == Message.receiver_id',
+        backref='receiver_contact',
+        lazy='dynamic'
+    )
+
     def __repr__(self):
         return f"<Contact owner={self.owner_user_id} contact={self.contact_user_id} display_name={self.display_name}>"
+    
+    def get_message_count(self):
+        """Count all messages between owner and contact"""
+        return Message.query.filter(
+            ((Message.sender_id == self.owner_user_id) & 
+             (Message.receiver_id == self.contact_user_id)) |
+            ((Message.sender_id == self.contact_user_id) & 
+             (Message.receiver_id == self.owner_user_id))
+        ).count()
 
 
 class Message(db.Model):
-    __tablename__ = 'message'   
+    __tablename__ = 'message'
+
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
 
@@ -59,7 +90,6 @@ class Message(db.Model):
         nullable=False
     )
 
-
     # Message content
     content = db.Column(db.Text, nullable=False)
 
@@ -74,6 +104,10 @@ class Message(db.Model):
     # Delivery/read status (e.g., "Sent", "Delivered", "Read")
     status = db.Column(db.String(20), default="Delivered")
 
+    # Relationships
+    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
+    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')
+
     @property
     def date_only(self):
         """Convenience property to get just the date portion of the timestamp."""
@@ -81,3 +115,4 @@ class Message(db.Model):
 
     def __repr__(self):
         return f"<Message {self.id} sender={self.sender_id} receiver={self.receiver_id} status={self.status}>"
+    

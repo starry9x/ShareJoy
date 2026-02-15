@@ -11,6 +11,7 @@ import pytz
 from functools import wraps
 from posts import Post
 from reports import Report
+from sqlalchemy import exists, and_, or_ 
 
 
 app = Flask(__name__)
@@ -320,30 +321,100 @@ def messages():
     search = request.args.get("search", "")
     status_filter = request.args.get("status")
 
-    # Get all contacts where current user is the owner
-    query = Contact.query.filter_by(owner_user_id=user.id)
-
-    if search:
-        query = query.join(User, Contact.contact_user_id == User.id).filter(
-            (Contact.display_name.ilike(f"%{search}%")) |
-            (User.full_name.ilike(f"%{search}%")) |
-            (Contact.short_desc.ilike(f"%{search}%"))
+    # Get contacts with message counts
+    contacts = db.session.query(
+        Contact,
+        db.func.count(Message.id).label('message_count')
+    ).outerjoin(
+        Message,
+        db.or_(
+            db.and_(
+                Message.sender_id == Contact.owner_user_id,
+                Message.receiver_id == Contact.contact_user_id
+            ),
+            db.and_(
+                Message.sender_id == Contact.contact_user_id,
+                Message.receiver_id == Contact.owner_user_id
+            )
         )
+    ).filter(
+        Contact.owner_user_id == user.id
+    ).group_by(Contact.id).all()
 
-    if status_filter:
-        query = query.filter(Contact.message_status == status_filter)
+    # Apply search filter if needed
+    if search:
+        contacts = [c for c in contacts 
+                   if (search.lower() in c[0].display_name.lower()) or 
+                      (search.lower() in (c[0].contact_user.full_name or '').lower())]
 
-    contacts = query.all()
+    # Sort contacts by last_chat
+    contacts.sort(key=lambda c: c[0].last_chat or datetime.min, reverse=True)
 
-    # Sort by last chat time (newest first)
-    contacts.sort(
-        key=lambda c: c.last_chat or datetime.min,
+    # Get unknown users with message counts (only those with messages)
+    unknown_users = db.session.query(
+        User,
+        db.func.count(Message.id).label('message_count')
+    ).join(
+        Message,
+        db.or_(
+            db.and_(
+                Message.sender_id == User.id,
+                Message.receiver_id == user.id
+            ),
+            db.and_(
+                Message.sender_id == user.id,
+                Message.receiver_id == User.id
+            )
+        )
+    ).filter(
+        ~User.id.in_(
+            db.session.query(Contact.contact_user_id)
+            .filter(Contact.owner_user_id == user.id)
+        ),
+        User.id != user.id
+    ).group_by(User.id).all()
+
+    # Filter out unknown users with 0 messages
+    unknown_users = [u for u in unknown_users if u[1] > 0]
+
+    # Sort unknown users by last message time
+    unknown_users.sort(
+        key=lambda u: max(
+            m.timestamp for m in Message.query.filter(
+                db.or_(
+                    db.and_(
+                        Message.sender_id == u[0].id,
+                        Message.receiver_id == user.id
+                    ),
+                    db.and_(
+                        Message.sender_id == user.id,
+                        Message.receiver_id == u[0].id
+                    )
+                )
+            ).all()
+        ) if Message.query.filter(
+            db.or_(
+                db.and_(
+                    Message.sender_id == u[0].id,
+                    Message.receiver_id == user.id
+                ),
+                db.and_(
+                    Message.sender_id == user.id,
+                    Message.receiver_id == u[0].id
+                )
+            )
+        ).count() > 0 else datetime.min,
         reverse=True
     )
 
-    return render_template("messages.html", 
-                         contacts=contacts, 
-                         title="Messages")
+    return render_template(
+        "messages.html",
+        contacts=[c[0] for c in contacts],  # Unpack the Contact objects
+        contact_message_counts={c[0].id: c[1] for c in contacts},  # Message counts
+        unknown_users=[u[0] for u in unknown_users],  # Unpack the User objects
+        unknown_message_counts={u[0].id: u[1] for u in unknown_users},  # Message counts
+        title="Messages"
+    )
 
 @app.route("/create_contact", methods=["GET", "POST"])
 @login_required
@@ -482,55 +553,101 @@ def delete_contact(contact_id):
     return redirect(url_for('messages'))
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
-@login_required
 def textchat(contact_id):
-    contact = Contact.query.get_or_404(contact_id)
-    user = get_current_user()
 
-    # Verify current user owns this contact
-    if contact.owner_user_id != user.id:
-        abort(403)
+    # ---------------------------------
+    # 1️⃣ Ensure user is logged in
+    # ---------------------------------
+    if "user_id" not in session:
+        return redirect(url_for("login"))
 
+    user = User.query.get(session["user_id"])
+    if not user:
+        session.clear()
+        return redirect(url_for("login"))
+
+    # ---------------------------------
+    # 2️⃣ Try loading as saved Contact
+    # ---------------------------------
+    contact = Contact.query.filter_by(
+        id=contact_id,
+        owner_user_id=user.id
+    ).first()
+
+    chat_user = None
+
+    if contact:
+        chat_user = User.query.get(contact.contact_user_id)
+
+    # ---------------------------------
+    # 3️⃣ If not a contact, treat as User ID
+    #    (unknown message sender)
+    # ---------------------------------
+    if not contact:
+        possible_user = User.query.get(contact_id)
+
+        if not possible_user:
+            abort(404)
+
+        # Confirm message history exists
+        existing_message = Message.query.filter(
+            or_(
+                and_(Message.sender_id == user.id, Message.receiver_id == possible_user.id),
+                and_(Message.sender_id == possible_user.id, Message.receiver_id == user.id)
+            )
+        ).first()
+
+        if not existing_message:
+            abort(404)
+
+        chat_user = possible_user
+
+    # ---------------------------------
+    # 4️⃣ Handle sending message
+    # ---------------------------------
     if request.method == "POST":
-        content = request.form.get("content")
-        if content:
-            new_msg = Message(
+        content = request.form.get("content")  # match the input name
+        if content and chat_user:
+            new_message = Message(
                 sender_id=user.id,
-                receiver_id=contact.contact_user_id,
+                receiver_id=chat_user.id,
                 content=content,
+                timestamp=datetime.utcnow(),
                 status="Delivered"
             )
-            db.session.add(new_msg)
-            
-            # Update last_chat timestamp
-            contact.last_chat = datetime.utcnow()
-            contact.message_status = "Read"  # Mark as read when sending new message
-            
+            db.session.add(new_message)
+            if contact:
+                contact.last_chat = datetime.utcnow()
             db.session.commit()
-        return redirect(url_for("textchat", contact_id=contact.id))
+            return redirect(url_for("textchat", contact_id=contact_id))
 
-    # Get messages between these two users
+
+    # ---------------------------------
+    # 5️⃣ Load conversation
+    # ---------------------------------
     messages = Message.query.filter(
-        ((Message.sender_id == user.id) & (Message.receiver_id == contact.contact_user_id)) |
-        ((Message.sender_id == contact.contact_user_id) & (Message.receiver_id == user.id))
+        or_(
+            and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
+            and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
+        )
     ).order_by(Message.timestamp.asc()).all()
 
-    # Mark messages as read when viewing chat
-    Message.query.filter_by(
-        sender_id=contact.contact_user_id,
-        receiver_id=user.id,
-        status="Delivered"
+    # ---------------------------------
+    # 6️⃣ Mark received messages as read
+    # ---------------------------------
+    Message.query.filter(
+        Message.sender_id == chat_user.id,
+        Message.receiver_id == user.id,
+        Message.status != "Read"
     ).update({"status": "Read"})
-    
-    contact.message_status = "Read"
+
     db.session.commit()
 
     return render_template(
         "textchat.html",
         contact=contact,
-        messages=messages,
-        user=user,
-        title=f"Chat with {contact.display_name}"
+        chat_user=chat_user,
+        messages=messages
     )
 
 @app.route('/delete_chat_history/<int:contact_id>', methods=['POST'])
