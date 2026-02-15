@@ -393,7 +393,6 @@
 
         joinConfirmBtn.addEventListener('click', async () => {
             if (!currentBtn || !currentActivityId) return;
-
                 try {
                     const result = await updateJoinStatus(currentActivityId, true);
                     if (result.success) {
@@ -426,15 +425,12 @@
                     currentBtn = null;
                     currentActivityId = null;
                 }
-            }
-
             currentBtn = null;
             currentActivityId = null;
         });
 
         leaveConfirmBtn.addEventListener('click', async () => {
             if (!currentBtn || !currentActivityId) return;
-
                 try {
                     const result = await updateJoinStatus(currentActivityId, false);
                     if (result.success) {
@@ -462,8 +458,6 @@
                     currentBtn = null;
                     currentActivityId = null;
                 }
-            }
-
             currentBtn = null;
             currentActivityId = null;
         });
@@ -501,5 +495,7 @@
                 pendingJoinChange = null;
             });
         });
+
+    });
 </script>
 {% endblock %}

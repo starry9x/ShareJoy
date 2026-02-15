@@ -767,10 +767,6 @@ def user_joined_activity(user_id, activity_id):
         participant_id=user_id,
         activity_id=activity_id
     ).count() > 0
-<<<<<<< HEAD
-
-=======
->>>>>>> cd25f860f688e00c7d5b112594dde8f895f0bf2d
 
 def parse_activity_date(date_str):
     for fmt in ("%Y-%m-%d", "%d %b %Y", "%m/%d/%Y", "%d/%m/%Y"):
@@ -858,11 +854,7 @@ def activity_create():
         if format_type == "Online":
             location = "Online"
 
-<<<<<<< HEAD
         # --- Create new Activity ---
-=======
-        # Create new activity
->>>>>>> cd25f860f688e00c7d5b112594dde8f895f0bf2d
         new_activity = Activity(
             name=name,
             description=description,
@@ -881,31 +873,21 @@ def activity_create():
         )
 
         db.session.add(new_activity)
-<<<<<<< HEAD
         db.session.commit()  # ID is now assigned after commit
         # ✅ No refresh needed
 
         # --- Add creator as participant ---
-=======
-        db.session.commit()  # Commit here so new_activity.id exists
-
-        # Add creator as participant and ensure ID exists
->>>>>>> cd25f860f688e00c7d5b112594dde8f895f0bf2d
         new_participant = ActivityParticipant(
             participant_id=user.id,
             activity_id=new_activity.id,
             creator_id=user.id
         )
         db.session.add(new_participant)
-<<<<<<< HEAD
         db.session.commit()
 
         # --- Sync participants count ---
         new_activity.participants = ActivityParticipant.query.filter_by(activity_id=new_activity.id).count()
         db.session.commit()
-=======
-        db.session.commit()  # commit participant so ID is guaranteed
->>>>>>> cd25f860f688e00c7d5b112594dde8f895f0bf2d
 
         # Sync participants count (optional)
         new_activity.participants = ActivityParticipant.query.filter_by(activity_id=new_activity.id).count()
@@ -1053,15 +1035,12 @@ def update_join():
 
     # Return live participant count
     participant_count = ActivityParticipant.query.filter_by(activity_id=activity.id).count()
-<<<<<<< HEAD
 
     return jsonify({
         'success': True,
         'participants': participant_count,
         'max_participants': activity.max_participants
     })
-=======
->>>>>>> cd25f860f688e00c7d5b112594dde8f895f0bf2d
 
     return jsonify({
         'success': True,
@@ -1078,10 +1057,6 @@ def in_this_week(date_obj):
     end_of_week = start_of_week + timedelta(days=6)
     return start_of_week <= date_obj <= end_of_week
 
-<<<<<<< HEAD
-
-=======
->>>>>>> cd25f860f688e00c7d5b112594dde8f895f0bf2d
 @app.route("/schedule")
 @login_required
 def schedule():
