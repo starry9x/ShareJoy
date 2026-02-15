@@ -34,10 +34,11 @@ with app.app_context():
 # ============================================
 
 def login_required(f):
-    """Decorator to require login for routes"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
+        user = get_current_user()
+        if not user:
+            session.clear()  # clear stale session
             flash('Please log in to access this page.', 'error')
             return redirect(url_for('loginpage'))
         return f(*args, **kwargs)
@@ -45,8 +46,11 @@ def login_required(f):
 
 def get_current_user():
     """Get the currently logged-in user"""
-    if 'user_id' in session:
-        return User.query.get(session['user_id'])
+    user_id = session.get('user_id')
+    if user_id:
+        user = db.session.get(User, user_id)
+        if user:
+            return user
     return None
 
 def calculate_age_category(date_of_birth):
@@ -202,10 +206,12 @@ def logout():
 def profile():
     user = get_current_user()
     
-    # Format joined date
-    joined_date = user.created_at.strftime("%B %Y")
+    # Safety check
+    if not user.created_at:
+        joined_date = "Unknown"
+    else:
+        joined_date = user.created_at.strftime("%B %Y")
     
-    # Get user's latest 3 posts
     posts = Post.query.filter_by(user_id=user.id).order_by(Post.created_at.desc()).limit(3).all()
     
     return render_template("profile.html", 
@@ -319,6 +325,11 @@ def onlytime(dt):
 def messages():
     user = get_current_user()
     search = request.args.get("search", "")
+    status_filter = request.args.get("status")
+    contact_updated = request.args.get("contact_updated", False)   # ✅ flag for update modal
+    contact_created = request.args.get("contact_created", False)   # ✅ flag for create modal
+    contact_deleted = request.args.get("contact_deleted", False)   # ✅ flag for delete modal
+    chat_history_deleted = request.args.get("chat_history_deleted", False)  # ✅ flag for chat history modal
 
     # -------------------------
     # 1️⃣ Saved contacts
@@ -326,7 +337,14 @@ def messages():
     contacts_query = db.session.query(
         Contact,
         db.func.count(Message.id).label('message_count'),
-        db.func.max(Message.timestamp).label('last_message_time')
+        db.func.max(Message.timestamp).label('last_message_time'),
+        db.func.sum(
+            db.case(
+                (Message.receiver_id == Contact.owner_user_id,
+                 db.case((Message.status != "Read", 1), else_=0)),
+                else_=0
+            )
+        ).label('unread_count')
     ).outerjoin(
         Message,
         db.or_(
@@ -342,9 +360,17 @@ def messages():
     ).filter(Contact.owner_user_id == user.id
     ).group_by(Contact.id)
 
+    if status_filter == "Unread":
+        contacts_query = contacts_query.having(
+            db.func.sum(db.case((Message.status != "Read", 1), else_=0)) > 0
+        )
+    elif status_filter == "Read":
+        contacts_query = contacts_query.having(
+            db.func.sum(db.case((Message.status == "Read", 1), else_=0)) > 0
+        )
+
     contacts = contacts_query.all()
 
-    # Apply search filter
     if search:
         contacts = [
             c for c in contacts
@@ -352,7 +378,6 @@ def messages():
                (search.lower() in (c[0].contact_user.full_name or '').lower())
         ]
 
-    # Sort contacts by last message timestamp
     contacts.sort(key=lambda c: c.last_message_time or datetime.min, reverse=True)
 
     # -------------------------
@@ -365,7 +390,14 @@ def messages():
     unknown_users_query = db.session.query(
         User,
         db.func.count(Message.id).label('message_count'),
-        db.func.max(Message.timestamp).label('last_message_time')
+        db.func.max(Message.timestamp).label('last_message_time'),
+        db.func.sum(
+            db.case(
+                (Message.receiver_id == user.id,
+                 db.case((Message.status != "Read", 1), else_=0)),
+                else_=0
+            )
+        ).label('unread_count')
     ).join(
         Message, Message.sender_id == User.id
     ).filter(
@@ -374,28 +406,52 @@ def messages():
         User.id != user.id
     ).group_by(User.id)
 
+    if status_filter == "Unread":
+        unknown_users_query = unknown_users_query.having(
+            db.func.sum(db.case((Message.status != "Read", 1), else_=0)) > 0
+        )
+    elif status_filter == "Read":
+        unknown_users_query = unknown_users_query.having(
+            db.func.sum(db.case((Message.status == "Read", 1), else_=0)) > 0
+        )
+
     unknown_users = unknown_users_query.all()
 
-    # Apply search filter
     if search:
         unknown_users = [
             u for u in unknown_users
             if search.lower() in (u[0].full_name or '').lower()
         ]
 
-    # Sort unknown users by last message timestamp
     unknown_users.sort(key=lambda u: u.last_message_time or datetime.min, reverse=True)
 
     # -------------------------
-    # 3️⃣ Render
+    # 3️⃣ Messages search results (NEW)
+    # -------------------------
+    search_results = []
+    if search:
+        search_results = db.session.query(Message).filter(
+            (Message.sender_id == user.id) | (Message.receiver_id == user.id),
+            Message.content.ilike(f"%{search}%")
+        ).order_by(Message.timestamp.desc()).all()
+
+    # -------------------------
+    # 4️⃣ Render
     # -------------------------
     return render_template(
         "messages.html",
         contacts=[c[0] for c in contacts],
         contact_message_counts={c[0].id: c.message_count for c in contacts},
+        contact_unread_counts={c[0].id: c.unread_count for c in contacts},
         unknown_users=[u[0] for u in unknown_users],
         unknown_message_counts={u[0].id: u.message_count for u in unknown_users},
-        title="Messages"
+        unknown_unread_counts={u[0].id: u.unread_count for u in unknown_users},
+        search_results=search_results,   # ✅ pass messages search results
+        title="Messages",
+        contact_updated=contact_updated,
+        contact_created=contact_created,
+        contact_deleted=contact_deleted,
+        chat_history_deleted=chat_history_deleted
     )
 
 @app.route("/create_contact", methods=["GET", "POST"])
@@ -451,8 +507,8 @@ def create_contact():
         try:
             db.session.add(new_contact)
             db.session.commit()
-            flash("Contact created successfully!", "success")
-            return redirect(url_for("messages"))
+            # ✅ redirect with flag so messages.html shows "Contact Created" modal
+            return redirect(url_for("messages", contact_created=True))
         except Exception as e:
             db.session.rollback()
             flash(f"An error occurred: {str(e)}", "error")
@@ -480,6 +536,7 @@ def create_contact():
         short_desc="",
         title="Create Contact"
     )
+
 
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 @login_required
@@ -519,10 +576,11 @@ def edit_contact(contact_id):
         contact.message_status = message_status
         db.session.commit()
 
-        flash('Contact updated successfully!', 'success')
-        return redirect(url_for('messages'))
+        # ✅ changed: instead of flash, pass contact_updated flag
+        return redirect(url_for('messages', contact_updated=True))
     
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
+
 
 @app.route('/delete_contact/<int:contact_id>', methods=['POST'])
 @login_required
@@ -542,16 +600,12 @@ def delete_contact(contact_id):
 
     db.session.delete(contact)
     db.session.commit()
-    
-    flash("Contact deleted successfully!", "success")
-    return redirect(url_for('messages'))
+
+    # ✅ redirect with flag so messages.html shows "Contact Deleted" modal
+    return redirect(url_for('messages', contact_deleted=True))
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
-
-    # ---------------------------------
-    # 1️⃣ Ensure user is logged in
-    # ---------------------------------
     if "user_id" not in session:
         return redirect(url_for("login"))
 
@@ -560,7 +614,6 @@ def textchat(contact_id):
         session.clear()
         return redirect(url_for("login"))
 
-    # 2️⃣ Try loading as saved Contact
     contact = Contact.query.filter_by(
         id=contact_id,
         owner_user_id=user.id
@@ -570,7 +623,6 @@ def textchat(contact_id):
     if contact:
         chat_user = User.query.get(contact.contact_user_id)
 
-    # 3️⃣ If not a contact, treat as User ID
     if not contact:
         possible_user = User.query.get(contact_id)
         if not possible_user:
@@ -587,15 +639,12 @@ def textchat(contact_id):
 
         chat_user = possible_user
 
-    # 🚨 Guard clause
     if not chat_user:
         abort(404)
 
-    # ---------------------------------
-    # 4️⃣ Handle sending message
-    # ---------------------------------
+    # ✅ Handle sending message
     if request.method == "POST":
-        content = request.form.get("content")  # match the input name
+        content = request.form.get("content")
         if content and chat_user:
             new_message = Message(
                 sender_id=user.id,
@@ -607,22 +656,29 @@ def textchat(contact_id):
             db.session.add(new_message)
             if contact:
                 contact.last_chat = datetime.utcnow()
+                # no need to reset chat_cleared_at; new messages will naturally appear
             db.session.commit()
             return redirect(url_for("textchat", contact_id=contact_id))
 
-    # ---------------------------------
-    # 5️⃣ Load conversation
-    # ---------------------------------
-    messages = Message.query.filter(
-        or_(
-            and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
-            and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
-        )
-    ).order_by(Message.timestamp.asc()).all()
+    # ✅ Load conversation
+    if contact and contact.chat_cleared_at:
+        # Only show messages newer than the cleared timestamp
+        messages = Message.query.filter(
+            or_(
+                and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
+                and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
+            ),
+            Message.timestamp > contact.chat_cleared_at
+        ).order_by(Message.timestamp.asc()).all()
+    else:
+        messages = Message.query.filter(
+            or_(
+                and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
+                and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
+            )
+        ).order_by(Message.timestamp.asc()).all()
 
-    # ---------------------------------
-    # 6️⃣ Mark received messages as read
-    # ---------------------------------
+    # Mark received messages as read
     Message.query.filter(
         Message.sender_id == chat_user.id,
         Message.receiver_id == user.id,
@@ -636,9 +692,8 @@ def textchat(contact_id):
         contact=contact,
         chat_user=chat_user,
         messages=messages,
-        user=user   # <-- pass current user to template
+        user=user
     )
-
 
 @app.route('/delete_chat_history/<int:contact_id>', methods=['POST'])
 @login_required
@@ -649,18 +704,15 @@ def delete_chat_history(contact_id):
     if contact.owner_user_id != user.id:
         abort(403)
 
-    # Delete all messages between these users
-    Message.query.filter(
-        ((Message.sender_id == user.id) & (Message.receiver_id == contact.contact_user_id)) |
-        ((Message.sender_id == contact.contact_user_id) & (Message.receiver_id == user.id))
-    ).delete()
-
-    # Reset last_chat
+    # Mark chat as cleared for this user only
     contact.last_chat = None
+    contact.chat_cleared_at = datetime.utcnow()   # ✅ set timestamp
+
     db.session.commit()
-    
-    flash('Chat history deleted successfully!', 'success')
-    return redirect(url_for('messages'))
+
+    # ✅ redirect with flag so messages.html shows "Chat History Deleted" modal
+    return redirect(url_for('messages', chat_history_deleted=True))
+
 
 @app.route('/update_message/<int:message_id>', methods=['POST'])
 @login_required

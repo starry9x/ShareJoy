@@ -116,3 +116,15 @@ input::placeholder {
   color: #000000 !important;
 }
 
+.unread-bubble {
+  background-color: #b5faff; 
+  color: #000;               /* black text */
+  border: 2px solid #000;    /* solid border around bubble */
+  border-radius: 16px;       /* more rounded for a pill look */
+  padding: 6px 12px;         /* bigger padding for size */
+  font-size: 14px;           /* larger text */
+  font-weight: 600;          /* bold text for emphasis */
+  margin-top: 6px;
+  display: inline-block;
+}
+
