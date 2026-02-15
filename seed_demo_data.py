@@ -49,7 +49,7 @@ def seed_demo_groups():
         name="Board games afternoon",
         description="Join us for an afternoon of classic and modern tabletop games! From strategy games to party favorites, we have something for everyone. Friendly competition and laughter guaranteed. All skill levels welcome - whether you're a seasoned player or just starting out!",
         category="Social",
-        youth_percentage=70,
+        youth_percentage=75,
         tags="games,social,fun,boardgames,cards,puzzles",
         current_participants=8,
         max_participants=40,
@@ -213,7 +213,7 @@ def seed_demo_groups():
         name="Walk and talk nature club",
         description="Gentle walks in neighbourhood parks with relaxed conversations and shared moments in nature. Perfect for all fitness levels. We explore local trails, enjoy fresh air, and build connections through meaningful conversations. Join us for mindful walks and peaceful moments in green spaces.",
         category="Wellness",
-        youth_percentage=50,
+        youth_percentage=25,
         tags="wellness,nature,walking,community,outdoor,health",
         current_participants=10,
         max_participants=40,
@@ -429,6 +429,25 @@ def check_and_seed_demo_groups():
     existing_walk_talk = Group.query.filter(Group.name.ilike("walk%talk%nature%club")).first()
 
     if existing_board_games and existing_walk_talk:
+        # Keep demo baseline ratios aligned even for old databases.
+        has_updates = False
+
+        if not existing_board_games.is_demo:
+            existing_board_games.is_demo = True
+            has_updates = True
+        if not existing_walk_talk.is_demo:
+            existing_walk_talk.is_demo = True
+            has_updates = True
+        if existing_board_games.youth_percentage != 75:  # 25% senior, 75% youth
+            existing_board_games.youth_percentage = 75
+            has_updates = True
+        if existing_walk_talk.youth_percentage != 25:    # 75% senior, 25% youth
+            existing_walk_talk.youth_percentage = 25
+            has_updates = True
+
+        if has_updates:
+            db.session.commit()
+
         return [existing_board_games, existing_walk_talk]
     else:
         return seed_demo_groups()

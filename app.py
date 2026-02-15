@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session, jsonify, abort
 from extensions import db, migrate
 from messages import Message, Contact
-from activities import Activity
+from activities import Activity, ActivityParticipant
 from users import User
 from datetime import datetime, timedelta, date
 from groups import Group, GroupMember, GroupPost, GroupComment, GroupChatMessage, BuddyQuizResponse
@@ -11,6 +11,7 @@ import pytz
 from functools import wraps
 from posts import Post
 from reports import Report
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sharejoy.db'
@@ -58,6 +59,25 @@ def calculate_age_category(date_of_birth):
         return 'Seniors'
     else:
         return 'Others'
+
+
+def is_recommended_demo_group_for_user(group, user_age_category):
+    """Return True when this demo group should be recommended for the current user."""
+    if not group.is_demo:
+        return False
+
+    demo_group_key = group.get_demo_group_key()
+    normalized_age = (user_age_category or "").strip().lower()
+
+    # Senior users: recommend 25% senior group (Board games afternoon)
+    if normalized_age.startswith("senior"):
+        return demo_group_key == "board_games_afternoon"
+
+    # Youth users: recommend 75% senior group (Walk and talk nature club)
+    if normalized_age.startswith("youth"):
+        return demo_group_key == "walk_talk_nature_club"
+
+    return False
 
 # ============================================
 # AUTHENTICATION ROUTES
@@ -260,7 +280,13 @@ def forgotpassword():
 # MAIN ROUTES
 # ============================================
 
-@app.route("/")
+# Root URL redirects to login
+@app.route('/')
+def index():
+    return redirect(url_for('loginpage'))
+
+# Homepage after login
+@app.route('/home')
 @login_required
 def home():
     return render_template("homepage.html", title="Home")
@@ -575,20 +601,36 @@ def edit_contact(contact_id):
 # ACTIVITIES ROUTES
 # ============================================
 
+# Helper to check if user joined an activity
+def user_joined_activity(user_id, activity_id):
+    return ActivityParticipant.query.filter_by(
+        participant_id=user_id, activity_id=activity_id
+    ).first() is not None
+
+def parse_activity_date(date_str):
+    for fmt in ("%Y-%m-%d", "%d %b %Y", "%m/%d/%Y", "%d/%m/%Y"):
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            continue
+    # If none match, return None or raise an error
+    return None
+
 @app.route("/activities")
 @login_required
 def activities():
     user = get_current_user()
-    activities = (Activity.query.filter_by(creator=user.full_name).order_by(Activity.date.asc()).all())
+    
+    activities = Activity.query.filter_by(creator_id=user.id).order_by(Activity.date.asc()).all()
 
     for activity in activities:
         activity.tags = activity.tags.split(",") if activity.tags else []
 
-        try:
-            parsed_date = datetime.strptime(activity.date, "%Y-%m-%d")
-        except ValueError:
-            parsed_date = datetime.strptime(activity.date, "%d %b %Y")
-        activity.display_date = parsed_date.strftime("%d %b %Y")
+        parsed_date = parse_activity_date(activity.date)
+        if parsed_date:
+            activity.display_date = parsed_date.strftime("%d %b %Y")
+        else:
+            activity.display_date = activity.date  # fallback
 
         try:
             parsed_time = datetime.strptime(activity.time, "%H:%M")
@@ -612,9 +654,12 @@ def activity_delete(activity_id):
     activity = Activity.query.get_or_404(activity_id)
     user = get_current_user()
 
-    if activity.creator != user.full_name:
+    if activity.creator_id != user.id:
         abort(403)
 
+    # Delete associated participant records
+    ActivityParticipant.query.filter_by(activity_id=activity.id).delete()
+    
     db.session.delete(activity)
     db.session.commit()
     return redirect(url_for("activities"))
@@ -645,10 +690,6 @@ def activity_create():
         if format_type == "Online":
             location = "Online"
 
-        dt = datetime.strptime(f"{date_input} {time_input}", "%Y-%m-%d %H:%M")
-        display_date = dt.strftime("%d %b %Y")
-        display_time = dt.strftime("%I:%M %p").lstrip("0")
-
         new_activity = Activity(
             name=name,
             description=description,
@@ -661,17 +702,26 @@ def activity_create():
             type=type_,
             energy=energy,
             max_participants=max_participants,
-            participants=1,
+            participants=1,  # creator counts as participant
             tags=tags,
-            creator=user.full_name,
-            join_activity="created"
+            creator_id=user.id
         )
 
         db.session.add(new_activity)
         db.session.commit()
+
+        # Add creator as participant
+        participant = ActivityParticipant(
+            participant_id=user.id,
+            activity_id=new_activity.id,
+            creator_id=user.id
+        )
+        db.session.add(participant)
+        db.session.commit()
+
         return redirect(url_for('activities'))
 
-    my_activities_count = Activity.query.filter_by(creator=user.full_name).count()
+    my_activities_count = Activity.query.filter_by(creator_id=user.id).count()
     return render_template('activity_create.html',
                            title="Create Activity",
                            num_activities=my_activities_count)
@@ -683,7 +733,7 @@ def edit_activity(activity_id):
     activity = Activity.query.get_or_404(activity_id)
     user = get_current_user()
 
-    if activity.creator != user.full_name:
+    if activity.creator_id != user.id:
         abort(403)
 
     if request.method == 'POST':
@@ -691,23 +741,21 @@ def edit_activity(activity_id):
         activity.description = request.form['description']
         activity.date = request.form['date']
         activity.time = request.form['time']
-        activity.duration_hours = request.form['duration_hours']
-        activity.duration_minutes = request.form['duration_minutes']
+        activity.duration_hours = int(request.form['duration_hours'])
+        activity.duration_minutes = int(request.form['duration_minutes'])
         activity.format_type = request.form['format_type']
-        activity.location = request.form['location'] if activity.format_type == 'In-Person' else ''
+        activity.location = request.form['location'] if activity.format_type == 'In-Person' else 'Online'
         activity.type = request.form['type']
         activity.energy = request.form['energy']
-        activity.max_participants = request.form['max_participants']
-
-        tags_str = request.form.get('tags', '')
-        activity.tags = tags_str
+        activity.max_participants = int(request.form['max_participants'])
+        activity.tags = request.form.get('tags', '')
 
         db.session.commit()
         return redirect(url_for('activities'))
 
     tags = activity.tags.split(',') if activity.tags else []
     
-    my_activities_count = Activity.query.filter_by(creator=user.full_name).count()
+    my_activities_count = Activity.query.filter_by(creator_id=user.id).count()
     return render_template(
         'activity_edit.html',
         title="Edit Activity",
@@ -723,6 +771,7 @@ def explore():
     user = get_current_user()
     query = Activity.query
 
+    # --- Search filter ---
     search = request.args.get("search")
     if search:
         query = query.filter(
@@ -731,40 +780,46 @@ def explore():
             (Activity.tags.ilike(f"%{search}%"))
         )
 
+    # --- Category filter ---
     category = request.args.get("category")
     if category:
         query = query.filter_by(type=category)
 
+    # --- Energy filter ---
     energy = request.args.get("energy")
     if energy:
         query = query.filter_by(energy=energy)
 
+    # --- Format filter ---
     format_type = request.args.get("format")
     if format_type:
         query = query.filter_by(format_type=format_type)
 
+    # --- Fetch and process activities ---
     activities = query.order_by(Activity.date.asc()).all()
 
     for a in activities:
-        a.tags = a.tags.split(",") if a.tags else []
+        # Split tags for display only
+        a.display_tags = a.tags.split(",") if a.tags else []
 
-        try:
-            parsed_date = datetime.strptime(a.date, "%Y-%m-%d")
-        except ValueError:
-            parsed_date = datetime.strptime(a.date, "%d %b %Y")
-        a.display_date = parsed_date.strftime("%d %b %Y")
-
+        # Parse and format date
+        parsed_date = parse_activity_date(a.date)
+        if parsed_date:
+            a.display_date = parsed_date.strftime("%d %b %Y")
+        else:
+            a.display_date = a.date  # fallback
         try:
             parsed_time = datetime.strptime(a.time, "%H:%M")
         except ValueError:
             parsed_time = datetime.strptime(a.time, "%I:%M %p")
         a.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
-        if a.creator == user.full_name:
+        # Determine join status for current user
+        if a.creator_id == user.id:
             a.join_activity = "created"
         elif a.participants >= a.max_participants:
             a.join_activity = "max"
-        elif a.join_activity == 'true':
+        elif user_joined_activity(user.id, a.id):
             a.join_activity = 'true'
         else:
             a.join_activity = 'false'
@@ -778,25 +833,44 @@ def update_join():
     data = request.get_json()
     activity_id = data.get('activity_id')
     join_activity = data.get('join_activity')
+    user = get_current_user()
 
     activity = Activity.query.get(activity_id)
     if not activity:
         return jsonify({'success': False, 'message': 'Activity not found'})
 
-    activity.join_activity = 'true' if join_activity else 'false'
-    db.session.commit()
+    participant_record = ActivityParticipant.query.filter_by(
+        participant_id=user.id, activity_id=activity_id
+    ).first()
+
+    if join_activity:
+        if not participant_record:
+            new_participant = ActivityParticipant(
+                participant_id=user.id,
+                activity_id=activity_id,
+                creator_id=activity.creator_id
+            )
+            db.session.add(new_participant)
+            activity.participants += 1
+            db.session.commit()
+    else:
+        if participant_record:
+            db.session.delete(participant_record)
+            if activity.participants > 0:
+                activity.participants -= 1
+            db.session.commit()
 
     return jsonify({'success': True})
 
 
 @app.template_test('in_this_week')
-def in_this_week(date):
-    if not date:
+def in_this_week(date_obj):
+    if not date_obj:
         return False
     today = datetime.today().date()
     start_of_week = today - timedelta(days=today.weekday())
     end_of_week = start_of_week + timedelta(days=6)
-    return start_of_week <= date <= end_of_week
+    return start_of_week <= date_obj <= end_of_week
 
 
 @app.route("/leave-activity/<int:activity_id>", methods=["POST"])
@@ -805,11 +879,15 @@ def leave_activity(activity_id):
     user = get_current_user()
     activity = Activity.query.get_or_404(activity_id)
 
-    if activity.creator == user.full_name:
+    if activity.creator_id == user.id:
         return "", 403
 
-    if activity.join_activity == 'true':
-        activity.join_activity = 'false'
+    participant_record = ActivityParticipant.query.filter_by(
+        participant_id=user.id, activity_id=activity_id
+    ).first()
+
+    if participant_record:
+        db.session.delete(participant_record)
         if activity.participants > 0:
             activity.participants -= 1
         db.session.commit()
@@ -829,22 +907,28 @@ def schedule():
     filtered_activities = []
 
     for activity in activities:
-        is_creator = activity.creator == user.full_name
-        is_joined = activity.join_activity == 'true'
+        is_creator = activity.creator_id == user.id
+        is_joined = user_joined_activity(user.id, activity.id)
 
         if not (is_creator or is_joined):
             continue
 
         activity.display_tags = activity.tags.split(",") if activity.tags else []
+        parsed_date = parse_activity_date(activity.date)
+        if parsed_date:
+            activity.display_date = parsed_date.strftime("%d %b %Y")
+            activity.display_date_obj = parsed_date.date()
+            activity.days_until = (activity.display_date_obj - today).days
+        else:
+            activity.display_date = activity.date  # fallback
+            activity.display_date_obj = today
+            activity.days_until = 0
 
         try:
-            parsed_date = datetime.strptime(activity.date, "%Y-%m-%d")
+            parsed_time = datetime.strptime(activity.time, "%H:%M")
         except ValueError:
-            parsed_date = datetime.strptime(activity.date, "%d %b %Y")
-
-        activity.display_date = parsed_date.strftime("%d %b %Y")
-        activity.display_date_obj = parsed_date.date()
-        activity.days_until = (activity.display_date_obj - today).days
+            parsed_time = datetime.strptime(activity.time, "%I:%M %p")
+        activity.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
         if is_creator:
             activity.join_activity = "created"
@@ -862,7 +946,7 @@ def schedule():
     total_activities = len(filtered_activities)
     this_week_activities = len(upcoming_week_activities)
     organizing_activities = len(
-        [a for a in filtered_activities if a.creator == user.full_name]
+        [a for a in filtered_activities if a.creator_id == user.id]
     )
 
     return render_template(
@@ -888,6 +972,8 @@ def groups():
     check_and_seed_demo_groups()
 
     current_user = session.get('user_name', 'User')
+    current_user_obj = User.query.filter_by(full_name=current_user).first()
+    current_user_age_category = current_user_obj.age_category if current_user_obj else ""
     all_groups = Group.query.order_by(Group.created_at.asc()).all()
 
     # Calculate and update youth percentage for each group based on actual members
@@ -898,11 +984,25 @@ def groups():
     available_groups = [g for g in all_groups if g.id not in my_group_ids]
     my_groups = [g for g in all_groups if g.id in my_group_ids]
 
+    # Put the recommended demo group first for the current user.
+    recommended_group_id = next(
+        (group.id for group in available_groups if is_recommended_demo_group_for_user(group, current_user_age_category)),
+        None
+    )
+    if recommended_group_id is not None:
+        available_groups.sort(
+            key=lambda group: (
+                0 if group.id == recommended_group_id else 1,
+                group.created_at
+            )
+        )
+
     return render_template(
         "groups.html",
         title="Community Groups",
         available_groups=available_groups,
-        my_groups=my_groups
+        my_groups=my_groups,
+        recommended_group_id=recommended_group_id
     )
 
 

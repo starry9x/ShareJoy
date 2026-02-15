@@ -185,8 +185,8 @@
             </div>
 
             <div class="activity-tags spacing">
-                {% for tag in activity.tags %}
-                <span>#{{ tag }}</span>
+                {% for tag in activity.display_tags %}
+                <span class="tag">#{{ tag }}</span>
                 {% endfor %}
             </div>
 
