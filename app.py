@@ -34,10 +34,11 @@ with app.app_context():
 # ============================================
 
 def login_required(f):
-    """Decorator to require login for routes"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
+        user = get_current_user()
+        if not user:
+            session.clear()  # clear stale session
             flash('Please log in to access this page.', 'error')
             return redirect(url_for('loginpage'))
         return f(*args, **kwargs)
@@ -45,8 +46,11 @@ def login_required(f):
 
 def get_current_user():
     """Get the currently logged-in user"""
-    if 'user_id' in session:
-        return User.query.get(session['user_id'])
+    user_id = session.get('user_id')
+    if user_id:
+        user = db.session.get(User, user_id)
+        if user:
+            return user
     return None
 
 def calculate_age_category(date_of_birth):
@@ -202,10 +206,12 @@ def logout():
 def profile():
     user = get_current_user()
     
-    # Format joined date
-    joined_date = user.created_at.strftime("%B %Y")
+    # Safety check
+    if not user.created_at:
+        joined_date = "Unknown"
+    else:
+        joined_date = user.created_at.strftime("%B %Y")
     
-    # Get user's latest 3 posts
     posts = Post.query.filter_by(user_id=user.id).order_by(Post.created_at.desc()).limit(3).all()
     
     return render_template("profile.html", 
