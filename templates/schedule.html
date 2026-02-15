@@ -292,7 +292,7 @@
     <div id="success-overlay" class="overlay hidden">
         <div class="bg-white p-4 shadow cardsec">
             <h4 class="cardhead mb-2">Activity Deleted</h4>
-            <p class="carddesc fw-semibold">All participants will be notified.</p>
+            <p class="carddesc fw-semibold">This activity is now unavailable.</p>
 
             <div class="d-flex justify-content-end">
                 <button type="button" id="success-ok-btn" class="btn redbtn btn-sm fw-semibold shadow-sm">
@@ -326,7 +326,7 @@
     <div id="successjoined-overlay" class="overlay hidden">
         <div class="bg-white p-4 shadow cardsec">
             <h4 class="cardhead mb-2">Activity Left</h4>
-            <p class="carddesc fw-semibold">The organizer will be notified.</p>
+            <p class="carddesc fw-semibold">You are no longer participating in this activity.</p>
 
             <div class="d-flex justify-content-end">
                 <button type="button" id="success-ok-btn" class="btn redbtn btn-sm fw-semibold shadow-sm">
@@ -425,7 +425,7 @@
                 pendingDeleteForm = form;
 
                 confirmTitle.textContent = 'Delete Activity';
-                confirmText.innerHTML = 'Are you sure you want to delete this activity? <br> This action cannot be undone and all participants will be notified.';
+                confirmText.innerHTML = 'Are you sure you want to delete this activity? <br> This action cannot be undone.';
 
                 deleteOverlay.classList.remove('hidden');
             });

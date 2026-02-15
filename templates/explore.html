@@ -236,9 +236,7 @@
             <h4>Join Activity</h4>
         </div>
         <p class="mb-3 ms-1 fw-semibold carddesc">
-            You're about to join [insert activity name] on [insert activity date] at [insert activity time]. The
-            organizer will be notified
-            of your registration.
+            You're about to join [insert activity name] on [insert activity date] at [insert activity time].
         </p>
         <div class="d-flex justify-content-end gap-3">
             <button type="button" id="join-cancel" class="btn cancel-btn btn-sm fw-semibold shadow-sm">
@@ -257,7 +255,7 @@
         <i class="fa-regular fa-circle-check text-success"></i>
         <div class="fw-bold mt-3 cardhead success-text">
             <h4>Activity Joined!</h4>
-            <p class="carddesc success-text fw-semibold">The organizer will be notified.</p>
+            <p class="carddesc success-text fw-semibold">You are now participating in this activity.</p>
         </div>
         <button type="button" id="success-ok-btn" class="btn okbtn mt-1 fw-semibold shadow-sm">Okay</button>
     </div>
@@ -287,7 +285,7 @@
 <div id="successjoined-overlay" class="overlay hidden">
     <div class="bg-white p-4 shadow cardsec">
         <h4 class="cardhead mb-2">Activity Left</h4>
-        <p class="carddesc fw-semibold">The organizer will be notified.</p>
+        <p class="carddesc fw-semibold">You are no longer participating in this activity.</p>
 
         <div class="d-flex justify-content-end">
             <button type="button" id="success-ok-btn" class="btn redbtn btn-sm fw-semibold shadow-sm">
@@ -350,7 +348,7 @@
                 currentActivityData.time = currentBtn.dataset.time;
 
                 if (btn.classList.contains('join-btn')) {
-                    joinOverlay.querySelector('.carddesc').textContent = `You're about to join "${currentActivityData.name}" on ${currentActivityData.date} at ${currentActivityData.time}. The organizer will be notified of your registration.`;
+                    joinOverlay.querySelector('.carddesc').textContent = `You're about to join "${currentActivityData.name}" on ${currentActivityData.date} at ${currentActivityData.time}.`;
                     joinOverlay.classList.remove('hidden');
                 } else if (btn.classList.contains('joined')) {
                     leaveOverlay.classList.remove('hidden');
