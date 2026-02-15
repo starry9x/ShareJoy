@@ -308,6 +308,7 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Filter toggle
         const toggleBtn = document.getElementById('toggle-filters');
         const filters = document.getElementById('filters-container');
 
@@ -328,48 +329,33 @@
         const leaveOverlay = document.getElementById('leave-confirm-overlay');
         const loadingOverlay = document.getElementById('loading-overlay');
         const successOverlay = document.getElementById('success-overlay');
-        const successOverlayText = successOverlay.querySelector('.carddesc') || successOverlay.querySelector('p');
+        const successjoinedOverlay = document.getElementById('successjoined-overlay');
+
         const joinConfirmBtn = document.getElementById('join-confirm');
         const joinCancelBtn = document.getElementById('join-cancel');
         const leaveConfirmBtn = document.getElementById('leave-confirm');
         const leaveCancelBtn = document.getElementById('leave-cancel');
         const successOkBtns = successOverlay.querySelectorAll('#success-ok-btn');
+        const successJoinedOkBtns = successjoinedOverlay.querySelectorAll('#success-ok-btn');
 
         let currentBtn = null;
         let currentActivityId = null;
         let currentActivityData = {};
 
-        document.querySelectorAll('.join-btn, .joined').forEach(btn => {
-            btn.addEventListener('click', () => {
-                currentBtn = btn;
-                currentActivityId = btn.dataset.activityId;
-                currentActivityData.name = btn.closest('.activity-card').querySelector('h5').textContent;
-                currentActivityData.date = currentBtn.dataset.date;
-                currentActivityData.time = currentBtn.dataset.time;
+        // -----------------------------
+        // Helper functions
+        // -----------------------------
+        function hideAllOverlays() {
+            document.querySelectorAll('.overlay').forEach(overlay => overlay.classList.add('hidden'));
+        }
 
-                if (btn.classList.contains('join-btn')) {
-                    joinOverlay.querySelector('.carddesc').textContent = `You're about to join "${currentActivityData.name}" on ${currentActivityData.date} at ${currentActivityData.time}.`;
-                    joinOverlay.classList.remove('hidden');
-                } else if (btn.classList.contains('joined')) {
-                    leaveOverlay.classList.remove('hidden');
-                }
-            });
-        });
-
-        joinCancelBtn.addEventListener('click', () => {
-            joinOverlay.classList.add('hidden');
-            currentBtn = null;
-            currentActivityId = null;
-        });
-
-        leaveCancelBtn.addEventListener('click', () => {
-            leaveOverlay.classList.add('hidden');
-            currentBtn = null;
-            currentActivityId = null;
-        });
+        function showOverlayOnce(overlay) {
+            hideAllOverlays();
+            overlay.classList.remove('hidden');
+        }
 
         async function updateJoinStatus(activityId, join) {
-            loadingOverlay.classList.remove('hidden');
+            showOverlayOnce(loadingOverlay);
             const startTime = Date.now();
 
             const res = await fetch('/update-join', {
@@ -379,121 +365,117 @@
             });
 
             const result = await res.json();
-
             const elapsed = Date.now() - startTime;
             const remaining = 2000 - elapsed;
-
             await new Promise(resolve => setTimeout(resolve, remaining > 0 ? remaining : 0));
-            loadingOverlay.classList.add('hidden');
 
+            hideAllOverlays();
             return result;
         }
 
-        joinConfirmBtn.addEventListener('click', async () => {
-            if (!currentBtn || !currentActivityId) return;
-                try {
-                    const result = await updateJoinStatus(currentActivityId, true);
-                    if (result.success) {
-                        // Update participant count
-                        const participantBadge = document.querySelector(
-                            `.participants[data-activity-id="${currentActivityId}"] .participant-count`
-                        );
-                        if (participantBadge) participantBadge.textContent = result.participants;
-
-                        // Update button state
-                        const btnEl = currentBtn;
-                        if (result.participants >= result.max_participants) {
-                            btnEl.className = 'btn maxbtn fw-semibold w-100 shadow-sm';
-                            btnEl.textContent = 'Activity Full';
-                            btnEl.disabled = true;
-                        } else {
-                            btnEl.className = 'btn joined fw-semibold w-100 shadow-sm';
-                            btnEl.textContent = 'Joined';
-                        }
-
-                        // Show success overlay
-                        successOverlay.classList.remove('hidden');
-                    } else {
-                        alert('Failed to join activity.');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('Error updating activity.');
-                } finally {
-                    currentBtn = null;
-                    currentActivityId = null;
-                }
-            currentBtn = null;
-            currentActivityId = null;
-        });
-
-        leaveConfirmBtn.addEventListener('click', async () => {
-            if (!currentBtn || !currentActivityId) return;
-                try {
-                    const result = await updateJoinStatus(currentActivityId, false);
-                    if (result.success) {
-                        // Update participant count
-                        const participantBadge = document.querySelector(
-                            `.participants[data-activity-id="${currentActivityId}"] .participant-count`
-                        );
-                        if (participantBadge) participantBadge.textContent = result.participants;
-
-                        // Update button state
-                        const btnEl = currentBtn;
-                        btnEl.className = 'btn join-btn fw-semibold w-100 shadow-sm';
-                        btnEl.textContent = 'Join Activity';
-                        btnEl.disabled = false;
-
-                        // Show success overlay
-                        document.getElementById('successjoined-overlay').classList.remove('hidden');
-                    } else {
-                        alert('Failed to leave activity.');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('Error updating activity.');
-                } finally {
-                    currentBtn = null;
-                    currentActivityId = null;
-                }
-            currentBtn = null;
-            currentActivityId = null;
-        });
-
-        // Join success overlay OK
-        successOkBtns.forEach(btn => btn.addEventListener('click', () => {
-            successOverlay.classList.add('hidden');
-            if (pendingJoinChange && pendingJoinChange.join) {
-                const btnEl = pendingJoinChange.btn;
-                btnEl.classList.remove('join-btn');
-                btnEl.classList.add('joined');
-                btnEl.textContent = 'Joined';
-            }
-            pendingJoinChange = null;
-        }));
-
-        // Leave success overlay OK
-        document.querySelectorAll('#successjoined-overlay #success-ok-btn').forEach(btn => {
+        // -----------------------------
+        // Open join/leave overlays
+        // -----------------------------
+        document.querySelectorAll('.join-btn, .joined').forEach(btn => {
             btn.addEventListener('click', () => {
-                const overlay = document.getElementById('successjoined-overlay');
-                overlay.classList.add('hidden');
-                if (pendingJoinChange && pendingJoinChange.join === false) {
-                    const btnEl = pendingJoinChange.btn;
-                    btnEl.classList.remove('joined');
-                    btnEl.classList.add('join-btn');
-                    btnEl.textContent = 'Join Activity';
+                currentBtn = btn;
+                currentActivityId = btn.dataset.activityId;
+                currentActivityData.name = btn.closest('.activity-card').querySelector('h5').textContent;
+                currentActivityData.date = currentBtn.dataset.date;
+                currentActivityData.time = currentBtn.dataset.time;
 
-                    // Update participants badge immediately
-                    const card = btnEl.closest('.activity-card');
-                    const badge = card.querySelector('.participants');
-                    if (badge) {
-                        badge.textContent = `🫂${pendingJoinChange.participants}/${pendingJoinChange.max_participants} participants`;
-                    }
+                if (btn.classList.contains('join-btn')) {
+                    joinOverlay.querySelector('.carddesc').textContent =
+                        `You're about to join "${currentActivityData.name}" on ${currentActivityData.date} at ${currentActivityData.time}.`;
+                    showOverlayOnce(joinOverlay);
+                } else if (btn.classList.contains('joined')) {
+                    showOverlayOnce(leaveOverlay);
                 }
-                pendingJoinChange = null;
             });
         });
 
+        // -----------------------------
+        // Cancel buttons
+        // -----------------------------
+        joinCancelBtn.addEventListener('click', () => hideAllOverlays());
+        leaveCancelBtn.addEventListener('click', () => hideAllOverlays());
+
+        // -----------------------------
+        // Confirm join
+        // -----------------------------
+        joinConfirmBtn.addEventListener('click', async () => {
+            if (!currentBtn || !currentActivityId) return;
+            try {
+                const result = await updateJoinStatus(currentActivityId, true);
+                if (result.success) {
+                    // Update participant count
+                    const participantBadge = document.querySelector(
+                        `.participants[data-activity-id="${currentActivityId}"] .participant-count`
+                    );
+                    if (participantBadge) participantBadge.textContent = result.participants;
+
+                    // Update button state
+                    const btnEl = currentBtn;
+                    if (result.participants >= result.max_participants) {
+                        btnEl.className = 'btn maxbtn fw-semibold w-100 shadow-sm';
+                        btnEl.textContent = 'Activity Full';
+                        btnEl.disabled = true;
+                    } else {
+                        btnEl.className = 'btn joined fw-semibold w-100 shadow-sm';
+                        btnEl.textContent = 'Joined';
+                    }
+
+                    showOverlayOnce(successOverlay);
+                } else {
+                    alert('Failed to join activity.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error updating activity.');
+            } finally {
+                currentBtn = null;
+                currentActivityId = null;
+            }
+        });
+
+        // -----------------------------
+        // Confirm leave
+        // -----------------------------
+        leaveConfirmBtn.addEventListener('click', async () => {
+            if (!currentBtn || !currentActivityId) return;
+            try {
+                const result = await updateJoinStatus(currentActivityId, false);
+                if (result.success) {
+                    // Update participant count
+                    const participantBadge = document.querySelector(
+                        `.participants[data-activity-id="${currentActivityId}"] .participant-count`
+                    );
+                    if (participantBadge) participantBadge.textContent = result.participants;
+
+                    // Update button state
+                    const btnEl = currentBtn;
+                    btnEl.className = 'btn join-btn fw-semibold w-100 shadow-sm';
+                    btnEl.textContent = 'Join Activity';
+                    btnEl.disabled = false;
+
+                    showOverlayOnce(successjoinedOverlay);
+                } else {
+                    alert('Failed to leave activity.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error updating activity.');
+            } finally {
+                currentBtn = null;
+                currentActivityId = null;
+            }
+        });
+
+        // -----------------------------
+        // Success OK buttons
+        // -----------------------------
+        successOkBtns.forEach(btn => btn.addEventListener('click', () => hideAllOverlays()));
+        successJoinedOkBtns.forEach(btn => btn.addEventListener('click', () => hideAllOverlays()));
     });
 </script>
 {% endblock %}
