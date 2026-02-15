@@ -3,7 +3,7 @@ from extensions import db
 class Activity(db.Model):
     __tablename__ = "activity"
     
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
@@ -26,7 +26,7 @@ class Activity(db.Model):
 class ActivityParticipant(db.Model):
     __tablename__ = "activity_participants"
     
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     participant_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     activity_id = db.Column(db.Integer, db.ForeignKey('activity.id'), nullable=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

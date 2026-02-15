@@ -180,8 +180,10 @@
                         {% endif %}">
                     ⚡{{ activity.energy }} energy
                 </span>
-                <span class="badge participants">🫂{{ activity.participants }}/{{ activity.max_participants }}
-                    participants</span>
+                <span class="badge participants" data-activity-id="{{ activity.id }}">
+                    🫂<span class="participant-count">{{ activity.participants }}</span>/{{ activity.max_participants }}
+                    participants
+                </span>
             </div>
 
             <div class="activity-tags spacing">
@@ -401,9 +403,24 @@
                 try {
                     const result = await updateJoinStatus(currentActivityId, true);
                     if (result.success) {
-                        pendingJoinChange = { btn: currentBtn, join: true };
+                        // Update participant count
+                        const participantBadge = document.querySelector(
+                            `.participants[data-activity-id="${currentActivityId}"] .participant-count`
+                        );
+                        if (participantBadge) participantBadge.textContent = result.participants;
 
-                        successOverlayText.textContent = 'The organizer will be notified.';
+                        // Update button state
+                        const btnEl = currentBtn;
+                        if (result.participants >= result.max_participants) {
+                            btnEl.className = 'btn maxbtn fw-semibold w-100 shadow-sm';
+                            btnEl.textContent = 'Activity Full';
+                            btnEl.disabled = true;
+                        } else {
+                            btnEl.className = 'btn joined fw-semibold w-100 shadow-sm';
+                            btnEl.textContent = 'Joined';
+                        }
+
+                        // Show success overlay
                         successOverlay.classList.remove('hidden');
                     } else {
                         alert('Failed to join activity.');
@@ -425,8 +442,19 @@
                 try {
                     const result = await updateJoinStatus(currentActivityId, false);
                     if (result.success) {
-                        pendingJoinChange = { btn: currentBtn, join: false };
+                        // Update participant count
+                        const participantBadge = document.querySelector(
+                            `.participants[data-activity-id="${currentActivityId}"] .participant-count`
+                        );
+                        if (participantBadge) participantBadge.textContent = result.participants;
 
+                        // Update button state
+                        const btnEl = currentBtn;
+                        btnEl.className = 'btn join-btn fw-semibold w-100 shadow-sm';
+                        btnEl.textContent = 'Join Activity';
+                        btnEl.disabled = false;
+
+                        // Show success overlay
                         document.getElementById('successjoined-overlay').classList.remove('hidden');
                     } else {
                         alert('Failed to leave activity.');
@@ -440,7 +468,6 @@
                 }
             }
         });
-
 
         // Join success overlay OK
         successOkBtns.forEach(btn => btn.addEventListener('click', () => {

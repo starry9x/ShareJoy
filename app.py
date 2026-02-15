@@ -710,9 +710,12 @@ def delete_text_message(message_id):
 
 # Helper to check if user joined an activity
 def user_joined_activity(user_id, activity_id):
+    # returns True if user has already joined
     return ActivityParticipant.query.filter_by(
-        participant_id=user_id, activity_id=activity_id
-    ).first() is not None
+        participant_id=user_id,
+        activity_id=activity_id
+    ).count() > 0
+
 
 def parse_activity_date(date_str):
     for fmt in ("%Y-%m-%d", "%d %b %Y", "%m/%d/%Y", "%d/%m/%Y"):
@@ -723,22 +726,26 @@ def parse_activity_date(date_str):
     # If none match, return None or raise an error
     return None
 
+
 @app.route("/activities")
 @login_required
 def activities():
     user = get_current_user()
-    
+
     activities = Activity.query.filter_by(creator_id=user.id).order_by(Activity.date.asc()).all()
 
     for activity in activities:
+        # Split tags
         activity.tags = activity.tags.split(",") if activity.tags else []
 
+        # Parse and format date
         parsed_date = parse_activity_date(activity.date)
         if parsed_date:
             activity.display_date = parsed_date.strftime("%d %b %Y")
         else:
             activity.display_date = activity.date  # fallback
 
+        # Parse and format time
         try:
             parsed_time = datetime.strptime(activity.time, "%H:%M")
         except ValueError:
@@ -776,8 +783,9 @@ def activity_delete(activity_id):
 @login_required
 def activity_create():
     user = get_current_user()
-    
+
     if request.method == 'POST':
+        # --- Gather form data ---
         name = request.form.get("name")
         description = request.form.get("description")
         format_type = request.form.get("format_type")
@@ -793,10 +801,10 @@ def activity_create():
 
         if format_type:
             format_type = format_type.title()
-
         if format_type == "Online":
             location = "Online"
 
+        # --- Create new Activity ---
         new_activity = Activity(
             name=name,
             description=description,
@@ -815,24 +823,31 @@ def activity_create():
         )
 
         db.session.add(new_activity)
-        db.session.commit()
+        db.session.commit()  # ID is now assigned after commit
+        # ✅ No refresh needed
 
-        # Add creator as participant
-        participant = ActivityParticipant(
+        # --- Add creator as participant ---
+        new_participant = ActivityParticipant(
             participant_id=user.id,
             activity_id=new_activity.id,
             creator_id=user.id
         )
-        db.session.add(participant)
+        db.session.add(new_participant)
+        db.session.commit()
+
+        # --- Sync participants count ---
+        new_activity.participants = ActivityParticipant.query.filter_by(activity_id=new_activity.id).count()
         db.session.commit()
 
         return redirect(url_for('activities'))
 
+    # GET request
     my_activities_count = Activity.query.filter_by(creator_id=user.id).count()
-    return render_template('activity_create.html',
-                           title="Create Activity",
-                           num_activities=my_activities_count)
-
+    return render_template(
+        'activity_create.html',
+        title="Create Activity",
+        num_activities=my_activities_count
+    )
 
 @app.route('/activities/edit/<int:activity_id>', methods=['GET', 'POST'])
 @login_required
@@ -861,8 +876,8 @@ def edit_activity(activity_id):
         return redirect(url_for('activities'))
 
     tags = activity.tags.split(',') if activity.tags else []
-    
     my_activities_count = Activity.query.filter_by(creator_id=user.id).count()
+
     return render_template(
         'activity_edit.html',
         title="Edit Activity",
@@ -902,34 +917,34 @@ def explore():
     if format_type:
         query = query.filter_by(format_type=format_type)
 
-    # --- Fetch and process activities ---
     activities = query.order_by(Activity.date.asc()).all()
 
     for a in activities:
-        # Split tags for display only
+        # Tags
         a.display_tags = a.tags.split(",") if a.tags else []
 
-        # Parse and format date
+        # Dates
         parsed_date = parse_activity_date(a.date)
-        if parsed_date:
-            a.display_date = parsed_date.strftime("%d %b %Y")
-        else:
-            a.display_date = a.date  # fallback
+        a.display_date = parsed_date.strftime("%d %b %Y") if parsed_date else a.date
         try:
             parsed_time = datetime.strptime(a.time, "%H:%M")
         except ValueError:
             parsed_time = datetime.strptime(a.time, "%I:%M %p")
         a.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
-        # Determine join status for current user
+        # --- Count actual participants from ActivityParticipant ---
+        participant_count = ActivityParticipant.query.filter_by(activity_id=a.id).count()
+        a.participants = participant_count
+
+        # --- Determine join status for current user ---
         if a.creator_id == user.id:
             a.join_activity = "created"
-        elif a.participants >= a.max_participants:
-            a.join_activity = "max"
         elif user_joined_activity(user.id, a.id):
-            a.join_activity = 'true'
+            a.join_activity = "true"
+        elif participant_count >= a.max_participants:
+            a.join_activity = "max"
         else:
-            a.join_activity = 'false'
+            a.join_activity = "false"
 
     return render_template("explore.html", activities=activities)
 
@@ -946,28 +961,34 @@ def update_join():
     if not activity:
         return jsonify({'success': False, 'message': 'Activity not found'})
 
-    participant_record = ActivityParticipant.query.filter_by(
-        participant_id=user.id, activity_id=activity_id
-    ).first()
+    join_activity = join_activity in [True, 'true', 'True']
 
     if join_activity:
-        if not participant_record:
+        # Add participant
+        if not user_joined_activity(user.id, activity.id):
             new_participant = ActivityParticipant(
                 participant_id=user.id,
-                activity_id=activity_id,
+                activity_id=activity.id,
                 creator_id=activity.creator_id
             )
             db.session.add(new_participant)
-            activity.participants += 1
             db.session.commit()
     else:
-        if participant_record:
-            db.session.delete(participant_record)
-            if activity.participants > 0:
-                activity.participants -= 1
-            db.session.commit()
+        # Remove participant
+        ActivityParticipant.query.filter_by(
+            participant_id=user.id,
+            activity_id=activity.id
+        ).delete(synchronize_session=False)
+        db.session.commit()
 
-    return jsonify({'success': True})
+    # Return live participant count
+    participant_count = ActivityParticipant.query.filter_by(activity_id=activity.id).count()
+
+    return jsonify({
+        'success': True,
+        'participants': participant_count,
+        'max_participants': activity.max_participants
+    })
 
 
 @app.template_test('in_this_week')
@@ -978,28 +999,6 @@ def in_this_week(date_obj):
     start_of_week = today - timedelta(days=today.weekday())
     end_of_week = start_of_week + timedelta(days=6)
     return start_of_week <= date_obj <= end_of_week
-
-
-@app.route("/leave-activity/<int:activity_id>", methods=["POST"])
-@login_required
-def leave_activity(activity_id):
-    user = get_current_user()
-    activity = Activity.query.get_or_404(activity_id)
-
-    if activity.creator_id == user.id:
-        return "", 403
-
-    participant_record = ActivityParticipant.query.filter_by(
-        participant_id=user.id, activity_id=activity_id
-    ).first()
-
-    if participant_record:
-        db.session.delete(participant_record)
-        if activity.participants > 0:
-            activity.participants -= 1
-        db.session.commit()
-
-    return "", 204
 
 
 @app.route("/schedule")
@@ -1016,26 +1015,24 @@ def schedule():
     for activity in activities:
         is_creator = activity.creator_id == user.id
         is_joined = user_joined_activity(user.id, activity.id)
-
         if not (is_creator or is_joined):
             continue
 
         activity.display_tags = activity.tags.split(",") if activity.tags else []
+
         parsed_date = parse_activity_date(activity.date)
-        if parsed_date:
-            activity.display_date = parsed_date.strftime("%d %b %Y")
-            activity.display_date_obj = parsed_date.date()
-            activity.days_until = (activity.display_date_obj - today).days
-        else:
-            activity.display_date = activity.date  # fallback
-            activity.display_date_obj = today
-            activity.days_until = 0
+        activity.display_date_obj = parsed_date.date() if parsed_date else today
+        activity.display_date = parsed_date.strftime("%d %b %Y") if parsed_date else activity.date
+        activity.days_until = (activity.display_date_obj - today).days
 
         try:
             parsed_time = datetime.strptime(activity.time, "%H:%M")
         except ValueError:
             parsed_time = datetime.strptime(activity.time, "%I:%M %p")
         activity.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
+
+        # Live participant count
+        activity.participants = ActivityParticipant.query.filter_by(activity_id=activity.id).count()
 
         if is_creator:
             activity.join_activity = "created"
@@ -1044,28 +1041,20 @@ def schedule():
 
         if activity.days_until >= 0:
             filtered_activities.append(activity)
-
             if activity.days_until <= 7:
                 upcoming_week_activities.append(activity)
             else:
                 other_activities.append(activity)
 
-    total_activities = len(filtered_activities)
-    this_week_activities = len(upcoming_week_activities)
-    organizing_activities = len(
-        [a for a in filtered_activities if a.creator_id == user.id]
-    )
-
     return render_template(
         "schedule.html",
         title="Schedule",
-        total_activities=total_activities,
-        this_week_activities=this_week_activities,
-        organizing_activities=organizing_activities,
+        total_activities=len(filtered_activities),
+        this_week_activities=len(upcoming_week_activities),
+        organizing_activities=len([a for a in filtered_activities if a.creator_id == user.id]),
         upcoming_week_activities=upcoming_week_activities,
         other_activities=other_activities
     )
-
 
 # ==========================================
 #  GROUPS ROUTES
