@@ -35,3 +35,7 @@ class ActivityParticipant(db.Model):
     participant = db.relationship("User", foreign_keys=[participant_id], backref="joined_activities")
     activity = db.relationship("Activity", backref="participants_list")
     creator = db.relationship("User", foreign_keys=[creator_id])
+    __table_args__ = (
+        db.UniqueConstraint('participant_id', 'activity_id', name='uq_participant_activity'),
+    )
+    

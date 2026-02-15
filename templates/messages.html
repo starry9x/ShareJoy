@@ -19,10 +19,10 @@
 <!-- Tab Navigation -->
 <ul class="nav nav-tabs mb-3" id="chatTabs" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="contacts-tab" data-bs-toggle="tab" data-bs-target="#contacts" type="button" role="tab" aria-controls="contacts" aria-selected="true">Contacts</button>
+    <button class="nav-link active" id="contacts-tab" data-bs-toggle="tab" data-bs-target="#contacts" type="button" role="tab" aria-controls="contacts" aria-selected="true">My Contact List</button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="unknown-tab" data-bs-toggle="tab" data-bs-target="#unknown" type="button" role="tab" aria-controls="unknown" aria-selected="false">Unknown Users</button>
+    <button class="nav-link" id="unknown-tab" data-bs-toggle="tab" data-bs-target="#unknown" type="button" role="tab" aria-controls="unknown" aria-selected="false">Unadded Users</button>
   </li>
 </ul>
 
@@ -38,7 +38,7 @@
           <input type="hidden" name="status" id="status-filter" value="{{ request.args.get('status','') }}">
           <div class="input-group">
             <input type="text" name="search" class="form-control shadow-sm searchbar"
-              placeholder="Search contacts by name, phone or message..." value="{{ request.args.get('search', '') }}">
+              placeholder="Search contacts by display name" value="{{ request.args.get('search', '') }}">
             <button class="btn search-btn" type="submit">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
@@ -57,8 +57,6 @@
               data-status="Unread">📩 Unread</button>
             <button type="button" class="filter-option {% if request.args.get('status') == 'Read' %}active{% endif %}"
               data-status="Read">✅ Read</button>
-            <button type="button" class="filter-option {% if request.args.get('status') == 'Archived' %}active{% endif %}"
-              data-status="Archived">🗄️ Archived</button>
           </div>
         </div>
         <div id="clear-filters" class="mt-3 text-start d-none">
@@ -87,6 +85,10 @@
                     {% endif %}
                   {% endif %}
                 </p>
+                {% set unread = contact_unread_counts.get(contact.id, 0) %}
+                {% if unread > 0 %}
+                  <span class="unread-bubble">{{ unread }} unread message{% if unread > 1 %}s{% endif %}</span>
+                {% endif %}
               </div>
             </div>
             <div class="dropdown-wrapper position-relative" onclick="event.stopPropagation()">
@@ -116,9 +118,9 @@
         <div class="alert alert-info text-center fw-semibold">No contacts found.</div>
       </div>
     {% endif %}
-  </div>
+    </div>
 
-<!-- Unknown Users Tab -->
+    <!-- Unknown Users Tab -->
 <div class="tab-pane fade" id="unknown" role="tabpanel" aria-labelledby="unknown-tab">
   {% if unknown_users %}
     {% for user in unknown_users %}
@@ -135,6 +137,13 @@
                   No chats yet
                 {% endif %}
               </p>
+
+              {% set unread = unknown_unread_counts.get(user.id, 0) %}
+              {% if unread > 0 %}
+                <span class="unread-bubble">
+                  {{ unread }} unread message{% if unread > 1 %}s{% endif %}
+                </span>
+              {% endif %}
             </div>
           </div>
 
@@ -144,28 +153,38 @@
               <span class="fs-6 fw-semibold">More actions</span>
               <i class="me-4 fa-solid fa-chevron-down chevron-icon"></i>
             </button>
+
             <div class="more-actions-menu d-none">
               <!-- Save as Contact -->
-              <form method="get" action="{{ url_for('create_contact', user_id=user.id) }}" style="display:inline;">
-                <button type="submit" class="menu-item">Save as Contact</button>
+              <form method="get"
+                    action="{{ url_for('create_contact') }}"
+                    style="display:inline;"
+                    onsubmit="event.stopPropagation();">
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <button type="submit" class="menu-item">
+                  Save as Contact
+                </button>
               </form>
 
               <!-- Delete chat history -->
-              <button class="menu-item text-danger" onclick="openDeleteChatHistoryModal({{ user.id }}); event.stopPropagation();">
+              <button class="menu-item text-danger"
+                      onclick="openDeleteChatHistoryModal({{ user.id }}); event.stopPropagation();">
                 Delete chat history
               </button>
             </div>
           </div>
           <!-- End dropdown -->
+
         </div>
       </div>
     {% endfor %}
   {% else %}
     <div class="col-12">
-      <div class="alert alert-info text-center fw-semibold">No unknown users found.</div>
+      <div class="alert alert-info text-center fw-semibold">
+        No unadded users found.
+      </div>
     </div>
   {% endif %}
-</div>
 </div>
 
 
@@ -227,6 +246,103 @@
   </div>
 </div>
 {% endfor %}
+
+<!-- Success Modals -->
+
+{% if contact_updated %}
+<div class="modal fade" id="editContactSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Contact Updated</h4>
+      </div>
+      <div class="modal-body">
+        Contact details have been saved successfully.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if contact_created %}
+<div class="modal fade" id="createContactSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Contact Created</h4>
+      </div>
+      <div class="modal-body">
+        The new contact has been created successfully.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Success Modal: Contact Deleted -->
+{% if contact_deleted %}
+<div class="modal fade" id="deleteContactSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Contact Deleted</h4>
+      </div>
+      <div class="modal-body">
+        The contact has been deleted successfully.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% for contact in contacts %}
+<div class="modal fade" id="deleteChatHistoryConfirmModal{{ contact.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Delete Chat History</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with {{ contact.name }}?<br>
+        <span class="fw-semibold text-danger">This cannot be undone.</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" action="{{ url_for('delete_chat_history', contact_id=contact.id) }}">
+          <button type="submit" class="btn btn-danger fw-semibold">Delete all messages</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% if chat_history_deleted %}
+<div class="modal fade" id="deleteChatHistorySuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Chat History Deleted</h4>
+      </div>
+      <div class="modal-body">
+        The chat history has been deleted successfully.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 
 {% endblock %}
 
@@ -326,5 +442,39 @@
   const modal = new bootstrap.Modal(document.getElementById(`deleteChatHistoryModal${contactId}`));
   modal.show();
   }
+
+  document.addEventListener("DOMContentLoaded", function() {
+  const modal = document.getElementById("editContactSuccessModal");
+  if (modal) {
+    new bootstrap.Modal(modal).show();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  const createdModal = document.getElementById("createContactSuccessModal");
+  if (createdModal) {
+    new bootstrap.Modal(createdModal).show();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  const deletedModal = document.getElementById("deleteContactSuccessModal");
+  if (deletedModal) {
+    new bootstrap.Modal(deletedModal).show();
+  }
+});
+
+function openDeleteChatHistoryConfirmModal(contactId) {
+  const modal = new bootstrap.Modal(document.getElementById(`deleteChatHistoryConfirmModal${contactId}`));
+  modal.show();
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const chatHistoryDeletedModal = document.getElementById("deleteChatHistorySuccessModal");
+  if (chatHistoryDeletedModal) {
+    new bootstrap.Modal(chatHistoryDeletedModal).show();
+  }
+});
+
 </script>
 {% endblock %}

@@ -11,7 +11,11 @@
 }
 
 body {
+<<<<<<< HEAD
     padding-bottom: 2rem;;
+=======
+    padding-bottom: 2rem;
+>>>>>>> cd25f860f688e00c7d5b112594dde8f895f0bf2d
 }
 
 /* Search bar input */

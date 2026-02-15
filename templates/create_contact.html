@@ -39,12 +39,16 @@
       <form method="POST" action="{{ url_for('create_contact') }}" id="createContactForm">
         <!-- Display Name -->
         <div class="mb-3">
-          <label for="display_name" class="form-label fw-semibold">Display Name <span class="text-danger">*</span></label>
+          <label for="display_name" class="form-label fw-semibold">
+            Display Name <span class="text-danger">*</span>
+          </label>
           <input type="text" class="form-control" id="display_name" name="display_name"
-                 placeholder="Enter display name..."
-                 value="{{ display_name if display_name }}"
-                 required maxlength="35">
-          <div class="error-message" id="displayNameError">Display name is required and must be under 35 characters.</div>
+                placeholder="Enter display name..."
+                value="{{ display_name }}"
+                required maxlength="35">
+          <div class="error-message" id="displayNameError">
+            Display name is required and must be under 35 characters.
+          </div>
           {% if errors and "display_name" in errors %}
             <div class="text-danger">{{ errors["display_name"] }}</div>
           {% endif %}
@@ -52,11 +56,13 @@
 
         <!-- Contact User (enter or select unique ID) -->
         <div class="mb-3">
-          <label for="contact_user_unique_id" class="form-label fw-semibold">Enter User Unique ID <span class="text-danger">*</span></label>
+          <label for="contact_user_unique_id" class="form-label fw-semibold">
+            Enter User Unique ID <span class="text-danger">*</span>
+          </label>
           <input type="text" class="form-control" id="contact_user_unique_id" name="contact_user_unique_id"
-                 placeholder="e.g. USR-0SP9NP"
-                 value="{{ contact_user_unique_id if contact_user_unique_id }}"
-                 required>
+                placeholder="e.g. USR-0SP9NP"
+                value="{{ contact_user_unique_id }}"
+                required>
           {% if errors and "contact" in errors %}
             <div class="text-danger">{{ errors["contact"] }}</div>
           {% endif %}
@@ -67,7 +73,7 @@
           <label for="short_desc" class="form-label fw-semibold">Short Description (optional)</label>
           <input type="text" class="form-control" id="short_desc" name="short_desc"
                 placeholder="Workshop partner, Grandma, etc."
-                value="{{ short_desc if short_desc }}" maxlength="120">
+                value="{{ short_desc }}" maxlength="120">
           <div class="error-message" id="descError">Description must be under 120 characters.</div>
           {% if errors and "short_desc" in errors %}
             <div class="text-danger">{{ errors["short_desc"] }}</div>

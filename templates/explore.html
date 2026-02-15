@@ -370,35 +370,29 @@
             currentActivityId = null;
         });
 
-        function updateJoinStatus(activityId, join) {
+        async function updateJoinStatus(activityId, join) {
             loadingOverlay.classList.remove('hidden');
             const startTime = Date.now();
 
-            return fetch('/update-join', {
+            const res = await fetch('/update-join', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ activity_id: activityId, join_activity: join })
-            })
-                .then(res => res.json())
-                .then(result => {
-                    const elapsed = Date.now() - startTime;
-                    const remaining = 2000 - elapsed;
-                    return new Promise(resolve => {
-                        setTimeout(() => {
-                            loadingOverlay.classList.add('hidden');
-                            resolve(result);
-                        }, remaining > 0 ? remaining : 0);
-                    });
-                })
-                .catch(err => {
-                    loadingOverlay.classList.add('hidden');
-                    throw err;
-                });
+            });
+
+            const result = await res.json();
+
+            const elapsed = Date.now() - startTime;
+            const remaining = 2000 - elapsed;
+
+            await new Promise(resolve => setTimeout(resolve, remaining > 0 ? remaining : 0));
+            loadingOverlay.classList.add('hidden');
+
+            return result;
         }
 
         joinConfirmBtn.addEventListener('click', async () => {
-            if (currentBtn && currentActivityId) {
-                joinOverlay.classList.add('hidden');
+            if (!currentBtn || !currentActivityId) return;
 
                 try {
                     const result = await updateJoinStatus(currentActivityId, true);
@@ -433,11 +427,13 @@
                     currentActivityId = null;
                 }
             }
+
+            currentBtn = null;
+            currentActivityId = null;
         });
 
         leaveConfirmBtn.addEventListener('click', async () => {
-            if (currentBtn && currentActivityId) {
-                leaveOverlay.classList.add('hidden');
+            if (!currentBtn || !currentActivityId) return;
 
                 try {
                     const result = await updateJoinStatus(currentActivityId, false);
@@ -467,6 +463,9 @@
                     currentActivityId = null;
                 }
             }
+
+            currentBtn = null;
+            currentActivityId = null;
         });
 
         // Join success overlay OK
@@ -484,17 +483,23 @@
         // Leave success overlay OK
         document.querySelectorAll('#successjoined-overlay #success-ok-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.getElementById('successjoined-overlay').classList.add('hidden');
+                const overlay = document.getElementById('successjoined-overlay');
+                overlay.classList.add('hidden');
                 if (pendingJoinChange && pendingJoinChange.join === false) {
                     const btnEl = pendingJoinChange.btn;
                     btnEl.classList.remove('joined');
                     btnEl.classList.add('join-btn');
                     btnEl.textContent = 'Join Activity';
+
+                    // Update participants badge immediately
+                    const card = btnEl.closest('.activity-card');
+                    const badge = card.querySelector('.participants');
+                    if (badge) {
+                        badge.textContent = `🫂${pendingJoinChange.participants}/${pendingJoinChange.max_participants} participants`;
+                    }
                 }
                 pendingJoinChange = null;
             });
         });
-
-    });
 </script>
 {% endblock %}
