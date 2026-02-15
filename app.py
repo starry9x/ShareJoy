@@ -325,7 +325,9 @@ def onlytime(dt):
 def messages():
     user = get_current_user()
     search = request.args.get("search", "")
-    status_filter = request.args.get("status")  # ✅ grab status from query string
+    status_filter = request.args.get("status")
+    contact_updated = request.args.get("contact_updated", False)  # ✅ flag for update modal
+    contact_created = request.args.get("contact_created", False)  # ✅ flag for create modal
 
     # -------------------------
     # 1️⃣ Saved contacts
@@ -336,7 +338,7 @@ def messages():
         db.func.max(Message.timestamp).label('last_message_time'),
         db.func.sum(
             db.case(
-                (Message.receiver_id == Contact.owner_user_id, 
+                (Message.receiver_id == Contact.owner_user_id,
                  db.case((Message.status != "Read", 1), else_=0)),
                 else_=0
             )
@@ -356,7 +358,6 @@ def messages():
     ).filter(Contact.owner_user_id == user.id
     ).group_by(Contact.id)
 
-    # ✅ Replace your old filter with HAVING
     if status_filter == "Unread":
         contacts_query = contacts_query.having(
             db.func.sum(db.case((Message.status != "Read", 1), else_=0)) > 0
@@ -368,7 +369,6 @@ def messages():
 
     contacts = contacts_query.all()
 
-    # Apply search filter
     if search:
         contacts = [
             c for c in contacts
@@ -391,7 +391,7 @@ def messages():
         db.func.max(Message.timestamp).label('last_message_time'),
         db.func.sum(
             db.case(
-                (Message.receiver_id == user.id, 
+                (Message.receiver_id == user.id,
                  db.case((Message.status != "Read", 1), else_=0)),
                 else_=0
             )
@@ -404,7 +404,6 @@ def messages():
         User.id != user.id
     ).group_by(User.id)
 
-    # ✅ Apply HAVING here too
     if status_filter == "Unread":
         unknown_users_query = unknown_users_query.having(
             db.func.sum(db.case((Message.status != "Read", 1), else_=0)) > 0
@@ -416,7 +415,6 @@ def messages():
 
     unknown_users = unknown_users_query.all()
 
-    # Apply search filter
     if search:
         unknown_users = [
             u for u in unknown_users
@@ -436,9 +434,10 @@ def messages():
         unknown_users=[u[0] for u in unknown_users],
         unknown_message_counts={u[0].id: u.message_count for u in unknown_users},
         unknown_unread_counts={u[0].id: u.unread_count for u in unknown_users},
-        title="Messages"
+        title="Messages",
+        contact_updated=contact_updated,
+        contact_created=contact_created   # ✅ pass flag for create modal
     )
-
 
 @app.route("/create_contact", methods=["GET", "POST"])
 @login_required
@@ -493,8 +492,8 @@ def create_contact():
         try:
             db.session.add(new_contact)
             db.session.commit()
-            flash("Contact created successfully!", "success")
-            return redirect(url_for("messages"))
+            # ✅ redirect with flag so messages.html shows "Contact Created" modal
+            return redirect(url_for("messages", contact_created=True))
         except Exception as e:
             db.session.rollback()
             flash(f"An error occurred: {str(e)}", "error")
@@ -522,6 +521,7 @@ def create_contact():
         short_desc="",
         title="Create Contact"
     )
+
 
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 @login_required
@@ -561,10 +561,11 @@ def edit_contact(contact_id):
         contact.message_status = message_status
         db.session.commit()
 
-        flash('Contact updated successfully!', 'success')
-        return redirect(url_for('messages'))
+        # ✅ changed: instead of flash, pass contact_updated flag
+        return redirect(url_for('messages', contact_updated=True))
     
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
+
 
 @app.route('/delete_contact/<int:contact_id>', methods=['POST'])
 @login_required

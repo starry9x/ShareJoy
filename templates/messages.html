@@ -247,6 +247,43 @@
 </div>
 {% endfor %}
 
+<!-- Success Modals -->
+
+{% if contact_updated %}
+<div class="modal fade" id="editContactSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Contact Updated</h4>
+      </div>
+      <div class="modal-body">
+        Contact details have been saved successfully.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if contact_created %}
+<div class="modal fade" id="createContactSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Contact Created</h4>
+      </div>
+      <div class="modal-body">
+        The new contact has been created successfully.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -345,5 +382,20 @@
   const modal = new bootstrap.Modal(document.getElementById(`deleteChatHistoryModal${contactId}`));
   modal.show();
   }
+
+  document.addEventListener("DOMContentLoaded", function() {
+  const modal = document.getElementById("editContactSuccessModal");
+  if (modal) {
+    new bootstrap.Modal(modal).show();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  const createdModal = document.getElementById("createContactSuccessModal");
+  if (createdModal) {
+    new bootstrap.Modal(createdModal).show();
+  }
+});
+
 </script>
 {% endblock %}
