@@ -298,3 +298,8 @@
   font-size: 19px !important;
   padding: 0.4rem 1rem !important;
 }
+
+.chat-username {
+  font-size: 1.25rem; /* bigger than normal body text */
+  font-weight: 600;   /* semibold */
+}

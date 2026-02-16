@@ -15,7 +15,9 @@
   <div class="text-pfp-container">
     <img src="{{ url_for('static', filename='images/default_pfp.jpg') }}"
          alt="{{ contact.display_name }} picture" class="pfp">
-    <span class="contact-name fw-semibold">{{ contact.display_name }}</span>
+    <span class="chat-username fw-semibold">
+      {{ contact.display_name if contact else chat_user.user_unique_id }}
+    </span>
   </div>
 </div>
 
