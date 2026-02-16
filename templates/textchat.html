@@ -141,17 +141,19 @@
           {% endfor %}
         {% endfor %}
       {% else %}
-        <div class="text-center mt-4">
-          <p class="text-muted">No messages yet.</p>
-        </div>
-      {% endif %}
+  {% if request.args.get('search') %}
+    <div class="col-12">
+      <div class="alert alert-info text-center fw-semibold">
+        No results found for "{{ request.args.get('search') }}".
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center mt-4">
+      <p class="text-muted">No messages yet.</p>
+    </div>
+  {% endif %}
+{% endif %}
 
-      <!-- Display "No results" if no messages match the search -->
-      {% if request.args.get('search') and messages|length == 0 %}
-        <div class="text-center mt-4">
-          <p class="text-muted">No results found for "{{ request.args.get('search') }}".</p>
-        </div>
-      {% endif %}
     </div>
 
     <form method="POST" class="input-area">

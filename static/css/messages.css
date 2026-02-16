@@ -128,3 +128,31 @@ input::placeholder {
   display: inline-block;
 }
 
+/* Default tab look */
+.nav-tabs .nav-link {
+  background-color: #f5f5f5;   /* light gray background */
+  color: #333;                 /* dark text */
+  border: 1px solid #ddd;
+  border-radius: 6px 6px 0 0;
+  margin-right: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Hover effect */
+.nav-tabs .nav-link:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+/* Active tab */
+.nav-tabs .nav-link.active {
+  background-color: #007bff;   /* Bootstrap blue */
+  color: #fff;                 /* white text */
+  border-color: #007bff #007bff #fff;
+}
+
+/* Optional: give inactive tabs a softer color */
+.nav-tabs .nav-link:not(.active) {
+  background-color: #f9f9f9;
+  color: #555;
+}

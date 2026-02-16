@@ -656,27 +656,26 @@ def textchat(contact_id):
             db.session.add(new_message)
             if contact:
                 contact.last_chat = datetime.utcnow()
-                # no need to reset chat_cleared_at; new messages will naturally appear
             db.session.commit()
             return redirect(url_for("textchat", contact_id=contact_id))
 
-    # ✅ Load conversation
+    # ✅ Load conversation with search support
+    search = request.args.get("search", "").strip()
+
+    base_query = Message.query.filter(
+        or_(
+            and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
+            and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
+        )
+    )
+
     if contact and contact.chat_cleared_at:
-        # Only show messages newer than the cleared timestamp
-        messages = Message.query.filter(
-            or_(
-                and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
-                and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
-            ),
-            Message.timestamp > contact.chat_cleared_at
-        ).order_by(Message.timestamp.asc()).all()
-    else:
-        messages = Message.query.filter(
-            or_(
-                and_(Message.sender_id == user.id, Message.receiver_id == chat_user.id),
-                and_(Message.sender_id == chat_user.id, Message.receiver_id == user.id)
-            )
-        ).order_by(Message.timestamp.asc()).all()
+        base_query = base_query.filter(Message.timestamp > contact.chat_cleared_at)
+
+    if search:
+        base_query = base_query.filter(Message.content.ilike(f"%{search}%"))
+
+    messages = base_query.order_by(Message.timestamp.asc()).all()
 
     # Mark received messages as read
     Message.query.filter(
@@ -692,8 +691,10 @@ def textchat(contact_id):
         contact=contact,
         chat_user=chat_user,
         messages=messages,
-        user=user
+        user=user,
+        title="Chat"
     )
+
 
 @app.route('/delete_chat_history/<int:contact_id>', methods=['POST'])
 @login_required
