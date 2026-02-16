@@ -98,6 +98,7 @@
 function validateFields(showErrors = true) {
   const displayNameInput = document.getElementById('display_name');
   const descInput = document.getElementById('short_desc');
+  const contactIdInput = document.getElementById('contact_user_unique_id');
   const submitBtn = document.getElementById('submitBtn');
 
   let isValid = true;
@@ -105,6 +106,17 @@ function validateFields(showErrors = true) {
   // Reset error displays
   document.getElementById('displayNameError').style.display = 'none';
   document.getElementById('descError').style.display = 'none';
+
+  // ✅ Add duplicate error element if not already present
+  let duplicateError = document.getElementById('duplicateError');
+  if (!duplicateError) {
+    duplicateError = document.createElement('div');
+    duplicateError.id = 'duplicateError';
+    duplicateError.className = 'error-message';
+    duplicateError.innerText = 'You cannot add a contact that has already been added.';
+    contactIdInput.parentNode.appendChild(duplicateError);
+  }
+  duplicateError.style.display = 'none';
 
   // Validate display name
   if (!displayNameInput.value.trim() || displayNameInput.value.length > 35) {
@@ -115,6 +127,13 @@ function validateFields(showErrors = true) {
   // Validate description
   if (descInput.value.length > 120) {
     if (showErrors) document.getElementById('descError').style.display = 'block';
+    isValid = false;
+  }
+
+  // ✅ Duplicate contact check
+  const existingContacts = {{ existing_contact_ids|tojson }};
+  if (existingContacts.includes(contactIdInput.value.trim())) {
+    if (showErrors) duplicateError.style.display = 'block';
     isValid = false;
   }
 
@@ -146,4 +165,5 @@ document.addEventListener('DOMContentLoaded', function() {
   validateFields(false);
 });
 </script>
+
 {% endblock %}

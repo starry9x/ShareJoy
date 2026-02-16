@@ -3,6 +3,11 @@ from datetime import datetime
 import pytz
 
 class Contact(db.Model):
+
+    __table_args__ = (
+    db.UniqueConstraint('owner_user_id', 'contact_user_id', name='uq_owner_contact'),
+    )
+
     __tablename__ = 'contact'
 
     id = db.Column(db.Integer, primary_key=True)

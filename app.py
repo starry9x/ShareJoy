@@ -492,7 +492,8 @@ def create_contact():
                 short_desc=short_desc,
                 contact_user_unique_id=unique_id,
                 errors=errors,
-                title="Create Contact"
+                title="Create Contact",
+                existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts]  # ✅ added
             )
 
         # Create new contact (store internal id)
@@ -507,7 +508,6 @@ def create_contact():
         try:
             db.session.add(new_contact)
             db.session.commit()
-            # ✅ redirect with flag so messages.html shows "Contact Created" modal
             return redirect(url_for("messages", contact_created=True))
         except Exception as e:
             db.session.rollback()
@@ -518,10 +518,11 @@ def create_contact():
                 short_desc=short_desc,
                 contact_user_unique_id=unique_id,
                 errors=errors,
-                title="Create Contact"
+                title="Create Contact",
+                existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts]  # ✅ added
             )
 
-    # ✅ For GET request, check if a user_id was passed (from Save as Contact dropdown)
+    # GET request
     user_id = request.args.get("user_id")
     contact_user_unique_id = ""
     if user_id:
@@ -531,10 +532,11 @@ def create_contact():
 
     return render_template(
         "create_contact.html",
-        contact_user_unique_id=contact_user_unique_id,  # prefilled unique ID
+        contact_user_unique_id=contact_user_unique_id,
         display_name="",
         short_desc="",
-        title="Create Contact"
+        title="Create Contact",
+        existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts]  # ✅ added
     )
 
 
