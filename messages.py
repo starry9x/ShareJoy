@@ -127,6 +127,10 @@ class Message(db.Model):
     # Delivery/read status (e.g., "Sent", "Delivered", "Read")
     status = db.Column(db.String(20), default="Delivered")
 
+    # Relationships
+    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
+    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')
+
     @property
     def date_only(self):
         """Convenience property to get just the date portion of the timestamp."""
@@ -135,16 +139,3 @@ class Message(db.Model):
     def __repr__(self):
         return f"<Message {self.id} sender={self.sender_id} receiver={self.receiver_id} status={self.status}>"
     
-    # To tell SQLAlchemy which relationships overlap
-    sender = db.relationship(
-        'User',
-        foreign_keys=[sender_id],
-        backref=db.backref('sent_messages', lazy='dynamic', overlaps='messages_sent,sender_contact'),
-        overlaps='messages_sent,sender_contact'
-    )
-    receiver = db.relationship(
-        'User',
-        foreign_keys=[receiver_id],
-        backref=db.backref('received_messages', lazy='dynamic', overlaps='messages_received,receiver_contact'),
-        overlaps='messages_received,receiver_contact'
-    )
