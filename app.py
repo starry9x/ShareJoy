@@ -157,12 +157,9 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             
-            # Log the user in automatically
-            session['user_id'] = new_user.id
-            session['user_name'] = new_user.full_name
-            
-            flash('Account created successfully! Welcome to ShareJoy!', 'success')
-            return redirect(url_for('profile'))
+            # Don't auto-login - redirect to login page
+            flash('Account created successfully! Please log in to continue.', 'success')
+            return redirect(url_for('loginpage'))
         except Exception as e:
             db.session.rollback()
             flash(f'An error occurred: {str(e)}', 'error')
