@@ -5,7 +5,7 @@ import pytz
 class Contact(db.Model):
 
     __table_args__ = (
-    db.UniqueConstraint('owner_user_id', 'contact_user_id', name='uq_owner_contact'),
+        db.UniqueConstraint('owner_user_id', 'contact_user_id', name='uq_owner_contact'),
     )
 
     __tablename__ = 'contact'
@@ -51,7 +51,8 @@ class Contact(db.Model):
         foreign_keys='Message.sender_id',
         primaryjoin='Contact.owner_user_id == Message.sender_id',
         backref='sender_contact',
-        lazy='dynamic'
+        lazy='dynamic',
+        overlaps='sent_messages,sender'
     )
 
     # Messages received by the owner from the contact
@@ -60,13 +61,13 @@ class Contact(db.Model):
         foreign_keys='Message.receiver_id',
         primaryjoin='Contact.owner_user_id == Message.receiver_id',
         backref='receiver_contact',
-        lazy='dynamic'
+        lazy='dynamic',
+        overlaps='received_messages,receiver'
     )
 
     deleted_history = db.Column(db.Boolean, default=False)
 
     chat_cleared_at = db.Column(db.DateTime, nullable=True)
-
 
     def __repr__(self):
         return f"<Contact owner={self.owner_user_id} contact={self.contact_user_id} display_name={self.display_name}>"
@@ -97,10 +98,8 @@ class Contact(db.Model):
 class Message(db.Model):
     __tablename__ = 'message'
 
-    # Primary key
     id = db.Column(db.Integer, primary_key=True)
 
-    # Who sent and received the message (linked to user table)
     sender_id = db.Column(
         db.Integer,
         db.ForeignKey("user.id", name="fk_message_sender_id"),
@@ -113,10 +112,8 @@ class Message(db.Model):
         nullable=False
     )
 
-    # Message content
     content = db.Column(db.Text, nullable=False)
 
-    # Timestamp of when the message was sent
     timestamp = db.Column(
         db.DateTime(timezone=True),
         nullable=False,
@@ -124,18 +121,25 @@ class Message(db.Model):
         index=True
     )
 
-    # Delivery/read status (e.g., "Sent", "Delivered", "Read")
     status = db.Column(db.String(20), default="Delivered")
-
-    # Relationships
-    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
-    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')
 
     @property
     def date_only(self):
-        """Convenience property to get just the date portion of the timestamp."""
         return self.timestamp.date() if self.timestamp else None
 
     def __repr__(self):
         return f"<Message {self.id} sender={self.sender_id} receiver={self.receiver_id} status={self.status}>"
-    
+
+    # Relationships with overlaps to avoid warnings
+    sender = db.relationship(
+        'User',
+        foreign_keys=[sender_id],
+        backref=db.backref('sent_messages', lazy='dynamic', overlaps='messages_sent,sender_contact'),
+        overlaps='messages_sent,sender_contact'
+    )
+    receiver = db.relationship(
+        'User',
+        foreign_keys=[receiver_id],
+        backref=db.backref('received_messages', lazy='dynamic', overlaps='messages_received,receiver_contact'),
+        overlaps='messages_received,receiver_contact'
+    )
