@@ -18,6 +18,8 @@ body {
 .searchbar {
   background-color: transparent !important;
   border: none !important;
+  min-width: 420px !important;   /* prevents it from becoming too tiny */
+  flex: 1 !important;    /* allows it to grow and fill available space */
 }
 
 /* Search button */
@@ -39,7 +41,6 @@ body {
   background-color: #fff3db;
   color: #000000;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.256) !important;
-  ;
 }
 
 .box2 {
