@@ -759,6 +759,7 @@ def delete_text_message(message_id):
 # ============================================
 # ACTIVITIES ROUTES
 # ============================================
+BASE_DATE = date(2026, 2, 17)
 
 # Helper to check if user joined an activity
 def user_joined_activity(user_id, activity_id):
@@ -790,11 +791,17 @@ def activities():
         activity.tags = activity.tags.split(",") if activity.tags else []
 
         # Parse and format date
+        today = date.today()
         parsed_date = parse_activity_date(activity.date)
+
         if parsed_date:
-            activity.display_date = parsed_date.strftime("%d %b %Y")
+            original_date = parsed_date.date()
+            days_offset = (original_date - BASE_DATE).days
+            dynamic_date = today + timedelta(days=days_offset)
+
+            activity.display_date = dynamic_date.strftime("%d %b %Y")
         else:
-            activity.display_date = activity.date  # fallback
+            activity.display_date = activity.date
 
         # Parse and format time
         try:
@@ -977,8 +984,17 @@ def explore():
         a.display_tags = a.tags.split(",") if a.tags else []
 
         # Dates
+        today = date.today()
         parsed_date = parse_activity_date(a.date)
-        a.display_date = parsed_date.strftime("%d %b %Y") if parsed_date else a.date
+
+        if parsed_date:
+            original_date = parsed_date.date()
+            days_offset = (original_date - BASE_DATE).days
+            dynamic_date = today + timedelta(days=days_offset)
+
+            a.display_date = dynamic_date.strftime("%d %b %Y")
+        else:
+            a.display_date = a.date
         try:
             parsed_time = datetime.strptime(a.time, "%H:%M")
         except ValueError:
@@ -1062,7 +1078,6 @@ def in_this_week(date_obj):
 def schedule():
     user = get_current_user()
     activities = Activity.query.order_by(Activity.date.asc()).all()
-    today = date.today()
 
     upcoming_week_activities = []
     other_activities = []
@@ -1075,16 +1090,34 @@ def schedule():
             continue
 
         activity.display_tags = activity.tags.split(",") if activity.tags else []
-
+        today = date.today()
         parsed_date = parse_activity_date(activity.date)
-        activity.display_date_obj = parsed_date.date() if parsed_date else today
-        activity.display_date = parsed_date.strftime("%d %b %Y") if parsed_date else activity.date
-        activity.days_until = (activity.display_date_obj - today).days
 
+        if parsed_date:
+            original_date = parsed_date.date()
+
+            # Difference from original base date
+            days_offset = (original_date - BASE_DATE).days
+
+            # Shift activity forward relative to today
+            dynamic_date = today + timedelta(days=days_offset)
+
+            activity.display_date_obj = dynamic_date
+            activity.display_date = dynamic_date.strftime("%d %b %Y")
+
+            # Always calculate from dynamic date
+            activity.days_until = (dynamic_date - today).days
+        else:
+            activity.display_date_obj = today
+            activity.display_date = activity.date
+            activity.days_until = 0
+
+        # Time formatting
         try:
             parsed_time = datetime.strptime(activity.time, "%H:%M")
         except ValueError:
             parsed_time = datetime.strptime(activity.time, "%I:%M %p")
+
         activity.display_time = parsed_time.strftime("%I:%M %p").lstrip("0")
 
         # Live participant count
