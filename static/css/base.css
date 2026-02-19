@@ -18,6 +18,8 @@ body {
 .searchbar {
   background-color: transparent !important;
   border: none !important;
+  min-width: 420px !important;   
+  flex: 1 !important;    
 }
 
 /* Search button */
