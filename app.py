@@ -371,7 +371,7 @@ def messages():
     if search:
         contacts = [
             c for c in contacts
-             if search.lower() in c[0].display_name.lower()
+            if search.lower() in c[0].display_name.lower()
         ]
 
     contacts.sort(key=lambda c: c.last_message_time or datetime.min, reverse=True)
