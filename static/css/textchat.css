@@ -79,10 +79,10 @@
 .message {
   min-width: 200px;
   max-width: fit-content;
-  border-radius: 8px;
   align-self: flex-end;
   margin-top: 8px;
   margin-bottom: 8px;
+  border-radius: 25px;
   word-wrap: break-word;
   display: flex;
   flex-direction: column;
@@ -91,12 +91,14 @@
 
 .message.sent {
   background: #72C0FF;
+  border-top-right-radius: 0px;
   margin-left: auto;
   text-align: right;
 }
 
 .message.received {
   background: #B8E5FF;
+  border-top-left-radius: 0px;
   margin-right: auto;
   text-align: left;
 }
@@ -107,18 +109,21 @@
 }
 
 .message-content {
-  padding: 12px 16px;      
+  padding: 14px 18px;      
 }
 
 .message-content p {
+  color: #1b1b1b;
+  font-size: 1.2rem !important;
   margin: 0;
 }
 
 .message-content small {
   display: block;
+  color: #000000;
   margin-top: 6px;
-  font-size: 0.75rem;
-  opacity: 0.7;
+  font-size: 0.9rem;
+  opacity: 0.8;
 }
 
 /* Styling of buttons in inline edit form */ 
@@ -126,6 +131,9 @@
   display: flex;
   align-self: stretch;      
   margin-top: 6px;
+  margin-bottom: -5px;
+  margin-left: -10px;
+  margin-right: -10px;
 }
 
 .message-actions .btn {
@@ -138,26 +146,31 @@
 
 /* Delete Message button */
 .delete-btn {
-  background-color: #ff4d4d;
+  background-color: hsl(0, 100%, 50%);
+  font-size: 1rem !important;
   color: #fff;
   border: none;
-  border-bottom-left-radius: 8px;
+  border-bottom-left-radius: 17px !important;
+  border-top-left-radius: 17px !important;
 }
 
 .delete-btn:hover {
-  background-color: #cc0000;
+  background-color: #931414;
+  color: #340505 !important;
 }
 
 /* Edit Message button */
 .edit-btn {
-  background-color: #ff9800;
+  background-color: #ff8000;
+  font-size: 1rem !important;
   color: #fff;
   border: none;
-  border-bottom-right-radius: 8px;
+  border-bottom-right-radius: 17px !important;
+  border-top-right-radius: 17px !important;
 }
 
 .edit-btn:hover {
-  background-color: #e68900;
+  background-color: #ff8400;
 }
 
 /* Text Input area */
@@ -167,7 +180,7 @@
   gap: 0.5rem;
   border-top: 1px solid #ddd;
   padding: 0.5rem;
-  background-color:  #FFDCB7;
+  background-color: #FFDCB7;
 }
 
 .message-input {
@@ -175,15 +188,26 @@
   padding: 0.6rem;
   border: 1px solid #8b8b8b;
   border-radius: 4px;
+  max-width: 6000px !important;
 }
 
-.send-btn, #togglePaneButton {
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  white-space: nowrap;
-  background: #007bff;
-  color: white;
+.send-btn{
+  background: #007bff !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+#togglePaneButton{
+  background: #ff1c4d !important;
+  color: rgb(255, 255, 255) !important;
+}
+
+.send-btn:hover{
+  background: #0059b9 !important;
+  color: rgb(172, 172, 172) !important;
+}
+
+#togglePaneButton:hover{
+  background: #bd2244 !important;
 }
 
 .chat-tools-btn {
