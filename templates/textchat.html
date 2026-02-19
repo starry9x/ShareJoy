@@ -30,9 +30,9 @@
           <!-- Search form for messages -->
           <form method="get" class="flex-grow-1 mb-2 mb-md-0 box2 rounded" id="message-search-form">
             <input type="hidden" name="contact_id" value="{{ contact.id }}">
-            <div class="input-group">
+            <div class="input-group w-100 w-md-auto">
               <input type="text" name="search" class="form-control shadow-sm searchbar"
-                placeholder="Search messages in this chat..." value="{{ request.args.get('search', '') }}">
+                placeholder="Search for messages in this chat" value="{{ request.args.get('search', '') }}">
               <button class="btn search-btn" type="submit">
                 <i class="fa-solid fa-magnifying-glass"></i>
               </button>
