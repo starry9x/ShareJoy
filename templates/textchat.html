@@ -36,13 +36,13 @@
               <button class="btn search-btn" type="submit">
                 <i class="fa-solid fa-magnifying-glass"></i>
               </button>
-              {% if request.args.get('search') %}
-                <a href="{{ url_for('textchat', contact_id=contact.id) }}" class="btn btn-secondary ms-2">
-                  Clear
-                </a>
-              {% endif %}
             </div>
           </form>
+          {% if request.args.get('search') %}
+                <a href="{{ url_for('textchat', contact_id=contact.id) }}" class="btn clearbtn ms-2">
+                  Clear Search
+                </a>
+          {% endif %}
         </div>
       </div>
 
@@ -105,15 +105,15 @@
                 <div class="modal-dialog modal-dialog-centered">
                   <div class="modal-content p-2">
                     <div class="modal-header">
-                      <h4 class="modal-title fw-bold" id="editConfirmModalLabel{{ message.id }}">Confirm Edit</h4>
+                      <h4 class="modal-title fw-bold" id="editConfirmModalLabel{{ message.id }}">Update Message?</h4>
                     </div>
                     <div class="modal-body">
                       Are you sure you want to save these changes?
-                      Once messages are updated, the old versions cannot be recovered.
                     </div>
+                    <span class="fw-semibold text-danger"> Once messages are updated, the old versions cannot be recovered. </span>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
-                      <button type="submit" class="btn btn-primary fw-semibold">
+                      <button type="button" class="btn cancelbtn fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn dobtn fw-semibold">
                         Save Changes
                       </button>
                     </div>
@@ -138,10 +138,10 @@
               <span class="fw-semibold text-danger">This action cannot be undone.</span>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="cancelbtn fw-semibold" data-bs-dismiss="modal">Cancel</button>
               <form method="post" action="{{ url_for('delete_text_message', message_id=message.id) }}">
                 <input type="hidden" name="contact_id" value="{{ contact.id }}">
-                <button type="submit" class="btn btn-danger fw-semibold">Delete Message</button>
+                <button type="submit" class="redbtn fw-semibold">Delete Message</button>
               </form>
             </div>
           </div>
@@ -172,7 +172,7 @@
       <input type="text" name="content" class="message-input" placeholder="Type your message..." required>
 
       <!-- Toggle Chat Starter Pane -->
-      <button type="button" id="togglePaneButton" class="chat-tools-btn dobtn fw-semibold" onclick="togglePane()">Open chat starters</button>
+      <button type="button" id="togglePaneButton" class="dobtn fw-semibold" onclick="togglePane()">Open chat starters</button>
 
       <!-- Send Message Button-->
       <button type="submit" class="send-btn dobtn fw-semibold">Send</button>
@@ -181,13 +181,13 @@
 
   <!-- Chat Starters pane with predefined message templates -->
   <div class="right-pane" id="rightPane">
-    <h5>Chat starters</h5>
+    <h4>Chat starters</h4>
     <div class="convo-starters">
-      <p>Click on a chat starter template to start a conversation! </p>
-      <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('What was your favourite memory of us together?')">What was your favourite memory of us together?</button>
-      <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('Share your most memorable childhood experience.')">Share your most memorable childhood experience.</button>
-      <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('Do you remember when we used to [insert text here]?')">Do you remember when we used to...</button>
-      <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="insertText('What are your favourite hawker foods?')">What are your favourite hawker foods?</button>
+      <p>Click on a message template to start a conversation! </p>
+      <button type="button" class="btn btn-sm mb-2" onclick="insertText('What was your favourite memory of us together?')">What was your favourite memory of us together?</button>
+      <button type="button" class="btn btn-sm mb-2" onclick="insertText('Share your most memorable childhood experience.')">Share your most memorable childhood experience.</button>
+      <button type="button" class="btn btn-sm mb-2" onclick="insertText('Do you remember when we used to [insert text here]?')">Do you remember when we used to...</button>
+      <button type="button" class="btn btn-sm mb-2" onclick="insertText('What are your favourite hawker foods?')">What are your favourite hawker foods?</button>
     </div>
   </div>
 </div>
@@ -241,6 +241,8 @@ function startEdit(button) {
   if (deleteBtn) deleteBtn.style.display = "none";
 
   editForm.style.display = "block";
+
+  messageDiv.classList.add("editing");
 }
 
 function cancelEdit(button) {
@@ -255,6 +257,9 @@ function cancelEdit(button) {
   textP.style.display = "block";
   editBtn.style.display = "inline-block";
   if (deleteBtn) deleteBtn.style.display = "inline-block";
+
+  messageDiv.classList.remove("editing");
 }
+
 </script>
 {% endblock %}

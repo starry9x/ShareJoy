@@ -187,18 +187,20 @@
   flex: 1;
   padding: 0.6rem;
   border: 1px solid #8b8b8b;
-  border-radius: 4px;
+  border-radius: 8px;
   max-width: 6000px !important;
 }
 
 .send-btn{
   background: #007bff !important;
   color: rgb(255, 255, 255) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.50);
 }
 
 #togglePaneButton{
-  background: #ff1c4d !important;
-  color: rgb(255, 255, 255) !important;
+  background-color: #d000ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.50);
 }
 
 .send-btn:hover{
@@ -207,12 +209,7 @@
 }
 
 #togglePaneButton:hover{
-  background: #bd2244 !important;
-}
-
-.chat-tools-btn {
-  background-color: #FFB587 !important;
-  color: #582D00 !important;
+  background: #9600b8 !important;
 }
 
 /* Chat Starters/ Right-side pane */
@@ -220,7 +217,7 @@
   position: relative;
   margin-left: 1%;
   flex: 0.1;
-  overflow: visible;
+  overflow-y: auto;
   transition: flex 0.3s ease;
   background-color: #ffeddc;
   border-left: 1px solid #ccc;
@@ -240,7 +237,19 @@
 }
 
 .convo-starters button {
-  font-size: 16px;
+  font-size: 18px;
+  color: #ffffff;
+  border-radius: 25px;
+  padding: 12px;
+  background-color: #394fe2;
+  border: 1.5px solid #000000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.40);
+}
+
+.convo-starters button:hover {
+  background-color: #243291;
+  border: 1.5px solid #000000;
+  color: #ffffff;
 }
 
 /* Edit Message Inline Form */
@@ -257,6 +266,7 @@
 .edit-label {
   text-align: left;
   display: block;
+  font-size: 1.2rem;
 }
 
 .update-buttons {
@@ -268,4 +278,9 @@
   font-size: 19px !important;
   padding: 0.4rem 1rem !important;
 }
+
+.message.editing small {
+  display: none;
+}
+
 
