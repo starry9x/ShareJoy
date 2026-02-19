@@ -99,14 +99,12 @@
   background: #72C0FF;
   border-top-right-radius: 0px;
   margin-left: auto;
-  text-align: right;
 }
 
 .message.received {
   background: #B8E5FF;
   border-top-left-radius: 0px;
   margin-right: auto;
-  text-align: left;
 }
 
 .message.highlight {
@@ -118,18 +116,18 @@
   padding: 14px 18px;      
 }
 
-.message-content p {
-  color: #1b1b1b;
-  font-size: 1.2rem !important;
-  margin: 0;
+.message-text {
+  font-size: 1.3rem;     
 }
 
-.message-content small {
-  display: block;
-  color: #000000;
-  margin-top: 6px;
-  font-size: 0.9rem;
-  opacity: 0.8;
+.message.sent .message-content p,
+.message.sent .message-content small {
+  text-align: right;
+}
+
+.message.received .message-content p,
+.message.received .message-content small{
+  text-align: left;
 }
 
 /* Styling of buttons in inline edit form */ 
@@ -260,13 +258,18 @@
 
 /* Edit Message Inline Form */
 .edit-form {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 1rem;
 }
 
+.edit-form.active {
+  display: flex;
+}
+
 .edit-input {
   margin-bottom: 1rem;
+  font-size: 1.3rem;
 }
 
 .edit-label {

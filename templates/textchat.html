@@ -52,7 +52,7 @@
           {% for message in day_messages %}
       <div id="message-{{ message.id }}" class="message {% if message.sender_id == user.id %}sent{% else %}received{% endif %}">
         <div class="message-content">
-          <p>{{ message.content }}</p>
+          <p class="message-text">{{ message.content }}</p>
 
           {# For your messages NOT sent by current user, show only timestamp of messages #}
           {% if message.sender_id != user.id %}
@@ -87,7 +87,7 @@
             </div>
             <!-- Inline form to edit messages -->
             <form method="post" action="{{ url_for('update_message', message_id=message.id) }}"
-                  class="edit-form" style="display:none;">
+                  class="edit-form">
               <input type="hidden" name="contact_id" value="{{ contact.id }}">
               <label for="editContent{{ message.id }}" class="form-label fw-semibold edit-label">Edit your message:</label>
               <textarea id="editContent{{ message.id }}" name="content" class="edit-input form-control">{{ message.content }}</textarea>
@@ -108,9 +108,10 @@
                       <h4 class="modal-title fw-bold" id="editConfirmModalLabel{{ message.id }}">Update Message?</h4>
                     </div>
                     <div class="modal-body">
-                      Are you sure you want to save these changes?
+                      Are you sure you want to save these changes? <br>
+                      <span class="fw-semibold text-danger"> Once messages are updated, the old versions cannot be recovered. </span>
                     </div>
-                    <span class="fw-semibold text-danger"> Once messages are updated, the old versions cannot be recovered. </span>
+                    
                     <div class="modal-footer">
                       <button type="button" class="btn cancelbtn fw-semibold" data-bs-dismiss="modal">Cancel</button>
                       <button type="submit" class="btn dobtn fw-semibold">

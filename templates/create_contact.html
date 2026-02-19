@@ -1,17 +1,7 @@
 {% extends "base.html" %}
 
 {% block extra_css %}
-<style>
-    .error-message {
-        color: #dc3545;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-        display: none;
-    }
-    .is-invalid {
-        border-color: #dc3545;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_contact.css') }}">
 {% endblock %}
 
 {% block content %}
