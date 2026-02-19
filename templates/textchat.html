@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="section-box">
-  <!-- Arrow pinned left -->
+  <!-- 'Return to messages'arrow pinned left -->
   <a href="{{ url_for('messages') }}" class="btn btn-link p-0 back-arrow">
     <i class="fa-solid fa-arrow-left"></i>
   </a>
@@ -21,7 +21,7 @@
   </div>
 </div>
 
-<!-- Wrapper for chat + pane -->
+<!-- Wrapper for Chat and Chat Starters pane -->
 <div class="chat-wrapper">
   <div class="chat-container" id="chatContainer">
     <div class="messages-area">
@@ -54,6 +54,7 @@
         <div class="message-content">
           <p>{{ message.content }}</p>
 
+          {# For your messages NOT sent by current user, show only timestamp of messages #}
           {% if message.sender_id != user.id %}
             <small>Sent at {{ message.timestamp|onlytime }}</small>
             {% if message.delivered_at %}
@@ -63,7 +64,7 @@
               <br><small>Read at {{ message.read_at|onlytime }}</small>
             {% endif %}
           {% else %}
-            {# For your own messages, combine status + sent time #}
+            {# For your messages sent by current user, show status and timestamp of messages #}
             {% if message.read_at %}
               <small>Read • Sent at {{ message.timestamp|onlytime }}</small>
             {% elif message.delivered_at %}
@@ -73,31 +74,56 @@
             {% endif %}
           {% endif %}
 
+          {# Delete and edit message buttons enabled only for messages sent by current user #}
           {% if message.sender_id == user.id %}
             <div class="message-actions">
               <button type="button" class="btn redbtn btn-sm fw-semibold shadow-sm delete-btn"
                       data-bs-toggle="modal" data-bs-target="#deleteModal{{ message.id }}">
                 Delete
               </button>
-              <button type="button" class="edit-btn btn edit" onclick="startEdit(this)">
+              <button type="button" class="edit-btn btn" onclick="startEdit(this)">
                 Edit
               </button>
             </div>
-
+            <!-- Inline form to edit messages -->
             <form method="post" action="{{ url_for('update_message', message_id=message.id) }}"
                   class="edit-form" style="display:none;">
               <input type="hidden" name="contact_id" value="{{ contact.id }}">
               <label for="editContent{{ message.id }}" class="form-label fw-semibold edit-label">Edit your message:</label>
               <textarea id="editContent{{ message.id }}" name="content" class="edit-input form-control">{{ message.content }}</textarea>
               <div class="update-buttons">
-                <button type="button" class="btn dobtn fw-semibold" onclick="confirmEdit({{ message.id }})">Save Changes</button>
+                <button type="button" class="btn dobtn fw-semibold"
+                        data-bs-toggle="modal" data-bs-target="#editConfirmModal{{ message.id }}">
+                  Save Changes
+                </button>
                 <button type="button" class="btn cancel-btn fw-semibold" onclick="cancelEdit(this)">Cancel</button>
+              </div>
+
+              <!-- Edit Message Modal -->
+              <div class="modal fade" id="editConfirmModal{{ message.id }}" tabindex="-1"
+                  aria-labelledby="editConfirmModalLabel{{ message.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content p-2">
+                    <div class="modal-header">
+                      <h4 class="modal-title fw-bold" id="editConfirmModalLabel{{ message.id }}">Confirm Edit</h4>
+                    </div>
+                    <div class="modal-body">
+                      Are you sure you want to save these changes?
+                      Once messages are updated, the old versions cannot be recovered.
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary fw-semibold">
+                        Save Changes
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </form>
           {% endif %}
         </div>
       </div>
-
 
       <!-- Delete Message Modal -->
       <div class="modal fade" id="deleteModal{{ message.id }}" tabindex="-1"
@@ -122,35 +148,18 @@
         </div>
       </div>
 
-      <!-- Edit Message Modal -->
-      <div class="modal fade" id="editConfirmModal{{ message.id }}" tabindex="-1"
-          aria-labelledby="editConfirmModalLabel{{ message.id }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content p-2">
-            <div class="modal-header">
-              <h4 class="modal-title fw-bold" id="editConfirmModalLabel{{ message.id }}">Confirm Edit</h4>
-            </div>
-            <div class="modal-body">
-              Are you sure you want to save these changes?
-              Once messages are updated, the old versions cannot be recovered.
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary fw-semibold" onclick="submitEditForm({{ message.id }})">Save Changes</button>
-            </div>
-          </div>
-        </div>
-      </div>
           {% endfor %}
         {% endfor %}
       {% else %}
   {% if request.args.get('search') %}
+  <!-- Search result displayed when no messages match message user's search input -->
     <div class="col-12">
       <div class="alert alert-info text-center fw-semibold">
         No results found for "{{ request.args.get('search') }}".
       </div>
     </div>
   {% else %}
+  <!-- Text displayed when there is no chat history -->
     <div class="text-center mt-4">
       <p class="text-muted">No messages yet.</p>
     </div>
@@ -158,19 +167,19 @@
 {% endif %}
 
     </div>
-
+    <!-- Text input area -->
     <form method="POST" class="input-area">
       <input type="text" name="content" class="message-input" placeholder="Type a message..." required>
 
-      <!-- Toggle Chat Functions -->
-      <button type="button" id="togglePaneButton" class="chat-tools-btn do-btn btn fw-semibold" onclick="togglePane()">Open chat starters</button>
+      <!-- Toggle Chat Starter Pane -->
+      <button type="button" id="togglePaneButton" class="chat-tools-btn btn do-btn fw-semibold" onclick="togglePane()">Open chat starters</button>
 
-      <!-- Send -->
-      <button type="submit" class="send-btn do-btn btn fw-semibold">Send</button>
+      <!-- Send Message Button-->
+      <button type="submit" class="send-btn btn do-btn fw-semibold">Send</button>
     </form>
   </div>
 
-  <!-- Right pane -->
+  <!-- Chat Starters pane with predefined message templates -->
   <div class="right-pane" id="rightPane">
     <h5>Chat starters</h5>
     <div class="convo-starters">
@@ -187,8 +196,19 @@
 {% block extra_js %}
 <script>
 window.onload = function() {
-  const chatContainer = document.getElementById("chatContainer");
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  const messagesArea = document.querySelector(".messages-area");
+
+  {% if highlight_id %}
+  const target = document.getElementById("message-{{ highlight_id }}");
+  if (target) {
+    target.classList.add("highlight");
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+  } else {
+    messagesArea.scrollTop = messagesArea.scrollHeight; // fallback
+  }
+  {% else %}
+  messagesArea.scrollTop = messagesArea.scrollHeight; // scroll to bottom on first load
+  {% endif %}
 };
 
 function togglePane() {
@@ -199,17 +219,15 @@ function togglePane() {
   pane.classList.toggle("open");
   chat.classList.toggle("shrunk");
 
-  if (pane.classList.contains("open")) {
-    toggleButton.textContent = "Close chat starters";
-  } else {
-    toggleButton.textContent = "Open chat starters";
-  }
+  toggleButton.textContent = pane.classList.contains("open")
+    ? "Close chat starters"
+    : "Open chat starters";
 }
 
 function insertText(text) {
   const inputField = document.querySelector(".message-input");
-  inputField.value = text; // Insert the text into the input field
-  inputField.focus(); // Focus the input field for user convenience
+  inputField.value = text;
+  inputField.focus();
 }
 
 function startEdit(button) {
@@ -218,12 +236,10 @@ function startEdit(button) {
   const editForm = messageDiv.querySelector(".edit-form");
   const deleteBtn = messageDiv.querySelector(".delete-btn");
 
-  // Hide text, edit button, and delete button
   textP.style.display = "none";
   button.style.display = "none";
   if (deleteBtn) deleteBtn.style.display = "none";
 
-  // Show edit form
   editForm.style.display = "block";
 }
 
@@ -234,49 +250,11 @@ function cancelEdit(button) {
   const editBtn = messageDiv.querySelector(".edit-btn");
   const deleteBtn = messageDiv.querySelector(".delete-btn");
 
-  // Hide edit form
   editForm.style.display = "none";
 
-  // Show text, edit button, and delete button again
   textP.style.display = "block";
   editBtn.style.display = "inline-block";
   if (deleteBtn) deleteBtn.style.display = "inline-block";
 }
-
-function confirmEdit(messageId) {
-  // Open the edit confirmation modal
-  const modal = new bootstrap.Modal(document.getElementById(`editConfirmModal${messageId}`));
-  modal.show();
-}
-
-function submitEditForm(messageId) {
-  // Submit the inline edit form
-  const editForm = document.querySelector(`#message-${messageId} .edit-form`);
-  editForm.submit();
-}
-
-function confirmDelete(messageId) {
-  // Open the delete confirmation modal
-  const modal = new bootstrap.Modal(document.getElementById(`deleteModal${messageId}`));
-  modal.show();
-}
-
-document.getElementById("attachMediaButton").addEventListener("click", function() {
-  const menu = document.getElementById("mediaMenu");
-  menu.style.display = (menu.style.display === "block") ? "none" : "block";
-});
 </script>
-
-{% if highlight_id %}
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const target = document.getElementById("message-{{ highlight_id }}");
-  if (target) {
-    target.classList.add("highlight");
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-});
-</script>
-{% endif %}
-
 {% endblock %}

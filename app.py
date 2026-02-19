@@ -574,7 +574,6 @@ def edit_contact(contact_id):
         contact.message_status = message_status
         db.session.commit()
 
-        # ✅ changed: instead of flash, pass contact_updated flag
         return redirect(url_for('messages', contact_updated=True))
     
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
@@ -728,12 +727,10 @@ def update_message(message_id):
     if new_content:
         message.content = new_content
         db.session.commit()
-        flash('Message updated successfully!', 'success')
 
     # Redirect back to the chat with the contact_id
     contact_id = request.form.get('contact_id')  # Get contact_id from the form
     if not contact_id:
-        flash('Contact ID is missing.', 'error')
         return redirect(url_for('messages'))  # Fallback redirect if contact_id is missing
 
     return redirect(url_for('textchat', contact_id=contact_id))
@@ -752,7 +749,6 @@ def delete_text_message(message_id):
     db.session.delete(message)
     db.session.commit()
 
-    flash('Message deleted successfully!', 'success')
     return redirect(url_for('textchat', contact_id=request.form.get('contact_id')))
 
 # ============================================

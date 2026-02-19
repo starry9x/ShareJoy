@@ -7,7 +7,6 @@
   margin: 0;  
 }
 
-/* Arrow pinned left */
 .back-arrow {
   position: absolute;
   left: 1rem;
@@ -15,7 +14,6 @@
   transform: translateY(-50%);
 }
 
-/* Image + name centered */
 .text-pfp-container {
   position: absolute;
   left: 50%;
@@ -33,11 +31,8 @@
   border-radius: 50%;
 }
 
-.contact-name {
-  font-size: 1.75rem;
-  font-weight: bold;
-  margin: 0;
-  white-space: nowrap;
+.chat-username {
+  font-size: 2.2rem; 
 }
 
 /* Chat container */
@@ -50,7 +45,7 @@
 
 .chat-container {
   flex: 1;
-  background: #fdfdfd;
+  background: #f2efed;
   border: 1px solid #ddd;
   border-radius: 8px;
   display: flex;
@@ -68,7 +63,7 @@
   padding: 1rem;
 }
 
-/* Day label */
+/* Day label/timestamp */
 .day-label {
   display: block;
   margin: 15px auto;
@@ -91,8 +86,7 @@
   word-wrap: break-word;
   display: flex;
   flex-direction: column;
-
-  padding: 0; /* 🔥 remove padding */
+  padding: 0; 
 }
 
 .message.sent {
@@ -112,14 +106,8 @@
   transition: background-color 2s ease;
 }
 
-.message {
-  padding: 0;              /* important */
-  display: flex;
-  flex-direction: column;
-}
-
 .message-content {
-  padding: 12px 16px;      /* spacing around text */
+  padding: 12px 16px;      
 }
 
 .message-content p {
@@ -133,23 +121,22 @@
   opacity: 0.7;
 }
 
-/* Action buttons bar */
+/* Styling of buttons in inline edit form */ 
 .message-actions {
   display: flex;
-  align-self: stretch;      /* ✅ force full width of parent bubble */
+  align-self: stretch;      
   margin-top: 6px;
 }
 
 .message-actions .btn {
-  flex: 1;                  /* buttons expand equally */
+  flex: 1;                  
   border-radius: 0;
   padding: 10px 0;
   font-size: 0.9rem;
   font-weight: 600;
 }
 
-
-/* Delete button */
+/* Delete Message button */
 .delete-btn {
   background-color: #ff4d4d;
   color: #fff;
@@ -161,7 +148,7 @@
   background-color: #cc0000;
 }
 
-/* Edit button */
+/* Edit Message button */
 .edit-btn {
   background-color: #ff9800;
   color: #fff;
@@ -173,64 +160,23 @@
   background-color: #e68900;
 }
 
-/* Input area */
+/* Text Input area */
 .input-area {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   border-top: 1px solid #ddd;
   padding: 0.5rem;
+  background-color:  #FFDCB7;
 }
 
 .message-input {
   flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
+  padding: 0.6rem;
+  border: 1px solid #8b8b8b;
   border-radius: 4px;
 }
 
-/* Media buttons */
-.media-btn {
-  background: #1AC54A;
-  color: #FDF6F0;
-}
-
-.media-btn:hover {
-  background-color: rgb(187, 194, 0) !important;
-}
-
-.media-dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.media-menu {
-  display: none;
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  z-index: 100;
-}
-
-.media-option {
-  display: block;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  border: none;
-  background: none;
-  text-align: left;
-  cursor: pointer;
-}
-
-.media-option:hover {
-  background-color: #f0f0f0;
-}
-
-/* Send + tools buttons */
 .send-btn, #togglePaneButton {
   border: none;
   border-radius: 4px;
@@ -245,7 +191,7 @@
   color: #582D00 !important;
 }
 
-/* Right pane */
+/* Chat Starters/ Right-side pane */
 .right-pane {
   position: relative;
   margin-left: 1%;
@@ -273,7 +219,7 @@
   font-size: 16px;
 }
 
-/* Edit form */
+/* Edit Message Inline Form */
 .edit-form {
   display: flex;
   flex-direction: column;
@@ -299,7 +245,3 @@
   padding: 0.4rem 1rem !important;
 }
 
-.chat-username {
-  font-size: 1.25rem; /* bigger than normal body text */
-  font-weight: 600;   /* semibold */
-}
