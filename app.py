@@ -595,8 +595,6 @@ def delete_contact(contact_id):
     db.session.delete(contact)
     db.session.commit()
 
-    return redirect(url_for('messages', contact_deleted=True))
-
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
