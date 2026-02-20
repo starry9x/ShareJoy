@@ -18,7 +18,7 @@
 
 <!-- Outer card -->
 <div class="container sectionbox1 mx-auto">
-  <div class="card-header mx-auto">
+  <div class="card-header">
     <h2 class="fw-semibold">Create Contact</h2>
     <p>Fill in the details below to create a new contact.</p>
   </div>
@@ -64,6 +64,10 @@
           <div class="error-message" id="selfError">
             You cannot add yourself as a contact.
           </div>
+          
+          <div class="error-message" id="invalidError">
+            No user found with that unique ID.
+          </div>
         </div>
 
         <!-- Short Description -->
@@ -72,16 +76,12 @@
           <input type="text" class="form-control" id="short_desc" name="short_desc"
                 placeholder="Workshop partner, Grandma, etc."
                 value="{{ short_desc }}" maxlength="120">
-          <div class="error-message" id="descError">Description must be under 120 characters.</div>
-          {% if errors and "short_desc" in errors %}
-            <div class="text-danger">{{ errors["short_desc"] }}</div>
-          {% endif %}
         </div>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-end gap-2">
           <a href="{{ url_for('messages') }}" class="btn cancelbtn fw-semibold">Cancel</a>
-          <button type="submit" class="btn dobtn fw-semibold" id="submitBtn" disabled>
+          <button type="submit" class="btn dobtn fw-semibold" id="submitBtn">
             Create Contact
           </button>
         </div>
@@ -95,7 +95,6 @@
 <script>
 function validateFields(showErrors = true) {
   const displayNameInput = document.getElementById('display_name');
-  const descInput = document.getElementById('short_desc');
   const contactIdInput = document.getElementById('contact_user_unique_id');
   const submitBtn = document.getElementById('submitBtn');
 
@@ -103,19 +102,12 @@ function validateFields(showErrors = true) {
 
   // Reset errors
   document.getElementById('displayNameError').style.display = 'none';
-  document.getElementById('descError').style.display = 'none';
   document.getElementById('duplicateError').style.display = 'none';
   document.getElementById('selfError').style.display = 'none';
 
   // Display name check
   if (!displayNameInput.value.trim() || displayNameInput.value.length > 35) {
     if (showErrors) document.getElementById('displayNameError').style.display = 'block';
-    isValid = false;
-  }
-
-  // Description check
-  if (descInput.value.length > 120) {
-    if (showErrors) document.getElementById('descError').style.display = 'block';
     isValid = false;
   }
 
@@ -140,17 +132,14 @@ function validateFields(showErrors = true) {
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('createContactForm');
   const displayNameInput = document.getElementById('display_name');
-  const descInput = document.getElementById('short_desc');
   const contactIdInput = document.getElementById('contact_user_unique_id');
 
   // Show errors only when leaving the field
   displayNameInput.addEventListener('blur', () => validateFields(true));
-  descInput.addEventListener('blur', () => validateFields(true));
   contactIdInput.addEventListener('blur', () => validateFields(true));
 
   // Silent validation while typing
   displayNameInput.addEventListener('input', () => validateFields(false));
-  descInput.addEventListener('input', () => validateFields(false));
   contactIdInput.addEventListener('input', () => validateFields(false));
 
   // Final validation on submit

@@ -460,34 +460,30 @@ def create_contact():
         display_name = request.form.get("display_name", "").strip()
         short_desc = request.form.get("short_desc", "").strip()
 
-        errors = {}
+        error = {}
 
         # Validate contact user exists
         contact_user = User.query.filter_by(user_unique_id=unique_id).first()
         if not contact_user:
-            errors["contact"] = "No user found with that unique ID"
+            error["invalid_user"] = True
         elif contact_user.id == user.id:
-            errors["contact"] = "You cannot add yourself as a contact"
+            error["self_contact"] = True
+        elif any(c.contact_user_id == contact_user.id for c in user.contacts):
+            error["duplicate_contact"] = True
 
         # Validate display name
         if not display_name:
-            errors["display_name"] = "Display name is required"
+            error["display_name_required"] = True
         elif len(display_name) > 35:
-            errors["display_name"] = "Display name cannot exceed 35 characters"
+            error["display_name_length"] = True
 
-        # Validate description
-        if short_desc and len(short_desc) > 120:
-            errors["short_desc"] = "Description cannot exceed 120 characters"
-
-        if errors:
-            for field, message in errors.items():
-                flash(message, "error")
+        if error:
             return render_template(
                 "create_contact.html",
                 display_name=display_name,
                 short_desc=short_desc,
                 contact_user_unique_id=unique_id,
-                errors=errors,
+                error=error,
                 title="Create Contact",
                 existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts], 
                 current_user_unique_id=user.user_unique_id
@@ -514,7 +510,7 @@ def create_contact():
                 display_name=display_name,
                 short_desc=short_desc,
                 contact_user_unique_id=unique_id,
-                errors=errors,
+                error=error,
                 title="Create Contact",
                 existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts],
                 current_user_unique_id=user.user_unique_id
@@ -538,7 +534,6 @@ def create_contact():
         current_user_unique_id=user.user_unique_id
     )
 
-
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
 @login_required
 def edit_contact(contact_id):
@@ -560,9 +555,6 @@ def edit_contact(contact_id):
             errors.append("Display name is required.")
         elif len(display_name) > 35:
             errors.append("Display name cannot exceed 35 characters.")
-
-        if short_desc and len(short_desc) > 120:
-            errors.append("Short description cannot exceed 120 characters.")
 
         if errors:
             return render_template(
