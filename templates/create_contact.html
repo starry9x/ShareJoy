@@ -39,8 +39,8 @@
           <div class="error-message" id="displayNameError">
             Display name is required and must be under 35 characters.
           </div>
-          {% if errors and "display_name" in errors %}
-            <div class="text-danger">{{ errors["display_name"] }}</div>
+          {% if error and "display_name" in error %}
+            <div class="text-danger">{{ error["display_name"] }}</div>
           {% endif %}
         </div>
 
@@ -53,8 +53,8 @@
                 placeholder="e.g. USR-0SP9NP"
                 value="{{ contact_user_unique_id }}"
                 required>
-          {% if errors and "contact" in errors %}
-            <div class="text-danger">{{ errors["contact"] }}</div>
+          {% if error and "contact" in error %}
+            <div class="text-danger">{{ error["contact"] }}</div>
           {% endif %}
 
           <div class="error-message" id="duplicateError">

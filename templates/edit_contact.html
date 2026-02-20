@@ -30,7 +30,7 @@
                 value="{{ contact.display_name }}" 
                 required maxlength="35"
                 placeholder="Enter display name">
-          <div class="form-text text-danger d-none" id="nameError">
+          <div class="error-message" id="nameError">
             Name is required and must be under 35 characters.
           </div>
         </div>
@@ -42,9 +42,6 @@
                 value="{{ contact.short_desc or '' }}" 
                 placeholder="Workshop partner, Grandma, etc."
                 maxlength="120">
-          <div class="form-text text-danger d-none" id="descError">
-            Description must be under 120 characters.
-          </div>
         </div>
 
         <!-- Buttons -->
@@ -84,37 +81,29 @@
 
 {% block extra_js %}
 <script>
-function validateFields() {
+function validateFields(showErrors = true) {
   const nameInput = document.getElementById('display_name');
-  const descInput = document.getElementById('short_desc');
   const saveButton = document.querySelector('.dobtn');
 
-  let valid = true;
+  let isValid = true;
 
-  // Hide errors initially
-  document.getElementById('nameError').classList.add('d-none');
-  document.getElementById('descError').classList.add('d-none');
+  // Reset error
+  document.getElementById('nameError').style.display = 'none';
 
-  // Validate display name
+  // Display name check
   if (!nameInput.value.trim() || nameInput.value.length > 35) {
-    document.getElementById('nameError').classList.remove('d-none');
-    valid = false;
+    if (showErrors) {
+      document.getElementById('nameError').style.display = 'block';
+    }
+    isValid = false;
   }
 
-  // Validate description
-  if (descInput.value.trim().length > 120) {
-    document.getElementById('descError').classList.remove('d-none');
-    valid = false;
-  }
-
-  // Disable save button if invalid
-  saveButton.disabled = !valid;
-
-  return valid;
+  saveButton.disabled = !isValid;
+  return isValid;
 }
 
 function openSaveModal() {
-  if (validateFields()) {
+  if (validateFields(true)) {
     const modal = new bootstrap.Modal(document.getElementById('saveChangesModal'));
     modal.show();
   }
@@ -122,14 +111,15 @@ function openSaveModal() {
 
 document.addEventListener('DOMContentLoaded', function () {
   const nameInput = document.getElementById('display_name');
-  const descInput = document.getElementById('short_desc');
 
-  nameInput.addEventListener('input', validateFields);
-  descInput.addEventListener('input', validateFields);
+  // Show error when leaving the field
+  nameInput.addEventListener('blur', () => validateFields(true));
+
+  // Silent validation while typing
+  nameInput.addEventListener('input', () => validateFields(false));
 
   // Initial validation on page load
-  validateFields();
+  validateFields(false);
 });
-
 </script>
 {% endblock %}

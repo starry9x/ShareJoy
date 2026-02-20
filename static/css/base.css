@@ -486,3 +486,11 @@ h2 {
     padding: 0.25rem 0.75rem 0.25rem 0;
 }
 
+/* Form Validation Messages */
+.error-message {
+        color: #dc3545;
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+        display: none;
+    }

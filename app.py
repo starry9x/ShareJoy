@@ -549,18 +549,18 @@ def edit_contact(contact_id):
         short_desc = request.form.get('short_desc', '').strip()
         message_status = request.form.get('message_status', 'Unread')
 
-        errors = []
+        error = []
         
         if not display_name:
-            errors.append("Display name is required.")
+            error.append("Display name is required.")
         elif len(display_name) > 35:
-            errors.append("Display name cannot exceed 35 characters.")
+            error.append("Display name cannot exceed 35 characters.")
 
-        if errors:
+        if error:
             return render_template(
                 'edit_contact.html',
                 contact=contact,
-                errors=errors,
+                error=error,
                 title="Edit Contact"
             )
 
