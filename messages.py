@@ -50,16 +50,15 @@ class Contact(db.Model):
         'Message',
         foreign_keys='Message.sender_id',
         primaryjoin='Contact.owner_user_id == Message.sender_id',
-        backref='sender_contact',
+        backref=db.backref('sender_contact', passive_deletes=True),
         lazy='dynamic'
     )
 
-    # Messages received by the owner from the contact
     messages_received = db.relationship(
         'Message',
         foreign_keys='Message.receiver_id',
         primaryjoin='Contact.owner_user_id == Message.receiver_id',
-        backref='receiver_contact',
+        backref=db.backref('receiver_contact', passive_deletes=True),
         lazy='dynamic'
     )
 
