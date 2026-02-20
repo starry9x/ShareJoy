@@ -197,7 +197,7 @@
             </form>
             <button
               class="menu-item text-danger"
-              onclick="openDeleteChatHistoryModal({{ contact.id }}); event.stopPropagation();"
+              onclick="openDeleteChatHistoryConfirmModal({{ contact.id }}); event.stopPropagation();"
             >
               Delete chat history
             </button>
@@ -277,7 +277,7 @@
             <!-- Delete chat history -->
             <button
               class="menu-item text-danger"
-              onclick="openDeleteChatHistoryModal({{ user.id }}); event.stopPropagation();"
+              onclick="openDeleteChatHistoryConfirmModal({{ user.id }}); event.stopPropagation();"
             >
               Delete chat history
             </button>
@@ -442,44 +442,7 @@
       </div>
     </div>
   </div>
-  {% endif %} <!-- Confirmation Modal: Delete Chat History --> {% for contact in contacts %}
-  <div
-    class="modal fade"
-    id="deleteChatHistoryConfirmModal{{ contact.id }}"
-    tabindex="-1"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content p-2">
-        <div class="modal-header">
-          <h4 class="modal-title fw-bold">Delete Chat History</h4>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to delete
-          <span class="fw-semibold text-danger">all messages</span> with {{
-          contact.name }}?<br />
-          <span class="fw-semibold text-danger">This cannot be undone.</span>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary fw-semibold"
-            data-bs-dismiss="modal"
-          >
-            Cancel
-          </button>
-          <form
-            method="post"
-            action="{{ url_for('delete_chat_history', contact_id=contact.id) }}"
-          >
-            <button type="submit" class="btn btn-danger fw-semibold">
-              Delete all messages
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% endif %} {% for contact in contacts %}
   {% endfor %} <!-- Success Modal: Deleted Chat History --> {% if chat_history_deleted %}
   <div
     class="modal fade"
@@ -507,7 +470,30 @@
       </div>
     </div>
   </div>
-  {% endif %} {% endblock %} {% block extra_js %}
+  {% endif %} <div class="modal fade" id="deleteChatHistoryConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold">Delete Chat History</h4>
+      </div>
+      <div class="modal-body" id="deleteChatHistoryBody">
+        Are you sure you want to delete all messages?<br />
+        <span class="fw-semibold text-danger">This cannot be undone.</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <form method="post" id="deleteChatHistoryForm">
+          <button type="submit" class="btn btn-danger fw-semibold">
+            Delete all messages
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
   <script>
     // --- 'More actions' dropdown  ---
     function toggleDropdown(button) {
@@ -638,13 +624,28 @@
       }
     });
 
-    // --- Triggers Delete Chat History Confirmation Modal ---
-    function openDeleteChatHistoryConfirmModal(contactId) {
-      const modal = new bootstrap.Modal(
-        document.getElementById(`deleteChatHistoryConfirmModal${contactId}`),
-      );
-      modal.show();
-    }
+  // --- Triggers Delete Chat History Confirmation Modal ---
+function openDeleteChatHistoryConfirmModal(entityId, displayName, isContact = false) {
+  // Update form action dynamically
+  const form = document.getElementById("deleteChatHistoryForm");
+  form.action = `/delete_chat_history/${entityId}`;
+
+  // Update modal body dynamically
+  const body = document.getElementById("deleteChatHistoryBody");
+
+  if (isContact) {
+    // Show the contact's name
+    body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with ${displayName}?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
+  } else {
+    // Generic wording for unadded users
+    body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with this unadded user?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
+  }
+
+  // Show the reusable modal
+  const modal = new bootstrap.Modal(document.getElementById("deleteChatHistoryConfirmModal"));
+  modal.show();
+}
+
 // --- Note to self: Trigger is automatic / same for all → DOMContentLoaded, Trigger is user action / specific instance → function ---
   </script>
   {% endblock %}

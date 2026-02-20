@@ -580,21 +580,23 @@ def delete_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
     user = get_current_user()
 
-    # Verify current user owns this contact
     if contact.owner_user_id != user.id:
         abort(403)
 
-    # Delete all messages between these users
-    Message.query.filter(
+    # Instead of bulk delete, delete message objects individually
+    messages_to_delete = Message.query.filter(
         ((Message.sender_id == user.id) & (Message.receiver_id == contact.contact_user_id)) |
         ((Message.sender_id == contact.contact_user_id) & (Message.receiver_id == user.id))
-    ).delete()
+    ).all()
+
+    for msg in messages_to_delete:
+        db.session.delete(msg)
 
     db.session.delete(contact)
     db.session.commit()
 
-    # ✅ redirect with flag so messages.html shows "Contact Deleted" modal
     return redirect(url_for('messages', contact_deleted=True))
+
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
@@ -669,12 +671,15 @@ def textchat(contact_id):
 
     messages = base_query.order_by(Message.timestamp.asc()).all()
 
-    # Mark received messages as read
-    Message.query.filter(
+    # Inside textchat route, after getting chat_user and user
+    unread_messages = Message.query.filter(
         Message.sender_id == chat_user.id,
         Message.receiver_id == user.id,
         Message.status != "Read"
-    ).update({"status": "Read"})
+    ).all()
+
+    for msg in unread_messages:
+        msg.status = "Read"
 
     db.session.commit()
 
@@ -687,24 +692,35 @@ def textchat(contact_id):
         title="Chat"
     )
 
-
-@app.route('/delete_chat_history/<int:contact_id>', methods=['POST'])
+@app.route('/delete_chat_history/<int:entity_id>', methods=['POST'])
 @login_required
-def delete_chat_history(contact_id):
-    contact = Contact.query.get_or_404(contact_id)
+def delete_chat_history(entity_id):
     user = get_current_user()
 
-    if contact.owner_user_id != user.id:
-        abort(403)
+    # Try to find a contact first
+    contact = Contact.query.get(entity_id)
+    if contact and contact.owner_user_id == user.id:
+        # Clear metadata for saved contact
+        contact.last_chat = None
+        contact.chat_cleared_at = datetime.utcnow()
+        db.session.commit()
+        return redirect(url_for('messages', chat_history_deleted=True))
 
-    # Mark chat as cleared for this user only
-    contact.last_chat = None
-    contact.chat_cleared_at = datetime.utcnow()   # ✅ set timestamp
+    # If not a contact, treat as unknown user
+    unknown_user = User.query.get(entity_id)
+    if unknown_user and unknown_user.id != user.id:
+        # Delete all messages between current user and this unknown user
+        Message.query.filter(
+            db.or_(
+                db.and_(Message.sender_id == user.id, Message.receiver_id == unknown_user.id),
+                db.and_(Message.sender_id == unknown_user.id, Message.receiver_id == user.id)
+            )
+        ).delete(synchronize_session=False)
+        db.session.commit()
+        return redirect(url_for('messages', chat_history_deleted=True))
 
-    db.session.commit()
-
-    # ✅ redirect with flag so messages.html shows "Chat History Deleted" modal
-    return redirect(url_for('messages', chat_history_deleted=True))
+    # If neither, abort
+    abort(404)
 
 
 @app.route('/update_message/<int:message_id>', methods=['POST'])
