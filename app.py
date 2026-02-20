@@ -489,7 +489,8 @@ def create_contact():
                 contact_user_unique_id=unique_id,
                 errors=errors,
                 title="Create Contact",
-                existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts]  # ✅ added
+                existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts], 
+                current_user_unique_id=user.user_unique_id
             )
 
         # Create new contact (store internal id)
@@ -515,7 +516,8 @@ def create_contact():
                 contact_user_unique_id=unique_id,
                 errors=errors,
                 title="Create Contact",
-                existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts]  # ✅ added
+                existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts],
+                current_user_unique_id=user.user_unique_id
             )
 
     # GET request
@@ -532,7 +534,8 @@ def create_contact():
         display_name="",
         short_desc="",
         title="Create Contact",
-        existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts]  # ✅ added
+        existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts],
+        current_user_unique_id=user.user_unique_id
     )
 
 
