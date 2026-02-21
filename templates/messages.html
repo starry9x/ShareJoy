@@ -150,10 +150,13 @@
           <div>
             <h1 class="mb-1 me-5 brown">{{ contact.display_name }}</h1>
             <p class="mb-0 brown">
-              {% if contact.last_chat %} Last chatted on {{
-              contact.last_chat|sgtime }} {% else %} {% if
-              contact_message_counts.get(contact.id, 0) > 0 %} No messages sent
-              recently {% else %} No chats yet {% endif %} {% endif %}
+              {% if contact_message_counts.get(contact.id, 0) == 0 and contact_my_message_counts.get(contact.id, 0) == 0 %}
+                  No conversations yet.
+              {% elif contact.last_chat %}
+                  You last texted them at {{ contact.last_chat|sgtime }}
+              {% else %}
+                  Conversation started. You haven’t replied yet.
+              {% endif %}
             </p>
             {% set unread = contact_unread_counts.get(contact.id, 0) %} {% if
             unread > 0 %}
@@ -236,10 +239,14 @@
           <div>
             <h1 class="mb-1 me-5 brown">{{ user.user_unique_id }}</h1>
             <p class="mb-0 brown">
-              {% if user.last_chat %} Last chatted on {{ user.last_chat|sgtime
-              }} {% else %} No chats yet {% endif %}
+              {% if unknown_message_counts.get(user.id, 0) == 0 and unknown_my_message_counts.get(user.id, 0) == 0 %}
+                  No conversations yet.
+              {% elif user.last_chat %}
+                  You last texted them at {{ user.last_chat|sgtime }}
+              {% else %}
+                  Conversation started. You haven’t replied yet.
+              {% endif %}
             </p>
-
             {% set unread = unknown_unread_counts.get(user.id, 0) %} {% if
             unread > 0 %}
             <span class="unread-bubble">

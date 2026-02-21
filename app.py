@@ -323,10 +323,10 @@ def messages():
     user = get_current_user()
     search = request.args.get("search", "")
     status_filter = request.args.get("status")
-    contact_updated = request.args.get("contact_updated", False)   # ✅ flag for update modal
-    contact_created = request.args.get("contact_created", False)   # ✅ flag for create modal
-    contact_deleted = request.args.get("contact_deleted", False)   # ✅ flag for delete modal
-    chat_history_deleted = request.args.get("chat_history_deleted", False)  # ✅ flag for chat history modal
+    contact_updated = request.args.get("contact_updated", False)
+    contact_created = request.args.get("contact_created", False)
+    contact_deleted = request.args.get("contact_deleted", False)
+    chat_history_deleted = request.args.get("chat_history_deleted", False)
 
     # -------------------------
     # 1️⃣ Saved contacts
@@ -334,7 +334,9 @@ def messages():
     contacts_query = db.session.query(
         Contact,
         db.func.count(Message.id).label('message_count'),
-        db.func.max(Message.timestamp).label('last_message_time'),
+        db.func.max(
+            db.case((Message.sender_id == user.id, Message.timestamp))
+        ).label('last_chat'),
         db.func.sum(
             db.case(
                 (Message.receiver_id == Contact.owner_user_id,
@@ -354,8 +356,7 @@ def messages():
                 Message.receiver_id == Contact.owner_user_id
             )
         )
-    ).filter(Contact.owner_user_id == user.id
-    ).group_by(Contact.id)
+    ).filter(Contact.owner_user_id == user.id).group_by(Contact.id)
 
     if status_filter == "Unread":
         contacts_query = contacts_query.having(
@@ -366,15 +367,26 @@ def messages():
             db.func.sum(db.case((Message.status == "Read", 1), else_=0)) > 0
         )
 
-    contacts = contacts_query.all()
+    contacts_raw = contacts_query.all()
+
+    contacts = []
+    contact_message_counts = {}
+    contact_unread_counts = {}
+    contact_my_message_counts = {}
+    for c, msg_count, last_chat, unread_count in contacts_raw:   # ✅ use last_chat
+        c.last_chat = last_chat
+        contacts.append(c)
+        contact_message_counts[c.id] = msg_count
+        contact_unread_counts[c.id] = unread_count
+        my_count = Message.query.filter(
+            (Message.sender_id == user.id) & (Message.receiver_id == c.contact_user_id)
+        ).count()
+        contact_my_message_counts[c.id] = my_count
 
     if search:
-        contacts = [
-            c for c in contacts
-            if search.lower() in c[0].display_name.lower()
-        ]
+        contacts = [c for c in contacts if search.lower() in c.display_name.lower()]
 
-    contacts.sort(key=lambda c: c.last_message_time or datetime.min, reverse=True)
+    contacts.sort(key=lambda c: c.last_chat or datetime.min, reverse=True)
 
     # -------------------------
     # 2️⃣ Unknown users
@@ -386,7 +398,11 @@ def messages():
     unknown_users_query = db.session.query(
         User,
         db.func.count(Message.id).label('message_count'),
-        db.func.max(Message.timestamp).label('last_message_time'),
+        db.func.max(
+            db.case(
+                (Message.sender_id == user.id, Message.timestamp)
+            )
+        ).label('last_chat'),   # ✅ already named last_chat
         db.func.sum(
             db.case(
                 (Message.receiver_id == user.id,
@@ -394,9 +410,7 @@ def messages():
                 else_=0
             )
         ).label('unread_count')
-    ).join(
-        Message, Message.sender_id == User.id
-    ).filter(
+    ).join(Message, Message.sender_id == User.id).filter(
         Message.receiver_id == user.id,
         ~User.id.in_(contact_ids_subquery),
         User.id != user.id
@@ -411,18 +425,29 @@ def messages():
             db.func.sum(db.case((Message.status == "Read", 1), else_=0)) > 0
         )
 
-    unknown_users = unknown_users_query.all()
+    unknown_raw = unknown_users_query.all()
+
+    unknown_users = []
+    unknown_message_counts = {}
+    unknown_unread_counts = {}
+    unknown_my_message_counts = {}
+    for u, msg_count, last_chat, unread_count in unknown_raw:   # ✅ use last_chat
+        u.last_chat = last_chat
+        unknown_users.append(u)
+        unknown_message_counts[u.id] = msg_count
+        unknown_unread_counts[u.id] = unread_count
+        my_count = Message.query.filter(
+            (Message.sender_id == user.id) & (Message.receiver_id == u.id)
+        ).count()
+        unknown_my_message_counts[u.id] = my_count
 
     if search:
-        unknown_users = [
-            u for u in unknown_users
-            if search.lower() in (u[0].full_name or '').lower()
-        ]
+        unknown_users = [u for u in unknown_users if search.lower() in (u.full_name or '').lower()]
 
-    unknown_users.sort(key=lambda u: u.last_message_time or datetime.min, reverse=True)
+    unknown_users.sort(key=lambda u: u.last_chat or datetime.min, reverse=True)
 
     # -------------------------
-    # 3️⃣ Messages search results (NEW)
+    # 3️⃣ Messages search results
     # -------------------------
     search_results = []
     if search:
@@ -436,19 +461,22 @@ def messages():
     # -------------------------
     return render_template(
         "messages.html",
-        contacts=[c[0] for c in contacts],
-        contact_message_counts={c[0].id: c.message_count for c in contacts},
-        contact_unread_counts={c[0].id: c.unread_count for c in contacts},
-        unknown_users=[u[0] for u in unknown_users],
-        unknown_message_counts={u[0].id: u.message_count for u in unknown_users},
-        unknown_unread_counts={u[0].id: u.unread_count for u in unknown_users},
-        search_results=search_results,   # ✅ pass messages search results
+        contacts=contacts,
+        contact_message_counts=contact_message_counts,
+        contact_unread_counts=contact_unread_counts,
+        contact_my_message_counts=contact_my_message_counts,
+        unknown_users=unknown_users,
+        unknown_message_counts=unknown_message_counts,
+        unknown_unread_counts=unknown_unread_counts,
+        unknown_my_message_counts=unknown_my_message_counts,
+        search_results=search_results,
         title="Messages",
         contact_updated=contact_updated,
         contact_created=contact_created,
         contact_deleted=contact_deleted,
         chat_history_deleted=chat_history_deleted
     )
+
 
 @app.route("/create_contact", methods=["GET", "POST"])
 @login_required
@@ -687,7 +715,7 @@ def textchat(contact_id):
         chat_user=chat_user,
         messages=messages,
         user=user,
-        title="Chat"
+        title=f"Chat with {contact.display_name if contact else chat_user.user_unique_id}"
     )
 
 @app.route('/delete_chat_history/<int:entity_id>', methods=['POST'])

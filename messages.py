@@ -79,6 +79,13 @@ class Contact(db.Model):
              (Message.receiver_id == self.owner_user_id))
         ).count()
     
+    def get_my_message_count(self):
+        """Count messages sent by the owner to this contact"""
+        return Message.query.filter(
+            (Message.sender_id == self.owner_user_id) &
+            (Message.receiver_id == self.contact_user_id)
+        ).count()
+
     def get_unread_count(self):
         """Count unread messages received by the owner from this contact"""
         return Message.query.filter(
@@ -86,6 +93,7 @@ class Contact(db.Model):
             (Message.receiver_id == self.owner_user_id) &
             (Message.status != "Read")
         ).count()
+    
     
     @property
     def messages(self):
