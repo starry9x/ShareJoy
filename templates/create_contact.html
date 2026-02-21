@@ -35,18 +35,21 @@
           <div class="error-message" id="displayNameError">
             Display name is required and must be under 35 characters.
           </div>
+          <div class="error-message" id="duplicateNameError">
+            This display name is already in your contacts.
+          </div>
           {% if error and "display_name" in error %}
             <div class="text-danger">{{ error["display_name"] }}</div>
           {% endif %}
         </div>
 
-        <!-- Contact User (enter or select unique ID) -->
+        <!-- Contact User -->
         <div class="mb-3">
           <label for="contact_user_unique_id" class="form-label fw-semibold">
             Enter User Unique ID <span class="text-danger">*</span>
           </label>
           <input type="text" class="form-control" id="contact_user_unique_id" name="contact_user_unique_id"
-                placeholder="e.g. USR-0SP9NP"
+                placeholder="e.g. USR-0TX7LF"
                 value="{{ contact_user_unique_id }}"
                 required>
           {% if error and "contact" in error %}
@@ -89,65 +92,108 @@
 
 {% block extra_js %}
 <script>
+// Cache DOM elements
+const displayNameInput = document.getElementById('display_name');
+const contactIdInput = document.getElementById('contact_user_unique_id');
+const submitBtn = document.getElementById('submitBtn');
+const displayNameError = document.getElementById('displayNameError');
+const duplicateNameError = document.getElementById('duplicateNameError'); // ✅ new line
+const duplicateError = document.getElementById('duplicateError');
+const selfError = document.getElementById('selfError');
+const invalidError = document.getElementById('invalidError');
+const form = document.getElementById('createContactForm');
+
+// Data
+const existingContacts = {{ existing_contact_ids|tojson }};
+const existingDisplayNames = {{ existing_display_names|tojson }}; // ✅ new array
+const currentUserId = "{{ current_user_unique_id }}";
+const validUserIds = {{ valid_user_ids|tojson }};
+
+// Track if fields have been touched
+let nameTouched = false;
+let contactIdTouched = false;
+
 function validateFields(showErrors = true) {
-  const displayNameInput = document.getElementById('display_name');
-  const contactIdInput = document.getElementById('contact_user_unique_id');
-  const submitBtn = document.getElementById('submitBtn');
+  // Reset all errors
+  displayNameError.style.display = 'none';
+  duplicateNameError.style.display = 'none';
+  duplicateError.style.display = 'none';
+  selfError.style.display = 'none';
+  invalidError.style.display = 'none';
 
   let isValid = true;
 
-  // Reset errors
-  document.getElementById('displayNameError').style.display = 'none';
-  document.getElementById('duplicateError').style.display = 'none';
-  document.getElementById('selfError').style.display = 'none';
+  // Display name validation
+  const nameValue = displayNameInput.value.trim();
+  const isNameValid = nameValue && nameValue.length <= 35;
+  const isNameUnique = nameValue && !existingDisplayNames.includes(nameValue);
 
-  // Display name check
-  if (!displayNameInput.value.trim() || displayNameInput.value.length > 35) {
-    if (showErrors) document.getElementById('displayNameError').style.display = 'block';
+  if (nameValue && !isNameValid && showErrors && nameTouched) {
+    displayNameError.style.display = 'block';
+    isValid = false;
+  }
+  if (nameValue && !isNameUnique && showErrors && nameTouched) {
+    duplicateNameError.style.display = 'block';
     isValid = false;
   }
 
-  // Duplicate check
-  const existingContacts = {{ existing_contact_ids|tojson }};
-  if (existingContacts.includes(contactIdInput.value.trim())) {
-    if (showErrors) document.getElementById('duplicateError').style.display = 'block';
-    isValid = false;
+  // Contact ID validation
+  if ((contactIdTouched || showErrors) && contactIdInput.value.trim()) {
+    const contactId = contactIdInput.value.trim();
+    if (existingContacts.includes(contactId)) {
+      duplicateError.style.display = 'block';
+      isValid = false;
+    }
+    if (contactId === currentUserId) {
+      selfError.style.display = 'block';
+      isValid = false;
+    }
+    if (!validUserIds.includes(contactId)) {
+      invalidError.style.display = 'block';
+      isValid = false;
+    }
   }
 
-  // Self check ✅
-  const currentUserId = "{{ current_user_unique_id }}";
-  if (contactIdInput.value.trim() === currentUserId) {
-    if (showErrors) document.getElementById('selfError').style.display = 'block';
-    isValid = false;
-  }
-
-  submitBtn.disabled = !isValid;
-  return isValid;
+  // Update button state
+  submitBtn.disabled = !(isNameValid && isNameUnique && !duplicateError.style.display && !selfError.style.display && !invalidError.style.display);
+  return isNameValid && isNameUnique && isValid;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('createContactForm');
-  const displayNameInput = document.getElementById('display_name');
-  const contactIdInput = document.getElementById('contact_user_unique_id');
-
-  // Show errors only when leaving the field
-  displayNameInput.addEventListener('blur', () => validateFields(true));
-  contactIdInput.addEventListener('blur', () => validateFields(true));
-
-  // Silent validation while typing
-  displayNameInput.addEventListener('input', () => validateFields(false));
-  contactIdInput.addEventListener('input', () => validateFields(false));
-
-  // Final validation on submit
-  form.addEventListener('submit', function(event) {
-    if (!validateFields(true)) {
-      event.preventDefault();
-    }
-  });
-
-  // Initial check (for pre-filled data)
-  validateFields(false);
+// Track field interactions
+displayNameInput.addEventListener('input', () => {
+  nameTouched = true;
+  debounceValidation(false);
+  validateFields(true);
 });
-</script>
 
+contactIdInput.addEventListener('input', () => {
+  contactIdTouched = true;
+  debounceValidation(false);
+  validateFields(true);
+});
+
+// Show errors when leaving a field (always)
+displayNameInput.addEventListener('blur', () => {
+  nameTouched = true;
+  validateFields(true);
+});
+
+contactIdInput.addEventListener('blur', () => {
+  contactIdTouched = true;
+  validateFields(true);
+});
+
+// Final validation on submit
+form.addEventListener('submit', (event) => {
+  nameTouched = true;
+  contactIdTouched = true;
+  
+  if (!validateFields(true)) {
+    event.preventDefault();
+  }
+});
+
+// Initial validation (don't show errors yet)
+validateFields(false);
+</script>
 {% endblock %}

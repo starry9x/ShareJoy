@@ -477,12 +477,20 @@ def messages():
         chat_history_deleted=chat_history_deleted
     )
 
-
 @app.route("/create_contact", methods=["GET", "POST"])
 @login_required
 def create_contact():
     user = get_current_user()
     
+    # Context data for the template
+    context = {
+        "title": "Create Contact",
+        "current_user_unique_id": user.user_unique_id,
+        "existing_contact_ids": [c.contact_user.user_unique_id for c in user.contacts],
+        "existing_display_names": [c.display_name for c in user.contacts],
+        "valid_user_ids": [u.user_unique_id for u in User.query.filter(User.id != user.id).all()],
+    }
+
     if request.method == "POST":
         unique_id = request.form.get("contact_user_unique_id", "").strip()
         display_name = request.form.get("display_name", "").strip()
@@ -504,6 +512,8 @@ def create_contact():
             error["display_name_required"] = True
         elif len(display_name) > 35:
             error["display_name_length"] = True
+        elif display_name in context["existing_display_names"]:
+            error["duplicate_display_name"] = True
 
         if error:
             return render_template(
@@ -512,12 +522,10 @@ def create_contact():
                 short_desc=short_desc,
                 contact_user_unique_id=unique_id,
                 error=error,
-                title="Create Contact",
-                existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts], 
-                current_user_unique_id=user.user_unique_id
+                **context
             )
 
-        # Create new contact (store internal id)
+        # Create new contact
         new_contact = Contact(
             owner_user_id=user.id,
             contact_user_id=contact_user.id,
@@ -539,9 +547,7 @@ def create_contact():
                 short_desc=short_desc,
                 contact_user_unique_id=unique_id,
                 error=error,
-                title="Create Contact",
-                existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts],
-                current_user_unique_id=user.user_unique_id
+                **context
             )
 
     # GET request
@@ -557,9 +563,7 @@ def create_contact():
         contact_user_unique_id=contact_user_unique_id,
         display_name="",
         short_desc="",
-        title="Create Contact",
-        existing_contact_ids=[c.contact_user.user_unique_id for c in user.contacts],
-        current_user_unique_id=user.user_unique_id
+        **context
     )
 
 @app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
@@ -600,7 +604,6 @@ def edit_contact(contact_id):
         return redirect(url_for('messages', contact_updated=True))
     
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
-
 
 @app.route('/delete_contact/<int:contact_id>', methods=['POST'])
 @login_required
