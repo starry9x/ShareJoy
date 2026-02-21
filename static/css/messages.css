@@ -25,6 +25,23 @@ input::placeholder {
   background-color: #ffdbb4;
 }
 
+/* ✅ On smaller screens, reduce spacing */
+@media (max-width: 768px) {
+  .contact-box {
+    margin: 10px auto;   /* less margin between boxes */
+    padding: 0.5rem;     /* tighter padding inside */
+  }
+
+  .contact-box h1 {
+    font-size: 1.5rem;   /* shrink text a bit */
+    margin-bottom: 0.25rem;
+  }
+
+  .contact-box p {
+    margin-bottom: 0.25rem;
+  }
+}
+
 /* CTA button: Create Contact Button */
 .contact-btn {
   font-size: 1.2rem;
@@ -38,13 +55,21 @@ input::placeholder {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.256) !important;
 }
 
-/* Text Box Profile Image */
+/* Contact Box Profile Image */
 .circle-image {
   width: 150px;          
   height: 150px;         
   border-radius: 50%;    
   object-fit: cover;
   margin-right: 70px;
+}
+
+@media (max-width: 768px) {
+  .circle-image {
+    width: 90px;
+    height: 90px;
+    margin-right: 50px;
+  }
 }
 
 /* More Actions Dropdown */
@@ -54,7 +79,7 @@ input::placeholder {
 }
 
 .more-actions-toggle {
-  width: 220px;
+  min-width: 220px;
   padding: 10px 16px;
   border-radius: 25px;
   background-color: #c6c6c6;
@@ -90,6 +115,7 @@ input::placeholder {
   border: 1px solid black;
 }
 
+
 .menu-item {
   text-align: left;
   border: none;
@@ -101,6 +127,31 @@ input::placeholder {
 
 .menu-item:hover {
   background-color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  .more-actions-toggle {
+    min-width: 140px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+
+  .more-actions-menu {
+    min-width: 120px;       /* ✅ narrower menu */
+    font-size: 0.9rem;      
+    max-width: 150px;
+  }
+
+  .menu-item {
+    padding: 6px 10px;      /* ✅ tighter spacing */
+    font-size: 0.9rem;
+  }
+
+  .chevron-icon {
+    position: static;
+    margin: 0;
+    margin-left: 0.25rem;      /* ✅ tighter spacing */
+  }
 }
 
 /* Status Filter Options */
