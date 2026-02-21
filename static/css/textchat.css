@@ -192,7 +192,13 @@
   padding: 0.6rem;
   border: 1px solid #8b8b8b;
   border-radius: 8px;
-  max-width: 6000px !important;
+  resize: none;         
+  overflow-y: hidden;    
+  font-size: 1rem;
+  max-width: 6000px;
+  min-width: 210px;
+  min-height: 2.5rem;    
+  max-height: 200px; 
 }
 
 .send-btn{
@@ -201,10 +207,20 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.50);
 }
 
-#togglePaneButton{
+#togglePaneButton {
   background-color: #d000ff !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.50);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.50);             
+  width: auto;                
+  max-width: 100%;            
+}
+
+@media (max-width: 768px) {
+  #togglePaneButton {
+    font-size: large;
+    padding: 0.5rem 1rem;
+    width: 80%;              
+  }
 }
 
 .send-btn:hover{
@@ -219,6 +235,7 @@
 /* Chat Starters/ Right-side pane */
 .right-pane {
   position: relative;
+  min-width: 200px;
   margin-left: 1%;
   flex: 0.1;
   overflow-y: auto;
@@ -227,7 +244,7 @@
   border-left: 1px solid #ccc;
   padding: 1rem;
 }
-
+  
 .right-pane.open {
   flex: 0.3;
 }
@@ -256,6 +273,37 @@
   color: #ffffff;
 }
 
+@media (max-width: 1024px) {   
+  .right-pane {
+    flex: 0.25;                
+    min-width: 180px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-wrapper {
+    flex-direction: column;   
+  }
+  .chat-container {
+    flex: none;
+    width: 100%;
+  }
+  .right-pane {
+    flex: none;
+    width: 100%;
+    min-height: 10vh;         
+    max-height: 40vh;                   
+    margin-left: 0;
+    border-left: none;
+    border-top: 2px solid #ccc;
+  }
+
+  .right-pane.open{
+    min-height: 300px;         
+    overflow-y: auto; 
+  }
+}
 /* Edit Message Inline Form */
 .edit-form {
   display: none;

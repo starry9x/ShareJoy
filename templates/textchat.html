@@ -169,7 +169,7 @@
     </div>
     <!-- Text input area -->
     <form method="POST" class="input-area">
-      <input type="text" name="content" class="message-input" placeholder="Type your message..." required>
+      <textarea name="content" class="message-input" placeholder="Type your message..." required></textarea>
 
       <!-- Toggle Chat Starter Pane -->
       <button type="button" id="togglePaneButton" class="dobtn fw-semibold" onclick="togglePane()">Open chat starters</button>
@@ -260,6 +260,13 @@ function cancelEdit(button) {
 
   messageDiv.classList.remove("editing");
 }
+
+document.addEventListener('input', function(e) {
+  if (e.target.classList.contains('message-input')) {
+    e.target.style.height = 'auto'; 
+    e.target.style.height = e.target.scrollHeight + 'px';
+  }
+});
 
 </script>
 {% endblock %}
