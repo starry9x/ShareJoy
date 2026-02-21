@@ -581,28 +581,20 @@ def edit_contact(contact_id):
         short_desc = request.form.get('short_desc', '').strip()
         message_status = request.form.get('message_status', 'Unread')
 
-        error = []
-        
-        if not display_name:
-            error.append("Display name is required.")
-        elif len(display_name) > 35:
-            error.append("Display name cannot exceed 35 characters.")
-
-        if error:
-            return render_template(
-                'edit_contact.html',
-                contact=contact,
-                error=error,
-                title="Edit Contact"
-            )
-
+        # Update contact details
         contact.display_name = display_name
         contact.short_desc = short_desc
         contact.message_status = message_status
-        db.session.commit()
 
-        return redirect(url_for('messages', contact_updated=True))
-    
+        try:
+            db.session.commit()
+            return redirect(url_for('messages', contact_updated=True))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+            return redirect(url_for('edit_contact', contact_id=contact_id))
+
+    # GET request
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
 
 @app.route('/delete_contact/<int:contact_id>', methods=['POST'])

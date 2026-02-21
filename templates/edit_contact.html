@@ -24,7 +24,7 @@
   <div class="card shadow-sm sectionbox2 mx-auto">
     <div class="card-body">
       <form method="POST" id="saveChangesForm" action="{{ url_for('edit_contact', contact_id=contact.id) }}">
-        <!-- Name -->
+        <!-- Display Name -->
         <div class="mb-3">
           <label for="display_name" class="form-label fw-semibold">Display Name <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="display_name" name="display_name"
@@ -32,7 +32,7 @@
                 required maxlength="35"
                 placeholder="Enter display name">
           <div class="error-message" id="nameError">
-            Name is required and must be under 35 characters.
+            Display Name is required and must be under 35 characters.
           </div>
         </div>
 
@@ -84,42 +84,49 @@
 <script>
 function validateFields(showErrors = true) {
   const nameInput = document.getElementById('display_name');
+  const nameError = document.getElementById('nameError');
   const saveButton = document.querySelector('.dobtn');
-
   let isValid = true;
 
   // Reset error
-  document.getElementById('nameError').style.display = 'none';
+  nameError.style.display = 'none';
 
-  // Display name check
-  if (!nameInput.value.trim() || nameInput.value.length > 35) {
-    if (showErrors) {
-      document.getElementById('nameError').style.display = 'block';
-    }
+  // Validate display name
+  if (!nameInput.value.trim()) {
+    nameError.textContent = "Display name is required.";
+    isValid = false;
+  } else if (nameInput.value.length > 35) {
+    nameError.textContent = "Display name must be ≤ 35 characters.";
     isValid = false;
   }
 
+  // Show error if invalid (when showErrors=true)
+  if (!isValid && showErrors) {
+    nameError.style.display = 'block';
+  }
+
+  // Update save button state
   saveButton.disabled = !isValid;
   return isValid;
 }
 
 function openSaveModal() {
   if (validateFields(true)) {
-    const modal = new bootstrap.Modal(document.getElementById('saveChangesModal'));
-    modal.show();
+    new bootstrap.Modal(document.getElementById('saveChangesModal')).show();
   }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+// Initialize validation
+document.addEventListener('DOMContentLoaded', function() {
   const nameInput = document.getElementById('display_name');
-
-  // Show error when leaving the field
+  
+  // Validate on blur (show errors)
   nameInput.addEventListener('blur', () => validateFields(true));
-
-  // Silent validation while typing
+  
+  // Validate while typing (don't show errors)
   nameInput.addEventListener('input', () => validateFields(false));
-
-  // Initial validation on page load
+  
+  // Initial validation
   validateFields(false);
 });
 </script>
