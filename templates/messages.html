@@ -304,67 +304,26 @@
 
   <!-- Modals -->
 
-  <!-- Confirmation Modal: Delete Contact -->
-  <div
-    class="modal fade"
-    id="deleteContactModal"
-    tabindex="-1"
-    aria-labelledby="deleteContactLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content p-2">
-        <div class="modal-header">
-          <h4 class="modal-title fw-bold" id="deleteContactLabel">
-            Delete Contact
-          </h4>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to delete this contact?<br />
-          <span class="fw-semibold text-danger"
-            >This action cannot be undone.</span
-          >
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn cancelbtn fw-semibold"
-            data-bs-dismiss="modal"
-          >
-            Cancel
-          </button>
-          <form method="post" id="deleteContactForm">
-            <button type="submit" class="btn redbtn btn-sm fw-semibold shadow-sm">
-              Delete Contact
-            </button>
-          </form>
-        </div>
+ <!-- Confirmation Modal: Delete Contact -->
+<div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header">
+        <h4 class="modal-title fw-bold" id="deleteContactLabel">Delete Contact</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this contact?<br />
+        <span class="fw-semibold text-danger">This action cannot be undone.</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn cancelbtn fw-semibold" data-bs-dismiss="modal">Cancel</button>
+        <form method="POST" id="deleteContactForm" action="">
+          <button type="submit" class="btn redbtn btn-sm fw-semibold shadow-sm">Delete Contact</button>
+        </form>
       </div>
     </div>
   </div>
-
-  <!-- Success Modal: Edited Contact -->
-  <div class="modal fade" id="editContactModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content p-2">
-        <div class="modal-header">
-          <h4 class="modal-title fw-bold">Contact Updated</h4>
-        </div>
-        <div class="modal-body">
-          Contact details have been saved successfully.
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="okbtn fw-semibold"
-            data-bs-dismiss="modal"
-          >
-            Okay
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 
   <!-- Success Modal: Edited Contact -->
   {% if contact_updated %}
@@ -588,13 +547,6 @@
         document.getElementById("deleteContactModal"),
       );
       modal.show();
-    }
-
-    // --- Triggers Edit Contact Confirmation Modal---
-    function openEditModal() {
-      const modalEl = document.getElementById("editContactModal");
-      if (!modalEl || !window.bootstrap) return;
-      new bootstrap.Modal(modalEl).show();
     }
 
     // --- Triggers Delete Chat History Success Modal ---

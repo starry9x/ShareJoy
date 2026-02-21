@@ -321,15 +321,15 @@ def onlytime(dt):
 @login_required
 def messages():
     user = get_current_user()
-    search = request.args.get("search", "")
-    status_filter = request.args.get("status")
-    contact_updated = request.args.get("contact_updated", False)
-    contact_created = request.args.get("contact_created", False)
-    contact_deleted = request.args.get("contact_deleted", False)
-    chat_history_deleted = request.args.get("chat_history_deleted", False)
+    search = request.args.get("search", "").strip()
+    status_filter = request.args.get("status", "").strip()
+    contact_updated = request.args.get("contact_updated", "false").lower() == "true"
+    contact_created = request.args.get("contact_created", "false").lower() == "true"
+    contact_deleted = request.args.get("contact_deleted", "false").lower() == "true"
+    chat_history_deleted = request.args.get("chat_history_deleted", "false").lower() == "true"
 
     # -------------------------
-    # 1️⃣ Saved contacts
+    # Saved contacts
     # -------------------------
     contacts_query = db.session.query(
         Contact,
@@ -372,8 +372,8 @@ def messages():
     contacts = []
     contact_message_counts = {}
     contact_unread_counts = {}
-    contact_my_message_counts = {}
-    for c, msg_count, last_chat, unread_count in contacts_raw:   # ✅ use last_chat
+    contact_my_message_counts = {}   # ✅ add back
+    for c, msg_count, last_chat, unread_count in contacts_raw:
         c.last_chat = last_chat
         contacts.append(c)
         contact_message_counts[c.id] = msg_count
@@ -381,7 +381,7 @@ def messages():
         my_count = Message.query.filter(
             (Message.sender_id == user.id) & (Message.receiver_id == c.contact_user_id)
         ).count()
-        contact_my_message_counts[c.id] = my_count
+        contact_my_message_counts[c.id] = my_count   # ✅ add back
 
     if search:
         contacts = [c for c in contacts if search.lower() in c.display_name.lower()]
@@ -389,7 +389,7 @@ def messages():
     contacts.sort(key=lambda c: c.last_chat or datetime.min, reverse=True)
 
     # -------------------------
-    # 2️⃣ Unknown users
+    # Unknown users
     # -------------------------
     contact_ids_subquery = db.session.query(Contact.contact_user_id).filter(
         Contact.owner_user_id == user.id
@@ -402,7 +402,7 @@ def messages():
             db.case(
                 (Message.sender_id == user.id, Message.timestamp)
             )
-        ).label('last_chat'),   # ✅ already named last_chat
+        ).label('last_chat'),
         db.func.sum(
             db.case(
                 (Message.receiver_id == user.id,
@@ -430,8 +430,8 @@ def messages():
     unknown_users = []
     unknown_message_counts = {}
     unknown_unread_counts = {}
-    unknown_my_message_counts = {}
-    for u, msg_count, last_chat, unread_count in unknown_raw:   # ✅ use last_chat
+    unknown_my_message_counts = {}   # ✅ add back
+    for u, msg_count, last_chat, unread_count in unknown_raw:
         u.last_chat = last_chat
         unknown_users.append(u)
         unknown_message_counts[u.id] = msg_count
@@ -439,7 +439,7 @@ def messages():
         my_count = Message.query.filter(
             (Message.sender_id == user.id) & (Message.receiver_id == u.id)
         ).count()
-        unknown_my_message_counts[u.id] = my_count
+        unknown_my_message_counts[u.id] = my_count   # ✅ add back
 
     if search:
         unknown_users = [u for u in unknown_users if search.lower() in (u.full_name or '').lower()]
@@ -447,7 +447,7 @@ def messages():
     unknown_users.sort(key=lambda u: u.last_chat or datetime.min, reverse=True)
 
     # -------------------------
-    # 3️⃣ Messages search results
+    # Messages search results
     # -------------------------
     search_results = []
     if search:
@@ -457,18 +457,18 @@ def messages():
         ).order_by(Message.timestamp.desc()).all()
 
     # -------------------------
-    # 4️⃣ Render
+    # Render
     # -------------------------
     return render_template(
         "messages.html",
         contacts=contacts,
         contact_message_counts=contact_message_counts,
         contact_unread_counts=contact_unread_counts,
-        contact_my_message_counts=contact_my_message_counts,
+        contact_my_message_counts=contact_my_message_counts,   # ✅ add back
         unknown_users=unknown_users,
         unknown_message_counts=unknown_message_counts,
         unknown_unread_counts=unknown_unread_counts,
-        unknown_my_message_counts=unknown_my_message_counts,
+        unknown_my_message_counts=unknown_my_message_counts,   # ✅ add back
         search_results=search_results,
         title="Messages",
         contact_updated=contact_updated,
@@ -538,9 +538,8 @@ def create_contact():
             db.session.add(new_contact)
             db.session.commit()
             return redirect(url_for("messages", contact_created=True))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"An error occurred: {str(e)}", "error")
             return render_template(
                 "create_contact.html",
                 display_name=display_name,
@@ -589,13 +588,13 @@ def edit_contact(contact_id):
         try:
             db.session.commit()
             return redirect(url_for('messages', contact_updated=True))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash(f"An error occurred: {str(e)}", "error")
             return redirect(url_for('edit_contact', contact_id=contact_id))
 
     # GET request
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
+
 
 @app.route('/delete_contact/<int:contact_id>', methods=['POST'])
 @login_required
@@ -606,7 +605,7 @@ def delete_contact(contact_id):
     if contact.owner_user_id != user.id:
         abort(403)
 
-    # Instead of bulk delete, delete message objects individually
+    # Delete associated messages
     messages_to_delete = Message.query.filter(
         ((Message.sender_id == user.id) & (Message.receiver_id == contact.contact_user_id)) |
         ((Message.sender_id == contact.contact_user_id) & (Message.receiver_id == user.id))
@@ -615,8 +614,15 @@ def delete_contact(contact_id):
     for msg in messages_to_delete:
         db.session.delete(msg)
 
+    # Delete the contact
     db.session.delete(contact)
-    db.session.commit()
+
+    try:
+        db.session.commit()
+        return redirect(url_for('messages', contact_deleted=True))
+    except Exception:
+        db.session.rollback()
+        return redirect(url_for('messages'))
 
 
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
