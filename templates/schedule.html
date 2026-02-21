@@ -41,6 +41,7 @@
     </div>
     <div class="sectionbox4 mx-auto border-0">
         <div class="row">
+            {% if upcoming_week_activities %}
             {% for activity in upcoming_week_activities %}
             <div class="col-12 card-spacing">
                 <div class="activity-card position-relative">
@@ -145,6 +146,13 @@
                 </div>
             </div>
             {% endfor %}
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center fw-semibold">
+                    No upcoming activities this week.
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -156,6 +164,7 @@
     </div>
     <div class="sectionbox4 mx-auto border-0">
         <div class="row">
+            {% if other_activities %}
             {% for activity in other_activities %}
             <div class="col-12 card-spacing">
                 <div class="activity-card position-relative">
@@ -261,6 +270,13 @@
                 </div>
             </div>
             {% endfor %}
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center fw-semibold">
+                    No other scheduled activities found.
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
     <!-- Confirm Overlay -->
