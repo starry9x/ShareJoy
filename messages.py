@@ -50,16 +50,15 @@ class Contact(db.Model):
         'Message',
         foreign_keys='Message.sender_id',
         primaryjoin='Contact.owner_user_id == Message.sender_id',
-        backref='sender_contact',
+        backref=db.backref('sender_contact', passive_deletes=True),
         lazy='dynamic'
     )
 
-    # Messages received by the owner from the contact
     messages_received = db.relationship(
         'Message',
         foreign_keys='Message.receiver_id',
         primaryjoin='Contact.owner_user_id == Message.receiver_id',
-        backref='receiver_contact',
+        backref=db.backref('receiver_contact', passive_deletes=True),
         lazy='dynamic'
     )
 
@@ -80,6 +79,13 @@ class Contact(db.Model):
              (Message.receiver_id == self.owner_user_id))
         ).count()
     
+    def get_my_message_count(self):
+        """Count messages sent by the owner to this contact"""
+        return Message.query.filter(
+            (Message.sender_id == self.owner_user_id) &
+            (Message.receiver_id == self.contact_user_id)
+        ).count()
+
     def get_unread_count(self):
         """Count unread messages received by the owner from this contact"""
         return Message.query.filter(
@@ -87,6 +93,7 @@ class Contact(db.Model):
             (Message.receiver_id == self.owner_user_id) &
             (Message.status != "Read")
         ).count()
+    
     
     @property
     def messages(self):

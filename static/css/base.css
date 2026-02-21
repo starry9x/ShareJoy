@@ -17,8 +17,7 @@ body {
 /* Search bar input */
 .searchbar {
   background-color: transparent !important;
-  border: none !important;
-  min-width: 420px !important;   
+  border: none !important;  
   flex: 1 !important;    
 }
 
@@ -27,8 +26,10 @@ body {
   background-color: #FFDCB7;
   color: #582D00;
   border: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 6px #00000014;
   font-weight: 600;
+  height: 100%;              /* ✅ match input height */
+  border-radius: 0 10px 10px 0; /* ✅ rounded right edge */
 }
 
 .search-btn:hover {
@@ -47,6 +48,8 @@ body {
 .box2 {
     background-color: #fff;
     border-radius: 10px !important;
+    max-height: 40px;
+    min-width: 430px !important; 
 }
 
 .filters {
@@ -218,10 +221,17 @@ h2 {
     border-radius: 10px;
 }
 
-.search-btn,
 #toggle-filters {
     background: #FFDCB7;
     color: #582D00;
+}
+
+.search-btn {
+  background-color: #FFDCB7;
+  color: #582D00;
+  border: none;
+  box-shadow: 0 4px 6px #00000014;
+  font-weight: 600;
 }
 
 .search-btn:hover,
