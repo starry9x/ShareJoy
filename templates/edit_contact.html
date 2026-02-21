@@ -47,7 +47,7 @@
         <!-- Buttons -->
         <div class="d-flex justify-content-end gap-2">
           <a href="{{ url_for('messages') }}" class="btn cancelbtn fw-semibold">Cancel</a>
-          <button type="button" class="btn dobtn fw-semibold" onclick="openSaveModal()" disabled>
+          <button type="button" class="btn dobtn fw-semibold" onclick="openSaveModal()">
             Save Changes
           </button>
         </div>
@@ -83,7 +83,6 @@
 <script>
 function validateFields(showErrors = true) {
   const nameInput = document.getElementById('display_name');
-  const saveButton = document.querySelector('.dobtn');
 
   let isValid = true;
 
@@ -98,8 +97,7 @@ function validateFields(showErrors = true) {
     isValid = false;
   }
 
-  saveButton.disabled = !isValid;
-  return isValid;
+  return isValid; // Only returns validity (no button disabling)
 }
 
 function openSaveModal() {
