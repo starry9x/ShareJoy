@@ -751,7 +751,6 @@ def delete_chat_history(entity_id):
     # If neither, abort
     abort(404)
 
-
 @app.route('/update_message/<int:message_id>', methods=['POST'])
 @login_required
 def update_message(message_id):

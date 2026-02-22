@@ -500,44 +500,46 @@
     });
   });
 
-  // --- Message Status filter: active state + auto submit ---
-  document.addEventListener("DOMContentLoaded", function () {
-    const filterButtons = document.querySelectorAll(".filter-option");
-    const clearFiltersDiv = document.getElementById("clear-filters");
-    const statusInput = document.getElementById("status-filter");
-    const form = document.getElementById("search-form");
+// --- Message Status filter: active state + auto submit ---
+document.addEventListener("DOMContentLoaded", function () {
+  const filterButtons = document.querySelectorAll(".filter-option");
+  const clearFiltersDiv = document.getElementById("clear-filters");
+  const statusInput = document.getElementById("status-filter");
+  const searchInput = document.querySelector("input[name='search']");
+  const form = document.getElementById("search-form");
 
-    // Show clear filter automatically if status already applied (page load)
-    if (statusInput.value !== "") {
-      clearFiltersDiv.classList.remove("d-none");
-    }
+  // Show clear filter if status OR search is applied (page load)
+  if (statusInput.value !== "" || searchInput.value.trim() !== "") {
+    clearFiltersDiv.classList.remove("d-none");
+  }
 
-    filterButtons.forEach((button) => {
-      button.addEventListener("click", function () {
-        const isActive = button.classList.contains("active");
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      const isActive = button.classList.contains("active");
 
-        // Remove active from siblings
-        const siblings =
-          button.parentElement.querySelectorAll(".filter-option");
-        siblings.forEach((sib) => sib.classList.remove("active"));
+      // Remove active from siblings
+      const siblings = button.parentElement.querySelectorAll(".filter-option");
+      siblings.forEach((sib) => sib.classList.remove("active"));
 
-        if (isActive) {
-          // Toggle OFF
-          button.classList.remove("active");
-          statusInput.value = "";
-          clearFiltersDiv.classList.add("d-none");
-        } else {
-          // Toggle ON
-          button.classList.add("active");
-          statusInput.value = button.dataset.status;
-          clearFiltersDiv.classList.remove("d-none");
-        }
+      if (isActive) {
+        button.classList.remove("active");
+        statusInput.value = "";
+      } else {
+        button.classList.add("active");
+        statusInput.value = button.dataset.status;
+      }
 
-        // Auto submit filter immediately
-        form.submit();
-      });
+      // Show/hide clear button depending on filters OR search
+      if (statusInput.value !== "" || searchInput.value.trim() !== "") {
+        clearFiltersDiv.classList.remove("d-none");
+      } else {
+        clearFiltersDiv.classList.add("d-none");
+      }
+
+      form.submit();
     });
   });
+});
 
   //---  Triggers Delete Contact Confirmation Modal----
   function openDeleteModal(contactId) {
