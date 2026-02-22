@@ -123,53 +123,55 @@ function validateFields(showErrors = true) {
 
   let isValid = true;
 
-  // Display name validation
   const nameValue = displayNameInput.value.trim();
+  const contactId = contactIdInput.value.trim();
+
+  // Display name validation
   const isNameValid = nameValue && nameValue.length <= 35;
   const isNameUnique = nameValue && !existingDisplayNames.includes(nameValue);
 
   if (nameValue && !isNameValid && showErrors && nameTouched) {
     displayNameError.style.display = 'block';
     isValid = false;
-  }
-  if (nameValue && !isNameUnique && showErrors && nameTouched) {
+  } else if (nameValue && !isNameUnique && showErrors && nameTouched) {
     duplicateNameError.style.display = 'block';
     isValid = false;
   }
 
   // Contact ID validation
-  if ((contactIdTouched || showErrors) && contactIdInput.value.trim()) {
-    const contactId = contactIdInput.value.trim();
+  if ((contactIdTouched || showErrors) && contactId) {
     if (existingContacts.includes(contactId)) {
       duplicateError.style.display = 'block';
       isValid = false;
-    }
-    if (contactId === currentUserId) {
+    } else if (contactId === currentUserId) {
       selfError.style.display = 'block';
       isValid = false;
-    }
-    if (!validUserIds.includes(contactId)) {
+    } else if (!validUserIds.includes(contactId)) {
       invalidError.style.display = 'block';
       isValid = false;
     }
   }
 
+  // Require both fields to be filled
+  const hasName = nameValue.length > 0;
+  const hasContactId = contactId.length > 0;
+
   // Update button state
-  submitBtn.disabled = !(isNameValid && isNameUnique && !duplicateError.style.display && !selfError.style.display && !invalidError.style.display);
-  return isNameValid && isNameUnique && isValid;
+  submitBtn.disabled = !(hasName && hasContactId && isValid);
+
+  return isValid;
 }
+
 
 // Track field interactions
 displayNameInput.addEventListener('input', () => {
   nameTouched = true;
-  debounceValidation(false);
-  validateFields(true);
+  validateFields(true);   // run immediately
 });
 
 contactIdInput.addEventListener('input', () => {
   contactIdTouched = true;
-  debounceValidation(false);
-  validateFields(true);
+  validateFields(true);   // run immediately
 });
 
 // Show errors when leaving a field (always)
