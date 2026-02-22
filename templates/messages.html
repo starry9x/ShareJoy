@@ -104,6 +104,11 @@
         >
           <i class="fa-solid fa-filter"></i> Filter
         </button>
+        <div id="clear-filters" class="mt-3 text-start d-none">
+          <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold"
+            >Clear filter</a
+          >
+        </div>
       </div>
       <!-- Filters Panel -->
       <div id="filters-container" class="mt-3 d-none">
@@ -125,11 +130,6 @@
               ✅ Read
             </button>
           </div>
-        </div>
-        <div id="clear-filters" class="mt-3 text-start d-none">
-          <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold"
-            >Clear filter</a
-          >
         </div>
       </div>
     </div>
