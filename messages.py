@@ -166,3 +166,5 @@ class Message(db.Model):
         backref=db.backref('received_messages', lazy='dynamic', overlaps='messages_received,receiver_contact'),
         overlaps='messages_received,receiver_contact'
     )
+    
+# This was coded by Kwok Xuan Hui Alyssa, 252914T

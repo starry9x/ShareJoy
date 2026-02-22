@@ -296,7 +296,7 @@ def home():
     return render_template("homepage.html", title="Home")
 
 # ============================================
-# MESSAGES ROUTES
+# MESSAGES ROUTES (These routes belong to by Kwok Xuan Hui Alyssa, 252914T)
 # ============================================
 
 @app.template_filter("sgtime")
