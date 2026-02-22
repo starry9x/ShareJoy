@@ -166,6 +166,7 @@
             {% endif %}
           </div>
         </div>
+        <!-- More actions dropdown -->
         <div
           class="dropdown-wrapper position-relative"
           onclick="event.stopPropagation()"
@@ -290,7 +291,6 @@
             </button>
           </div>
         </div>
-        <!-- End dropdown -->
       </div>
     </div>
     {% endfor %} {% else %}
@@ -302,7 +302,7 @@
     {% endif %}
   </div>
 
-  <!-- Modals -->
+<!-- Modals -->
 
  <!-- Confirmation Modal: Delete Contact -->
 <div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactLabel" aria-hidden="true">
@@ -460,152 +460,135 @@
   </div>
 </div>
 {% endblock %} {% block extra_js %}
-  <script>
-    // --- 'More actions' dropdown  ---
-    function toggleDropdown(button) {
-      const wrapper = button.closest("div");
-      const menu = wrapper.querySelector(".more-actions-menu");
-      const chevron = wrapper.querySelector(".chevron-icon");
+<script>
+  // 'More actions' dropdown  
+  function toggleDropdown(button) {
+    const wrapper = button.closest("div");
+    const menu = wrapper.querySelector(".more-actions-menu");
+    const chevron = wrapper.querySelector(".chevron-icon");
 
-      if (!menu || !chevron) return;
+    if (!menu || !chevron) return;
 
-      const isOpen = !menu.classList.contains("d-none");
-      if (isOpen) {
-        menu.classList.add("d-none");
-        chevron.classList.remove("rotate-up");
-      } else {
-        menu.classList.remove("d-none");
-        chevron.classList.add("rotate-up");
-      }
+    const isOpen = !menu.classList.contains("d-none");
+    if (isOpen) {
+      menu.classList.add("d-none");
+      chevron.classList.remove("rotate-up");
+    } else {
+      menu.classList.remove("d-none");
+      chevron.classList.add("rotate-up");
+    }
+  }
+
+  // --- Filters toggle with sessionStorage (remembers state) ---
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.getElementById("toggle-filters");
+    const filters = document.getElementById("filters-container");
+
+    if (!toggleBtn || !filters) return;
+
+    // restore state
+    if (sessionStorage.getItem("filtersOpen") === "true") {
+      filters.classList.remove("d-none");
     }
 
-    // --- Filters toggle with sessionStorage (remembers state) ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const toggleBtn = document.getElementById("toggle-filters");
-      const filters = document.getElementById("filters-container");
-
-      if (!toggleBtn || !filters) return;
-
-      // restore state
-      if (sessionStorage.getItem("filtersOpen") === "true") {
-        filters.classList.remove("d-none");
-      }
-
-      toggleBtn.addEventListener("click", function () {
-        filters.classList.toggle("d-none");
-        sessionStorage.setItem(
-          "filtersOpen",
-          !filters.classList.contains("d-none"),
-        );
-      });
-    });
-
-    // --- Message Status filter: active state + auto submit ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const filterButtons = document.querySelectorAll(".filter-option");
-      const clearFiltersDiv = document.getElementById("clear-filters");
-      const statusInput = document.getElementById("status-filter");
-      const form = document.getElementById("search-form");
-
-      // Show clear filter automatically if status already applied (page load)
-      if (statusInput.value !== "") {
-        clearFiltersDiv.classList.remove("d-none");
-      }
-
-      filterButtons.forEach((button) => {
-        button.addEventListener("click", function () {
-          const isActive = button.classList.contains("active");
-
-          // Remove active from siblings
-          const siblings =
-            button.parentElement.querySelectorAll(".filter-option");
-          siblings.forEach((sib) => sib.classList.remove("active"));
-
-          if (isActive) {
-            // Toggle OFF
-            button.classList.remove("active");
-            statusInput.value = "";
-            clearFiltersDiv.classList.add("d-none");
-          } else {
-            // Toggle ON
-            button.classList.add("active");
-            statusInput.value = button.dataset.status;
-            clearFiltersDiv.classList.remove("d-none");
-          }
-
-          // Auto submit filter immediately
-          form.submit();
-        });
-      });
-    });
-
-    //---  Triggers Delete Contact Confirmation Modal----
-    function openDeleteModal(contactId) {
-      const form = document.getElementById("deleteContactForm");
-      form.action = `/delete_contact/${contactId}`;
-      const modal = new bootstrap.Modal(
-        document.getElementById("deleteContactModal"),
+    toggleBtn.addEventListener("click", function () {
+      filters.classList.toggle("d-none");
+      sessionStorage.setItem(
+        "filtersOpen",
+        !filters.classList.contains("d-none"),
       );
-      modal.show();
+    });
+  });
+
+  // --- Message Status filter: active state + auto submit ---
+  document.addEventListener("DOMContentLoaded", function () {
+    const filterButtons = document.querySelectorAll(".filter-option");
+    const clearFiltersDiv = document.getElementById("clear-filters");
+    const statusInput = document.getElementById("status-filter");
+    const form = document.getElementById("search-form");
+
+    // Show clear filter automatically if status already applied (page load)
+    if (statusInput.value !== "") {
+      clearFiltersDiv.classList.remove("d-none");
     }
 
-    // --- Triggers Delete Chat History Success Modal ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const chatHistoryDeletedModal = document.getElementById(
-        "deleteChatHistorySuccessModal",
-      );
-      if (chatHistoryDeletedModal) {
-        new bootstrap.Modal(chatHistoryDeletedModal).show();
-      }
-    });
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const isActive = button.classList.contains("active");
 
-    // --- Triggers Successfully Edit Contact Modal ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const modal = document.getElementById("editContactSuccessModal");
+        // Remove active from siblings
+        const siblings =
+          button.parentElement.querySelectorAll(".filter-option");
+        siblings.forEach((sib) => sib.classList.remove("active"));
+
+        if (isActive) {
+          // Toggle OFF
+          button.classList.remove("active");
+          statusInput.value = "";
+          clearFiltersDiv.classList.add("d-none");
+        } else {
+          // Toggle ON
+          button.classList.add("active");
+          statusInput.value = button.dataset.status;
+          clearFiltersDiv.classList.remove("d-none");
+        }
+
+        // Auto submit filter immediately
+        form.submit();
+      });
+    });
+  });
+
+  //---  Triggers Delete Contact Confirmation Modal----
+  function openDeleteModal(contactId) {
+    const form = document.getElementById("deleteContactForm");
+    form.action = `/delete_contact/${contactId}`;
+    const modal = new bootstrap.Modal(
+      document.getElementById("deleteContactModal"),
+    );
+    modal.show();
+  }
+
+  // --- Consolidated Success Modals ---
+  document.addEventListener("DOMContentLoaded", function () {
+    const successModals = [
+      "editContactSuccessModal",
+      "createContactSuccessModal",
+      "deleteContactSuccessModal",
+      "deleteChatHistorySuccessModal"
+    ];
+
+    successModals.forEach(modalId => {
+      const modal = document.getElementById(modalId);
       if (modal) {
         new bootstrap.Modal(modal).show();
       }
     });
+  });
 
-    // --- Triggers Successfully Create Contact Modal ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const createdModal = document.getElementById("createContactSuccessModal");
-      if (createdModal) {
-        new bootstrap.Modal(createdModal).show();
-      }
-    });
+  // --- Triggers reusable 'Delete chat history'modal ---
+  function openDeleteChatHistoryConfirmModal(entityId, displayName, isContact = false) {
+    // Update form action dynamically
+    const form = document.getElementById("deleteChatHistoryForm");
+    form.action = `/delete_chat_history/${entityId}`;
 
-    // --- Triggers Successfully Deleted Contact Modal ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const deletedModal = document.getElementById("deleteContactSuccessModal");
-      if (deletedModal) {
-        new bootstrap.Modal(deletedModal).show();
-      }
-    });
+    // Update modal body dynamically
+    const body = document.getElementById("deleteChatHistoryBody");
 
-  // --- Triggers Delete Chat History Confirmation Modal ---
-function openDeleteChatHistoryConfirmModal(entityId, displayName, isContact = false) {
-  // Update form action dynamically
-  const form = document.getElementById("deleteChatHistoryForm");
-  form.action = `/delete_chat_history/${entityId}`;
+    if (isContact) {
+      // Show the contact's name
+      body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with ${displayName}?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
+    } else {
+      // Generic wording for unadded users
+      body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with this unadded user?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
+    }
 
-  // Update modal body dynamically
-  const body = document.getElementById("deleteChatHistoryBody");
-
-  if (isContact) {
-    // Show the contact's name
-    body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with ${displayName}?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
-  } else {
-    // Generic wording for unadded users
-    body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with this unadded user?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
+    // Show the reusable 'Delete chat history' modal
+    const modal = new bootstrap.Modal(document.getElementById("deleteChatHistoryConfirmModal"));
+    modal.show();
   }
 
-  // Show the reusable modal
-  const modal = new bootstrap.Modal(document.getElementById("deleteChatHistoryConfirmModal"));
-  modal.show();
-}
-
-// --- Note to self: Trigger is automatic / same for all → DOMContentLoaded, Trigger is user action / specific instance → function ---
-  </script>
+  // --- Note to self: Trigger is automatic / same for all → DOMContentLoaded, Trigger is user action / specific instance → function ---
+</script>
   {% endblock %}
 </div>
