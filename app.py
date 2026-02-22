@@ -372,7 +372,7 @@ def messages():
     contacts = []
     contact_message_counts = {}
     contact_unread_counts = {}
-    contact_my_message_counts = {}   # ✅ add back
+    contact_my_message_counts = {}
     for c, msg_count, last_chat, unread_count in contacts_raw:
         c.last_chat = last_chat
         contacts.append(c)
@@ -381,8 +381,9 @@ def messages():
         my_count = Message.query.filter(
             (Message.sender_id == user.id) & (Message.receiver_id == c.contact_user_id)
         ).count()
-        contact_my_message_counts[c.id] = my_count   # ✅ add back
+        contact_my_message_counts[c.id] = my_count
 
+    # Update search logic to only filter contacts by display_name
     if search:
         contacts = [c for c in contacts if search.lower() in c.display_name.lower()]
 
@@ -430,7 +431,7 @@ def messages():
     unknown_users = []
     unknown_message_counts = {}
     unknown_unread_counts = {}
-    unknown_my_message_counts = {}   # ✅ add back
+    unknown_my_message_counts = {}
     for u, msg_count, last_chat, unread_count in unknown_raw:
         u.last_chat = last_chat
         unknown_users.append(u)
@@ -439,22 +440,9 @@ def messages():
         my_count = Message.query.filter(
             (Message.sender_id == user.id) & (Message.receiver_id == u.id)
         ).count()
-        unknown_my_message_counts[u.id] = my_count   # ✅ add back
-
-    if search:
-        unknown_users = [u for u in unknown_users if search.lower() in (u.full_name or '').lower()]
+        unknown_my_message_counts[u.id] = my_count
 
     unknown_users.sort(key=lambda u: u.last_chat or datetime.min, reverse=True)
-
-    # -------------------------
-    # Messages search results
-    # -------------------------
-    search_results = []
-    if search:
-        search_results = db.session.query(Message).filter(
-            (Message.sender_id == user.id) | (Message.receiver_id == user.id),
-            Message.content.ilike(f"%{search}%")
-        ).order_by(Message.timestamp.desc()).all()
 
     # -------------------------
     # Render
@@ -464,12 +452,11 @@ def messages():
         contacts=contacts,
         contact_message_counts=contact_message_counts,
         contact_unread_counts=contact_unread_counts,
-        contact_my_message_counts=contact_my_message_counts,   # ✅ add back
+        contact_my_message_counts=contact_my_message_counts,
         unknown_users=unknown_users,
         unknown_message_counts=unknown_message_counts,
         unknown_unread_counts=unknown_unread_counts,
-        unknown_my_message_counts=unknown_my_message_counts,   # ✅ add back
-        search_results=search_results,
+        unknown_my_message_counts=unknown_my_message_counts,
         title="Messages",
         contact_updated=contact_updated,
         contact_created=contact_created,
