@@ -9,6 +9,18 @@ input::placeholder {
   color: #582D00;
 }
 
+/* Clear Filters button Styling */
+.clearbtn{
+  min-height: 2.7rem !important;
+  font-size: larger;
+}
+
+@media (max-width: 768px) {
+  .clearbtn{
+    margin-top: 10px;
+  }
+}
+
 /* Contact Box Styling */
 .contact-box {
   width: 100%;
@@ -25,15 +37,14 @@ input::placeholder {
   background-color: #ffdbb4;
 }
 
-/* ✅ On smaller screens, reduce spacing */
 @media (max-width: 768px) {
   .contact-box {
-    margin: 10px auto;   /* less margin between boxes */
-    padding: 0.5rem;     /* tighter padding inside */
+    margin: 10px auto;   
+    padding: 0.5rem;     
   }
 
   .contact-box h1 {
-    font-size: 1.5rem;   /* shrink text a bit */
+    font-size: 1.5rem;   
     margin-bottom: 0.25rem;
   }
 
@@ -74,8 +85,8 @@ input::placeholder {
 
 /* More Actions Dropdown */
 .dropdown-wrapper {
-  position: relative;    /* anchor for absolute menu */
-  display: inline-block; /* keeps button/menu footprint consistent */
+  position: relative;    
+  display: inline-block; 
 }
 
 .more-actions-toggle {
@@ -137,20 +148,20 @@ input::placeholder {
   }
 
   .more-actions-menu {
-    min-width: 120px;       /* ✅ narrower menu */
+    min-width: 120px;       
     font-size: 0.9rem;      
     max-width: 150px;
   }
 
   .menu-item {
-    padding: 6px 10px;      /* ✅ tighter spacing */
+    padding: 6px 10px;      
     font-size: 0.9rem;
   }
 
   .chevron-icon {
     position: static;
     margin: 0;
-    margin-left: 0.25rem;      /* ✅ tighter spacing */
+    margin-left: 0.25rem;      
   }
 }
 
@@ -208,5 +219,5 @@ input::placeholder {
 
 /* Search Bar */
 .input-group {
-  width: 100%; /* makes the search bar take full width inside its flex parent */
+  width: 100%; 
 }

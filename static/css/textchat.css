@@ -304,6 +304,7 @@
     overflow-y: auto; 
   }
 }
+
 /* Edit Message Inline Form */
 .edit-form {
   display: none;

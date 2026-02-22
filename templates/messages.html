@@ -65,9 +65,7 @@
   >
     <div class="p-3 mb-3 rounded shadow-sm box1">
       <!-- Search and Filters -->
-      <div
-        class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2"
-      >
+      <div class="d-flex flex-column flex-md-row align-items-center gap-2">
         <form
           method="get"
           class="flex-grow-1 mb-2 mb-md-0 box2 rounded"
@@ -98,12 +96,19 @@
             </button>
           </div>
         </form>
-        <button
-          id="toggle-filters"
-          class="btn btn-lg fw-semibold mt-2 mt-md-0 ms-md-2"
-        >
-          <i class="fa-solid fa-filter"></i> Filter
-        </button>
+        <div class="d-flex flex-md-row align-items-center gap-2">
+          <button
+            id="toggle-filters"
+            class="btn btn-lg fw-semibold mt-2 mt-md-0 ms-md-2"
+          >
+            <i class="fa-solid fa-filter"></i> Show/Hide Filters
+          </button>
+          <div id="clear-filters" class="text-start d-none">
+            <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold"
+              >Clear search and filters</a
+            >
+          </div>
+        </div>
       </div>
       <!-- Filters Panel -->
       <div id="filters-container" class="mt-3 d-none">
@@ -126,11 +131,6 @@
             </button>
           </div>
         </div>
-        <div id="clear-filters" class="mt-3 text-start d-none">
-          <a href="{{ url_for('messages') }}" class="btn clearbtn fw-semibold"
-            >Clear filter</a
-          >
-        </div>
       </div>
     </div>
 
@@ -150,13 +150,10 @@
           <div>
             <h1 class="mb-1 me-5 brown">{{ contact.display_name }}</h1>
             <p class="mb-0 brown">
-              {% if contact_message_counts.get(contact.id, 0) == 0 and contact_my_message_counts.get(contact.id, 0) == 0 %}
-                  No conversations yet.
-              {% elif contact.last_chat %}
-                  You last texted them at {{ contact.last_chat|sgtime }}
-              {% else %}
-                  Conversation started. You haven’t replied yet.
-              {% endif %}
+              {% if not contact.last_chat %} No conversations yet. {% elif
+              contact_my_message_counts.get(contact.id, 0) > 0 %} You last
+              texted them at {{ contact.last_chat|sgtime }} {% else %}
+              Conversation started. You haven’t replied yet. {% endif %}
             </p>
             {% set unread = contact_unread_counts.get(contact.id, 0) %} {% if
             unread > 0 %}
@@ -166,6 +163,7 @@
             {% endif %}
           </div>
         </div>
+        <!-- More actions dropdown -->
         <div
           class="dropdown-wrapper position-relative"
           onclick="event.stopPropagation()"
@@ -239,13 +237,11 @@
           <div>
             <h1 class="mb-1 me-5 brown">{{ user.user_unique_id }}</h1>
             <p class="mb-0 brown">
-              {% if unknown_message_counts.get(user.id, 0) == 0 and unknown_my_message_counts.get(user.id, 0) == 0 %}
-                  No conversations yet.
-              {% elif user.last_chat %}
-                  You last texted them at {{ user.last_chat|sgtime }}
-              {% else %}
-                  Conversation started. You haven’t replied yet.
-              {% endif %}
+              {% if unknown_message_counts.get(user.id, 0) == 0 and
+              unknown_my_message_counts.get(user.id, 0) == 0 %} No conversations
+              yet. {% elif user.last_chat %} You last texted them at {{
+              user.last_chat|sgtime }} {% else %} Conversation started. You
+              haven’t replied yet. {% endif %}
             </p>
             {% set unread = unknown_unread_counts.get(user.id, 0) %} {% if
             unread > 0 %}
@@ -290,7 +286,6 @@
             </button>
           </div>
         </div>
-        <!-- End dropdown -->
       </div>
     </div>
     {% endfor %} {% else %}
@@ -304,26 +299,47 @@
 
   <!-- Modals -->
 
- <!-- Confirmation Modal: Delete Contact -->
-<div class="modal fade" id="deleteContactModal" tabindex="-1" aria-labelledby="deleteContactLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-2">
-      <div class="modal-header">
-        <h4 class="modal-title fw-bold" id="deleteContactLabel">Delete Contact</h4>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to delete this contact?<br />
-        <span class="fw-semibold text-danger">This action cannot be undone.</span>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn cancelbtn fw-semibold" data-bs-dismiss="modal">Cancel</button>
-        <form method="POST" id="deleteContactForm" action="">
-          <button type="submit" class="btn redbtn btn-sm fw-semibold shadow-sm">Delete Contact</button>
-        </form>
+  <!-- Confirmation Modal: Delete Contact -->
+  <div
+    class="modal fade"
+    id="deleteContactModal"
+    tabindex="-1"
+    aria-labelledby="deleteContactLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-2">
+        <div class="modal-header">
+          <h4 class="modal-title fw-bold" id="deleteContactLabel">
+            Delete Contact
+          </h4>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this contact?<br />
+          <span class="fw-semibold text-danger"
+            >This action cannot be undone.</span
+          >
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn cancelbtn fw-semibold"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <form method="POST" id="deleteContactForm" action="">
+            <button
+              type="submit"
+              class="btn redbtn btn-sm fw-semibold shadow-sm"
+            >
+              Delete Contact
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
   <!-- Success Modal: Edited Contact -->
   {% if contact_updated %}
@@ -353,7 +369,9 @@
       </div>
     </div>
   </div>
-  {% endif %} <!-- Success Modal: Created Contact --> {% if contact_created %}
+  {% endif %}
+  <!-- Success Modal: Created Contact -->
+  {% if contact_created %}
   <div
     class="modal fade"
     id="createContactSuccessModal"
@@ -408,8 +426,9 @@
       </div>
     </div>
   </div>
-  {% endif %} {% for contact in contacts %}
-  {% endfor %} <!-- Success Modal: Deleted Chat History --> {% if chat_history_deleted %}
+  {% endif %} {% for contact in contacts %} {% endfor %}
+  <!-- Success Modal: Deleted Chat History -->
+  {% if chat_history_deleted %}
   <div
     class="modal fade"
     id="deleteChatHistorySuccessModal"
@@ -436,32 +455,45 @@
       </div>
     </div>
   </div>
-  {% endif %} <div class="modal fade" id="deleteChatHistoryConfirmModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-2">
-      <div class="modal-header">
-        <h4 class="modal-title fw-bold">Delete Chat History</h4>
-      </div>
-      <div class="modal-body" id="deleteChatHistoryBody">
-        Are you sure you want to delete all messages?<br />
-        <span class="fw-semibold text-danger">This cannot be undone.</span>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn cancelbtn fw-semibold" data-bs-dismiss="modal">
-          Cancel
-        </button>
-        <form method="post" id="deleteChatHistoryForm">
-          <button type="submit" class="btn redbtn btn-sm fw-semibold shadow-sm">
-            Delete all messages
+  {% endif %}
+  <div
+    class="modal fade"
+    id="deleteChatHistoryConfirmModal"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-2">
+        <div class="modal-header">
+          <h4 class="modal-title fw-bold">Delete Chat History</h4>
+        </div>
+        <div class="modal-body" id="deleteChatHistoryBody">
+          Are you sure you want to delete all messages?<br />
+          <span class="fw-semibold text-danger">This cannot be undone.</span>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn cancelbtn fw-semibold"
+            data-bs-dismiss="modal"
+          >
+            Cancel
           </button>
-        </form>
+          <form method="post" id="deleteChatHistoryForm">
+            <button
+              type="submit"
+              class="btn redbtn btn-sm fw-semibold shadow-sm"
+            >
+              Delete all messages
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
-{% endblock %} {% block extra_js %}
+  {% endblock %} {% block extra_js %}
   <script>
-    // --- 'More actions' dropdown  ---
+    // 'More actions' dropdown
     function toggleDropdown(button) {
       const wrapper = button.closest("div");
       const menu = wrapper.querySelector(".more-actions-menu");
@@ -505,10 +537,11 @@
       const filterButtons = document.querySelectorAll(".filter-option");
       const clearFiltersDiv = document.getElementById("clear-filters");
       const statusInput = document.getElementById("status-filter");
+      const searchInput = document.querySelector("input[name='search']");
       const form = document.getElementById("search-form");
 
-      // Show clear filter automatically if status already applied (page load)
-      if (statusInput.value !== "") {
+      // Show clear filter if status OR search is applied (page load)
+      if (statusInput.value !== "" || searchInput.value.trim() !== "") {
         clearFiltersDiv.classList.remove("d-none");
       }
 
@@ -522,18 +555,20 @@
           siblings.forEach((sib) => sib.classList.remove("active"));
 
           if (isActive) {
-            // Toggle OFF
             button.classList.remove("active");
             statusInput.value = "";
-            clearFiltersDiv.classList.add("d-none");
           } else {
-            // Toggle ON
             button.classList.add("active");
             statusInput.value = button.dataset.status;
-            clearFiltersDiv.classList.remove("d-none");
           }
 
-          // Auto submit filter immediately
+          // Show/hide clear button depending on filters OR search
+          if (statusInput.value !== "" || searchInput.value.trim() !== "") {
+            clearFiltersDiv.classList.remove("d-none");
+          } else {
+            clearFiltersDiv.classList.add("d-none");
+          }
+
           form.submit();
         });
       });
@@ -549,63 +584,52 @@
       modal.show();
     }
 
-    // --- Triggers Delete Chat History Success Modal ---
+    // --- Consolidated Success Modals ---
     document.addEventListener("DOMContentLoaded", function () {
-      const chatHistoryDeletedModal = document.getElementById(
+      const successModals = [
+        "editContactSuccessModal",
+        "createContactSuccessModal",
+        "deleteContactSuccessModal",
         "deleteChatHistorySuccessModal",
+      ];
+
+      successModals.forEach((modalId) => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          new bootstrap.Modal(modal).show();
+        }
+      });
+    });
+
+    // --- Triggers reusable 'Delete chat history'modal ---
+    function openDeleteChatHistoryConfirmModal(
+      entityId,
+      displayName,
+      isContact = false,
+    ) {
+      // Update form action dynamically
+      const form = document.getElementById("deleteChatHistoryForm");
+      form.action = `/delete_chat_history/${entityId}`;
+
+      // Update modal body dynamically
+      const body = document.getElementById("deleteChatHistoryBody");
+
+      if (isContact) {
+        // Show the contact's name
+        body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with ${displayName}?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
+      } else {
+        // Generic wording for unadded users
+        body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with this unadded user?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
+      }
+
+      // Show the reusable 'Delete chat history' modal
+      const modal = new bootstrap.Modal(
+        document.getElementById("deleteChatHistoryConfirmModal"),
       );
-      if (chatHistoryDeletedModal) {
-        new bootstrap.Modal(chatHistoryDeletedModal).show();
-      }
-    });
+      modal.show();
+    }
 
-    // --- Triggers Successfully Edit Contact Modal ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const modal = document.getElementById("editContactSuccessModal");
-      if (modal) {
-        new bootstrap.Modal(modal).show();
-      }
-    });
-
-    // --- Triggers Successfully Create Contact Modal ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const createdModal = document.getElementById("createContactSuccessModal");
-      if (createdModal) {
-        new bootstrap.Modal(createdModal).show();
-      }
-    });
-
-    // --- Triggers Successfully Deleted Contact Modal ---
-    document.addEventListener("DOMContentLoaded", function () {
-      const deletedModal = document.getElementById("deleteContactSuccessModal");
-      if (deletedModal) {
-        new bootstrap.Modal(deletedModal).show();
-      }
-    });
-
-  // --- Triggers Delete Chat History Confirmation Modal ---
-function openDeleteChatHistoryConfirmModal(entityId, displayName, isContact = false) {
-  // Update form action dynamically
-  const form = document.getElementById("deleteChatHistoryForm");
-  form.action = `/delete_chat_history/${entityId}`;
-
-  // Update modal body dynamically
-  const body = document.getElementById("deleteChatHistoryBody");
-
-  if (isContact) {
-    // Show the contact's name
-    body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with ${displayName}?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
-  } else {
-    // Generic wording for unadded users
-    body.innerHTML = `Are you sure you want to delete <span class="fw-semibold text-danger">all messages</span> with this unadded user?<br /><span class="fw-semibold text-danger">This cannot be undone.</span>`;
-  }
-
-  // Show the reusable modal
-  const modal = new bootstrap.Modal(document.getElementById("deleteChatHistoryConfirmModal"));
-  modal.show();
-}
-
-// --- Note to self: Trigger is automatic / same for all → DOMContentLoaded, Trigger is user action / specific instance → function ---
+    // --- Note to self: Trigger is automatic / same for all → DOMContentLoaded, Trigger is user action / specific instance → function ---
   </script>
   {% endblock %}
 </div>

@@ -38,9 +38,6 @@ class Contact(db.Model):
     # When the contact was added
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Timestamp of the most recent message exchanged
-    last_chat = db.Column(db.DateTime)
-
     # Relationships
     owner = db.relationship('User', foreign_keys=[owner_user_id], backref='contacts')
     contact_user = db.relationship('User', foreign_keys=[contact_user_id])
@@ -94,6 +91,19 @@ class Contact(db.Model):
             (Message.status != "Read")
         ).count()
     
+    def get_last_visible_message(self):
+        """Return the most recent message after chat was cleared."""
+        query = Message.query.filter(
+            ((Message.sender_id == self.owner_user_id) &
+            (Message.receiver_id == self.contact_user_id)) |
+            ((Message.sender_id == self.contact_user_id) &
+            (Message.receiver_id == self.owner_user_id))
+        )
+
+        if self.chat_cleared_at:
+            query = query.filter(Message.timestamp > self.chat_cleared_at)
+
+        return query.order_by(Message.timestamp.desc()).first()
     
     @property
     def messages(self):
@@ -149,6 +159,7 @@ class Message(db.Model):
         backref=db.backref('sent_messages', lazy='dynamic', overlaps='messages_sent,sender_contact'),
         overlaps='messages_sent,sender_contact'
     )
+    
     receiver = db.relationship(
         'User',
         foreign_keys=[receiver_id],
