@@ -1,8 +1,8 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <!-- Header bar -->
-<div class="section-box d-flex flex-column flex-md-row justify-content-start align-items-start">
+<div
+  class="section-box d-flex flex-column flex-md-row justify-content-start align-items-start"
+>
   <a href="{{ url_for('messages') }}" class="btn btn-link p-0 me-3">
     <i class="fa-solid fa-arrow-left me-2"></i>
   </a>
@@ -22,16 +22,26 @@
   <!-- Inner card -->
   <div class="card shadow-sm sectionbox2 mx-auto">
     <div class="card-body">
-      <form method="POST" action="{{ url_for('create_contact') }}" id="createContactForm">
+      <form
+        method="POST"
+        action="{{ url_for('create_contact') }}"
+        id="createContactForm"
+      >
         <!-- Display Name -->
         <div class="mb-3">
           <label for="display_name" class="form-label fw-semibold">
             Display Name <span class="text-danger">*</span>
           </label>
-          <input type="text" class="form-control" id="display_name" name="display_name"
-                placeholder="Enter display name..."
-                value="{{ display_name }}"
-                required maxlength="35">
+          <input
+            type="text"
+            class="form-control"
+            id="display_name"
+            name="display_name"
+            placeholder="Enter display name..."
+            value="{{ display_name }}"
+            required
+            maxlength="35"
+          />
           <div class="error-message" id="displayNameError">
             Display name is required and must be under 35 characters.
           </div>
@@ -39,7 +49,7 @@
             This display name is already in your contacts.
           </div>
           {% if error and "display_name" in error %}
-            <div class="text-danger">{{ error["display_name"] }}</div>
+          <div class="text-danger">{{ error["display_name"] }}</div>
           {% endif %}
         </div>
 
@@ -48,12 +58,17 @@
           <label for="contact_user_unique_id" class="form-label fw-semibold">
             Enter User Unique ID <span class="text-danger">*</span>
           </label>
-          <input type="text" class="form-control" id="contact_user_unique_id" name="contact_user_unique_id"
-                placeholder="e.g. USR-0TX7LF"
-                value="{{ contact_user_unique_id }}"
-                required>
+          <input
+            type="text"
+            class="form-control"
+            id="contact_user_unique_id"
+            name="contact_user_unique_id"
+            placeholder="e.g. USR-0TX7LF"
+            value="{{ contact_user_unique_id }}"
+            required
+          />
           {% if error and "contact" in error %}
-            <div class="text-danger">{{ error["contact"] }}</div>
+          <div class="text-danger">{{ error["contact"] }}</div>
           {% endif %}
 
           <div class="error-message" id="duplicateError">
@@ -63,7 +78,7 @@
           <div class="error-message" id="selfError">
             You cannot add yourself as a contact.
           </div>
-          
+
           <div class="error-message" id="invalidError">
             No user found with that unique ID.
           </div>
@@ -71,15 +86,25 @@
 
         <!-- Short Description -->
         <div class="mb-3">
-          <label for="short_desc" class="form-label fw-semibold">Short Description (optional)</label>
-          <input type="text" class="form-control" id="short_desc" name="short_desc"
-                placeholder="Workshop partner, Grandma, etc."
-                value="{{ short_desc }}" maxlength="120">
+          <label for="short_desc" class="form-label fw-semibold"
+            >Short Description (optional)</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            id="short_desc"
+            name="short_desc"
+            placeholder="Workshop partner, Grandma, etc."
+            value="{{ short_desc }}"
+            maxlength="120"
+          />
         </div>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-end gap-2">
-          <a href="{{ url_for('messages') }}" class="btn cancelbtn fw-semibold">Cancel</a>
+          <a href="{{ url_for('messages') }}" class="btn cancelbtn fw-semibold"
+            >Cancel</a
+          >
           <button type="submit" class="btn dobtn fw-semibold" id="submitBtn">
             Create Contact
           </button>
@@ -88,114 +113,112 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-// Cache DOM elements
-const displayNameInput = document.getElementById('display_name');
-const contactIdInput = document.getElementById('contact_user_unique_id');
-const submitBtn = document.getElementById('submitBtn');
-const displayNameError = document.getElementById('displayNameError');
-const duplicateNameError = document.getElementById('duplicateNameError'); // ✅ new line
-const duplicateError = document.getElementById('duplicateError');
-const selfError = document.getElementById('selfError');
-const invalidError = document.getElementById('invalidError');
-const form = document.getElementById('createContactForm');
+  // Cache DOM elements
+  const displayNameInput = document.getElementById('display_name');
+  const contactIdInput = document.getElementById('contact_user_unique_id');
+  const submitBtn = document.getElementById('submitBtn');
+  const displayNameError = document.getElementById('displayNameError');
+  const duplicateNameError = document.getElementById('duplicateNameError'); // ✅ new line
+  const duplicateError = document.getElementById('duplicateError');
+  const selfError = document.getElementById('selfError');
+  const invalidError = document.getElementById('invalidError');
+  const form = document.getElementById('createContactForm');
 
-// Data
-const existingContacts = {{ existing_contact_ids|tojson }};
-const existingDisplayNames = {{ existing_display_names|tojson }}; // ✅ new array
-const currentUserId = "{{ current_user_unique_id }}";
-const validUserIds = {{ valid_user_ids|tojson }};
+  // Data
+  const existingContacts = {{ existing_contact_ids|tojson }};
+  const existingDisplayNames = {{ existing_display_names|tojson }}; // ✅ new array
+  const currentUserId = "{{ current_user_unique_id }}";
+  const validUserIds = {{ valid_user_ids|tojson }};
 
-// Track if fields have been touched
-let nameTouched = false;
-let contactIdTouched = false;
+  // Track if fields have been touched
+  let nameTouched = false;
+  let contactIdTouched = false;
 
-function validateFields(showErrors = true) {
-  // Reset all errors
-  displayNameError.style.display = 'none';
-  duplicateNameError.style.display = 'none';
-  duplicateError.style.display = 'none';
-  selfError.style.display = 'none';
-  invalidError.style.display = 'none';
+  function validateFields(showErrors = true) {
+    // Reset all errors
+    displayNameError.style.display = 'none';
+    duplicateNameError.style.display = 'none';
+    duplicateError.style.display = 'none';
+    selfError.style.display = 'none';
+    invalidError.style.display = 'none';
 
-  let isValid = true;
+    let isValid = true;
 
-  const nameValue = displayNameInput.value.trim();
-  const contactId = contactIdInput.value.trim();
+    const nameValue = displayNameInput.value.trim();
+    const contactId = contactIdInput.value.trim();
 
-  // Display name validation
-  const isNameValid = nameValue && nameValue.length <= 35;
-  const isNameUnique = nameValue && !existingDisplayNames.includes(nameValue);
+    // Display name validation
+    const isNameValid = nameValue && nameValue.length <= 35;
+    const isNameUnique = nameValue && !existingDisplayNames.includes(nameValue);
 
-  if (nameValue && !isNameValid && showErrors && nameTouched) {
-    displayNameError.style.display = 'block';
-    isValid = false;
-  } else if (nameValue && !isNameUnique && showErrors && nameTouched) {
-    duplicateNameError.style.display = 'block';
-    isValid = false;
-  }
-
-  // Contact ID validation
-  if ((contactIdTouched || showErrors) && contactId) {
-    if (existingContacts.includes(contactId)) {
-      duplicateError.style.display = 'block';
+    if (nameValue && !isNameValid && showErrors && nameTouched) {
+      displayNameError.style.display = 'block';
       isValid = false;
-    } else if (contactId === currentUserId) {
-      selfError.style.display = 'block';
-      isValid = false;
-    } else if (!validUserIds.includes(contactId)) {
-      invalidError.style.display = 'block';
+    } else if (nameValue && !isNameUnique && showErrors && nameTouched) {
+      duplicateNameError.style.display = 'block';
       isValid = false;
     }
+
+    // Contact ID validation
+    if ((contactIdTouched || showErrors) && contactId) {
+      if (existingContacts.includes(contactId)) {
+        duplicateError.style.display = 'block';
+        isValid = false;
+      } else if (contactId === currentUserId) {
+        selfError.style.display = 'block';
+        isValid = false;
+      } else if (!validUserIds.includes(contactId)) {
+        invalidError.style.display = 'block';
+        isValid = false;
+      }
+    }
+
+    // Require both fields to be filled
+    const hasName = nameValue.length > 0;
+    const hasContactId = contactId.length > 0;
+
+    // Update button state
+    submitBtn.disabled = !(hasName && hasContactId && isValid);
+
+    return isValid;
   }
 
-  // Require both fields to be filled
-  const hasName = nameValue.length > 0;
-  const hasContactId = contactId.length > 0;
 
-  // Update button state
-  submitBtn.disabled = !(hasName && hasContactId && isValid);
+  // Track field interactions
+  displayNameInput.addEventListener('input', () => {
+    nameTouched = true;
+    validateFields(true);   // run immediately
+  });
 
-  return isValid;
-}
+  contactIdInput.addEventListener('input', () => {
+    contactIdTouched = true;
+    validateFields(true);   // run immediately
+  });
 
+  // Show errors when leaving a field (always)
+  displayNameInput.addEventListener('blur', () => {
+    nameTouched = true;
+    validateFields(true);
+  });
 
-// Track field interactions
-displayNameInput.addEventListener('input', () => {
-  nameTouched = true;
-  validateFields(true);   // run immediately
-});
+  contactIdInput.addEventListener('blur', () => {
+    contactIdTouched = true;
+    validateFields(true);
+  });
 
-contactIdInput.addEventListener('input', () => {
-  contactIdTouched = true;
-  validateFields(true);   // run immediately
-});
+  // Final validation on submit
+  form.addEventListener('submit', (event) => {
+    nameTouched = true;
+    contactIdTouched = true;
 
-// Show errors when leaving a field (always)
-displayNameInput.addEventListener('blur', () => {
-  nameTouched = true;
-  validateFields(true);
-});
+    if (!validateFields(true)) {
+      event.preventDefault();
+    }
+  });
 
-contactIdInput.addEventListener('blur', () => {
-  contactIdTouched = true;
-  validateFields(true);
-});
-
-// Final validation on submit
-form.addEventListener('submit', (event) => {
-  nameTouched = true;
-  contactIdTouched = true;
-  
-  if (!validateFields(true)) {
-    event.preventDefault();
-  }
-});
-
-// Initial validation (don't show errors yet)
-validateFields(false);
+  // Initial validation (don't show errors yet)
+  validateFields(false);
 </script>
 {% endblock %}

@@ -635,7 +635,6 @@ def delete_contact(contact_id):
         db.session.rollback()
         return redirect(url_for('messages'))
 
-
 @app.route("/textchat/<int:contact_id>", methods=["GET", "POST"])
 def textchat(contact_id):
     if "user_id" not in session:
@@ -674,7 +673,7 @@ def textchat(contact_id):
     if not chat_user:
         abort(404)
 
-    # ✅ Handle sending message
+    # Handle sending message
     if request.method == "POST":
         content = request.form.get("content")
         if content and chat_user:
@@ -691,7 +690,7 @@ def textchat(contact_id):
             db.session.commit()
             return redirect(url_for("textchat", contact_id=contact_id))
 
-    # ✅ Load conversation with search support
+    # Load conversation with search support
     search = request.args.get("search", "").strip()
 
     base_query = Message.query.filter(

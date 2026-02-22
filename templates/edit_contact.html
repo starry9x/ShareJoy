@@ -1,11 +1,9 @@
-{% extends "base.html" %}
-
-{% block extra_css %}
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block extra_css %} {% endblock %} {% block content
+%}
 <!-- Header bar -->
-<div class="section-box d-flex flex-column flex-md-row justify-content-start align-items-start">
+<div
+  class="section-box d-flex flex-column flex-md-row justify-content-start align-items-start"
+>
   <a href="{{ url_for('messages') }}" class="btn btn-link p-0 me-3">
     <i class="fa-solid fa-arrow-left me-2"></i>
   </a>
@@ -23,14 +21,26 @@
 
   <div class="card shadow-sm sectionbox2 mx-auto">
     <div class="card-body">
-      <form method="POST" id="saveChangesForm" action="{{ url_for('edit_contact', contact_id=contact.id) }}">
+      <form
+        method="POST"
+        id="saveChangesForm"
+        action="{{ url_for('edit_contact', contact_id=contact.id) }}"
+      >
         <!-- Display Name -->
         <div class="mb-3">
-          <label for="display_name" class="form-label fw-semibold">Display Name <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="display_name" name="display_name"
-                value="{{ contact.display_name }}" 
-                required maxlength="35"
-                placeholder="Enter display name">
+          <label for="display_name" class="form-label fw-semibold"
+            >Display Name <span class="text-danger">*</span></label
+          >
+          <input
+            type="text"
+            class="form-control"
+            id="display_name"
+            name="display_name"
+            value="{{ contact.display_name }}"
+            required
+            maxlength="35"
+            placeholder="Enter display name"
+          />
           <div class="error-message" id="nameError">
             Display Name is required and must be under 35 characters.
           </div>
@@ -38,17 +48,31 @@
 
         <!-- Short Description -->
         <div class="mb-3">
-          <label for="short_desc" class="form-label fw-semibold">Short Description (optional)</label>
-          <input type="text" class="form-control" id="short_desc" name="short_desc"
-                value="{{ contact.short_desc or '' }}" 
-                placeholder="Workshop partner, Grandma, etc."
-                maxlength="120">
+          <label for="short_desc" class="form-label fw-semibold"
+            >Short Description (optional)</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            id="short_desc"
+            name="short_desc"
+            value="{{ contact.short_desc or '' }}"
+            placeholder="Workshop partner, Grandma, etc."
+            maxlength="120"
+          />
         </div>
 
         <!-- Buttons -->
         <div class="d-flex justify-content-end gap-2">
-          <a href="{{ url_for('messages') }}" class="btn cancelbtn fw-semibold">Cancel</a>
-          <button type="button" class="btn dobtn fw-semibold" onclick="openSaveModal()" disabled>
+          <a href="{{ url_for('messages') }}" class="btn cancelbtn fw-semibold"
+            >Cancel</a
+          >
+          <button
+            type="button"
+            class="btn dobtn fw-semibold"
+            onclick="openSaveModal()"
+            disabled
+          >
             Save Changes
           </button>
         </div>
@@ -58,76 +82,93 @@
 </div>
 
 <!-- Save Contact Modal -->
-<div class="modal fade" id="saveChangesModal" tabindex="-1" aria-labelledby="saveChangesLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="saveChangesModal"
+  tabindex="-1"
+  aria-labelledby="saveChangesLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-2">
       <div class="modal-header">
-        <h4 class="modal-title fw-bold" id="saveChangesLabel">Confirm Changes?</h4>
+        <h4 class="modal-title fw-bold" id="saveChangesLabel">
+          Confirm Changes?
+        </h4>
       </div>
       <div class="modal-body">
-        Are you sure you want to save these details for this contact?<br>
-        <span class="fw-semibold text-danger">Once saved, old details cannot be recovered.</span>
+        Are you sure you want to save these details for this contact?<br />
+        <span class="fw-semibold text-danger"
+          >Once saved, old details cannot be recovered.</span
+        >
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn cancelbtn fw-semibold" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn dobtn fw-semibold"
-            onclick="document.getElementById('saveChangesForm').submit()">
-            Save Changes
+        <button
+          type="button"
+          class="btn cancelbtn fw-semibold"
+          data-bs-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn dobtn fw-semibold"
+          onclick="document.getElementById('saveChangesForm').submit()"
+        >
+          Save Changes
         </button>
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-function validateFields(showErrors = true) {
-  const nameInput = document.getElementById('display_name');
-  const nameError = document.getElementById('nameError');
-  const saveButton = document.querySelector('.dobtn');
-  let isValid = true;
+  function validateFields(showErrors = true) {
+    const nameInput = document.getElementById("display_name");
+    const nameError = document.getElementById("nameError");
+    const saveButton = document.querySelector(".dobtn");
+    let isValid = true;
 
-  // Reset error
-  nameError.style.display = 'none';
+    // Reset error
+    nameError.style.display = "none";
 
-  // Validate display name
-  if (!nameInput.value.trim()) {
-    nameError.textContent = "Display name is required.";
-    isValid = false;
-  } else if (nameInput.value.length > 35) {
-    nameError.textContent = "Display name must be ≤ 35 characters.";
-    isValid = false;
+    // Validate display name
+    if (!nameInput.value.trim()) {
+      nameError.textContent = "Display name is required.";
+      isValid = false;
+    } else if (nameInput.value.length > 35) {
+      nameError.textContent = "Display name must be ≤ 35 characters.";
+      isValid = false;
+    }
+
+    // Show error if invalid (when showErrors=true)
+    if (!isValid && showErrors) {
+      nameError.style.display = "block";
+    }
+
+    // Update save button state
+    saveButton.disabled = !isValid;
+    return isValid;
   }
 
-  // Show error if invalid (when showErrors=true)
-  if (!isValid && showErrors) {
-    nameError.style.display = 'block';
+  function openSaveModal() {
+    if (validateFields(true)) {
+      new bootstrap.Modal(document.getElementById("saveChangesModal")).show();
+    }
   }
 
-  // Update save button state
-  saveButton.disabled = !isValid;
-  return isValid;
-}
+  // Initialize validation
+  document.addEventListener("DOMContentLoaded", function () {
+    const nameInput = document.getElementById("display_name");
 
-function openSaveModal() {
-  if (validateFields(true)) {
-    new bootstrap.Modal(document.getElementById('saveChangesModal')).show();
-  }
-}
+    // Validate on blur (show errors)
+    nameInput.addEventListener("blur", () => validateFields(true));
 
-// Initialize validation
-document.addEventListener('DOMContentLoaded', function() {
-  const nameInput = document.getElementById('display_name');
-  
-  // Validate on blur (show errors)
-  nameInput.addEventListener('blur', () => validateFields(true));
-  
-  // Validate while typing (don't show errors)
-  nameInput.addEventListener('input', () => validateFields(false));
-  
-  // Initial validation
-  validateFields(false);
-});
+    // Validate while typing (don't show errors)
+    nameInput.addEventListener("input", () => validateFields(false));
+
+    // Initial validation
+    validateFields(false);
+  });
 </script>
 {% endblock %}

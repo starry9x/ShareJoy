@@ -159,6 +159,7 @@ class Message(db.Model):
         backref=db.backref('sent_messages', lazy='dynamic', overlaps='messages_sent,sender_contact'),
         overlaps='messages_sent,sender_contact'
     )
+    
     receiver = db.relationship(
         'User',
         foreign_keys=[receiver_id],
