@@ -9,6 +9,18 @@ input::placeholder {
   color: #582D00;
 }
 
+/* Clear Filters button Styling */
+.clearbtn{
+  min-height: 2.7rem !important;
+  font-size: larger;
+}
+
+@media (max-width: 768px) {
+  .clearbtn{
+    margin-top: 10px;
+  }
+}
+
 /* Contact Box Styling */
 .contact-box {
   width: 100%;
