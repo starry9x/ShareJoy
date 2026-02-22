@@ -578,7 +578,23 @@ def edit_contact(contact_id):
     if request.method == 'POST':
         display_name = request.form.get('display_name', '').strip()
         short_desc = request.form.get('short_desc', '').strip()
-        message_status = request.form.get('message_status', 'Unread')
+        # Preserve existing status if not provided
+        message_status = request.form.get('message_status', contact.message_status)
+
+        # --- Server-side validation ---
+        errors = {}
+        if not display_name:
+            errors["display_name"] = "Display name is required."
+        elif len(display_name) > 35:
+            errors["display_name"] = "Display name must be under 35 characters."
+        else:
+            # Ensure uniqueness of display_name per owner
+            existing = Contact.query.filter_by(owner_user_id=user.id, display_name=display_name).first()
+            if existing and existing.id != contact.id:
+                errors["display_name"] = "This display name is already in your contacts."
+
+        if errors:
+            return render_template('edit_contact.html', contact=contact, error=errors, title="Edit Contact")
 
         # Update contact details
         contact.display_name = display_name
@@ -594,7 +610,6 @@ def edit_contact(contact_id):
 
     # GET request
     return render_template('edit_contact.html', contact=contact, title="Edit Contact")
-
 
 @app.route('/delete_contact/<int:contact_id>', methods=['POST'])
 @login_required
