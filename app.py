@@ -334,9 +334,6 @@ def messages():
     contacts_query = db.session.query(
         Contact,
         db.func.count(Message.id).label('message_count'),
-        db.func.max(
-            db.case((Message.sender_id == user.id, Message.timestamp))
-        ).label('last_chat'),
         db.func.sum(
             db.case(
                 (Message.receiver_id == Contact.owner_user_id,
@@ -373,14 +370,22 @@ def messages():
     contact_message_counts = {}
     contact_unread_counts = {}
     contact_my_message_counts = {}
-    for c, msg_count, last_chat, unread_count in contacts_raw:
-        c.last_chat = last_chat
+
+    for c, msg_count, unread_count in contacts_raw:
+
+        # 🔹 NEW: get last visible message properly
+        last_message = c.get_last_visible_message()
+        c.last_chat = last_message.timestamp if last_message else None
+
         contacts.append(c)
         contact_message_counts[c.id] = msg_count
         contact_unread_counts[c.id] = unread_count
+
         my_count = Message.query.filter(
-            (Message.sender_id == user.id) & (Message.receiver_id == c.contact_user_id)
+            (Message.sender_id == user.id) &
+            (Message.receiver_id == c.contact_user_id)
         ).count()
+
         contact_my_message_counts[c.id] = my_count
 
     # Update search logic to only filter contacts by display_name
@@ -390,7 +395,7 @@ def messages():
     contacts.sort(key=lambda c: c.last_chat or datetime.min, reverse=True)
 
     # -------------------------
-    # Unknown users
+    # Unknown users (UNCHANGED)
     # -------------------------
     contact_ids_subquery = db.session.query(Contact.contact_user_id).filter(
         Contact.owner_user_id == user.id
@@ -432,14 +437,18 @@ def messages():
     unknown_message_counts = {}
     unknown_unread_counts = {}
     unknown_my_message_counts = {}
+
     for u, msg_count, last_chat, unread_count in unknown_raw:
         u.last_chat = last_chat
         unknown_users.append(u)
         unknown_message_counts[u.id] = msg_count
         unknown_unread_counts[u.id] = unread_count
+
         my_count = Message.query.filter(
-            (Message.sender_id == user.id) & (Message.receiver_id == u.id)
+            (Message.sender_id == user.id) &
+            (Message.receiver_id == u.id)
         ).count()
+
         unknown_my_message_counts[u.id] = my_count
 
     unknown_users.sort(key=lambda u: u.last_chat or datetime.min, reverse=True)

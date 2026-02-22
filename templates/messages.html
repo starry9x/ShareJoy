@@ -151,9 +151,9 @@
           <div>
             <h1 class="mb-1 me-5 brown">{{ contact.display_name }}</h1>
             <p class="mb-0 brown">
-              {% if contact_message_counts.get(contact.id, 0) == 0 and contact_my_message_counts.get(contact.id, 0) == 0 %}
+              {% if not contact.last_chat %}
                   No conversations yet.
-              {% elif contact.last_chat %}
+              {% elif contact_my_message_counts.get(contact.id, 0) > 0 %}
                   You last texted them at {{ contact.last_chat|sgtime }}
               {% else %}
                   Conversation started. You haven’t replied yet.
